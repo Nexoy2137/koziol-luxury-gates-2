@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     images: ["/og-image.jpg"], // Zdjęcie, które wyświetli się przy wysyłaniu linku
   },
   robots: "index, follow",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 const geistSans = Geist({

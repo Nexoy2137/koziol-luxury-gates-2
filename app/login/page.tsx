@@ -1,5 +1,7 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
@@ -8,7 +10,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  // Jeśli użytkownik jest już zalogowany, od razu przenosimy do /admin
+  useEffect(() => {
+    async function checkSession() {
+      const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        router.replace('/admin');
+      }
+    }
+    checkSession();
+  }, [router]);
+
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) alert("Błąd logowania: " + error.message);
@@ -32,6 +45,18 @@ export default function LoginPage() {
         <button className="w-full bg-[#D4AF37] text-black font-bold py-3 uppercase tracking-widest hover:bg-[#b8962d]">
           Zaloguj się
         </button>
+
+        <div className="mt-6 flex flex-col items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-zinc-500">
+          <Link href="/" className="hover:text-[#D4AF37]">
+            ← Wróć na stronę główną
+          </Link>
+          <Link href="/konfigurator" className="hover:text-[#D4AF37]">
+            Przejdź do konfiguratora
+          </Link>
+          <Link href="/reset-hasla" className="hover:text-[#D4AF37] mt-2 text-[10px]">
+            Zapomniałem hasła
+          </Link>
+        </div>
       </form>
     </div>
   );

@@ -3,4 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Utrzymujemy sesję tylko na czas otwartej przeglądarki (sessionStorage),
+// dzięki czemu po zamknięciu przeglądarki wymagana jest ponowna autoryzacja.
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    storage:
+      typeof window !== 'undefined' ? window.sessionStorage : undefined,
+  },
+});
