@@ -44,7 +44,7 @@ export default function LokalizacjaPage() {
           </h2>
           <div className="h-[380px] w-full overflow-hidden rounded-2xl border border-zinc-800 bg-black">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d24355.229058309502!2d19.278379899999997!3d51.95999555!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x471bb003bb221dc3%3A0xfa4a2b1a1b13f88e!2sElizy%20Orzeszkowej%2036A%2C%2095-035%20Ozork%C3%B3w!5e1!3m2!1spl!2spl!4v1771612009734!5m2!1spl!2spl"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3045.2311407336433!2d19.274154776998984!3d51.94780947843452!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x471bb03dc2947b47%3A0x697cd38344b01a89!2sAdam%C3%B3wek%2041%2C%2095-035%20Ozork%C3%B3w!5e1!3m2!1spl!2spl!4v1772035763217!5m2!1spl!2spl"
               width="100%"
               height="100%"
               style={{ border: 0 }}
@@ -68,13 +68,13 @@ export default function LokalizacjaPage() {
                 <p>
                   Koziol Luxury Gates
                   <br />
-                  ul. Przykładowa 123
+                  ul. Adamówek 41
                   <br />
-                  00-035 Ozorków, Polska
+                  95-035 Ozorków, Polska
                 </p>
               </div>
               <p>
-                Wejście do showroomu znajduje się od strony parkingu. Na miejscu
+                Wejście do showroomu znajduje się na koncu uliczki. Na miejscu
                 dostępne są miejsca postojowe dla klientów.
               </p>
             </div>

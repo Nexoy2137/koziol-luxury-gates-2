@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Box, ShieldCheck, Ruler, LayoutGrid, Settings, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -64,7 +64,27 @@ const calculateConfigPrice = (c: Config): number => {
   return Math.round(total > 0 ? total : 0);
 };
 
+function KonfiguratorFallback() {
+  return (
+    <main className="min-h-screen bg-[#050505] text-white">
+      <MainHeader />
+      <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-24 md:px-8">
+        <Loader2 className="h-7 w-7 animate-spin text-[#D4AF37]" />
+      </div>
+      <MainFooter />
+    </main>
+  );
+}
+
 export default function KonfiguratorPage() {
+  return (
+    <Suspense fallback={<KonfiguratorFallback />}>
+      <KonfiguratorPageInner />
+    </Suspense>
+  );
+}
+
+function KonfiguratorPageInner() {
   const [loading, setLoading] = useState<boolean>(true);
   const [step, setStep] = useState<number>(1);
   const [dbPrices, setDbPrices] = useState<Price[]>([]);
@@ -100,9 +120,41 @@ export default function KonfiguratorPage() {
   });
 
   const [primaryConfig, setPrimaryConfig] = useState<Config | null>(null);
+  const [secondaryConfig, setSecondaryConfig] = useState<Config | null>(null);
+  const [activePairPart, setActivePairPart] = useState<"primary" | "secondary">(
+    "primary"
+  );
   const [askedSecondary, setAskedSecondary] = useState<boolean>(false);
 
   const [totalPrice, setTotalPrice] = useState(0);
+  const [forcePairFromUrl, setForcePairFromUrl] = useState<boolean>(false);
+  const [secondaryModelIdFromUrl, setSecondaryModelIdFromUrl] = useState<number | null>(null);
+
+  const isPairMode = !!primaryConfig && !!secondaryConfig;
+
+  // przy każdej zmianie aktywnej konfiguracji w trybie pary zapisujemy ją do właściwego elementu,
+  // żeby nie dało się "nadpisać" bramy furtką i odwrotnie
+  useEffect(() => {
+    if (!isPairMode) return;
+    if (activePairPart === "primary") setPrimaryConfig(config);
+    else setSecondaryConfig(config);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config, isPairMode, activePairPart]);
+
+  const persistActivePairConfig = (next: Config) => {
+    if (!primaryConfig) return;
+    if (activePairPart === "primary") setPrimaryConfig(next);
+    else setSecondaryConfig(next);
+  };
+
+  const switchActivePairPart = (nextPart: "primary" | "secondary", nextStep?: number) => {
+    if (!primaryConfig || !secondaryConfig) return;
+    // zapisz bieżące zmiany do właściwego slotu
+    persistActivePairConfig(config);
+    setActivePairPart(nextPart);
+    setConfig(nextPart === "primary" ? primaryConfig : secondaryConfig);
+    if (typeof nextStep === "number") setStep(nextStep);
+  };
 
   // odczytujemy ostatni czas wysłania i dzienny limit z localStorage (proste zabezpieczenie anty-spam)
   useEffect(() => {
@@ -267,19 +319,29 @@ export default function KonfiguratorPage() {
     fetchPrices();
   }, []);
 
+  // odczytujemy z URL czy użytkownik przyszedł z galerii z parą: brama+furtka
+  useEffect(() => {
+    const pair = searchParams.get("pair");
+    setForcePairFromUrl(pair === "brama+furtka");
+  }, [searchParams]);
+
   // Ustawienie modelu/materiału/kolorów na podstawie parametrów z URL (np. z galerii)
   useEffect(() => {
     if (!dbPrices.length) return;
 
     const modelId = searchParams.get("model_id");
+    const modelIdSecondary = searchParams.get("model_id_secondary");
     const materialId = searchParams.get("material_id");
     const product = searchParams.get("product");
     const steel = searchParams.get("steel");
     const ral = searchParams.get("ral");
     const paint = searchParams.get("paint");
+    const pair = searchParams.get("pair");
+    const prefill = searchParams.get("prefill");
 
-    if (!modelId && !materialId && !product && !steel && !ral && !paint) return;
+    if (!modelId && !materialId && !product && !steel && !ral && !paint && !modelIdSecondary) return;
 
+    let computed: Config | null = null;
     setConfig((prev) => {
       let updated = { ...prev };
 
@@ -300,6 +362,13 @@ export default function KonfiguratorPage() {
           const minH = model.min_height ?? 100;
           updated.width = minW;
           updated.height = minH;
+        }
+      }
+
+      if (modelIdSecondary) {
+        const secondaryIdNum = Number(modelIdSecondary);
+        if (Number.isFinite(secondaryIdNum)) {
+          setSecondaryModelIdFromUrl(secondaryIdNum);
         }
       }
 
@@ -336,10 +405,87 @@ export default function KonfiguratorPage() {
 
       return updated;
     });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // computed is derived in a second pass below for step selection
 
-    // jeśli przychodzimy z galerii, ustawiamy startowy krok sensownie
-    if (modelId && materialId) setStep(3);
-    else if (modelId || materialId) setStep(2);
+    // wyliczamy stan "jak będzie wyglądał config" po prefill, żeby poprawnie ustawić krok
+    // (nie polegamy na async state update)
+    const buildComputed = () => {
+      let updated = { ...config };
+      if (product === "furtka" || product === "brama") {
+        updated.product = product;
+      }
+      if (modelId) {
+        const modelIdNum = Number(modelId);
+        const model =
+          dbPrices.find((p) => p.category === "base" && p.id === modelIdNum) ??
+          dbPrices.find((p) => p.category === "wicket_base" && p.id === modelIdNum);
+        if (model) {
+          if (model.category === "wicket_base") updated.product = "furtka";
+          updated.type = model.name;
+          updated.basePrice = model.value;
+          updated.width = model.min_width ?? 200;
+          updated.height = model.min_height ?? 100;
+        }
+      }
+      if (materialId) {
+        const materialIdNum = Number(materialId);
+        const mat = dbPrices.find(
+          (p) => p.category === "material" && p.id === materialIdNum
+        );
+        if (mat) {
+          updated.material = mat.name;
+          updated.materialPrice = mat.value;
+        }
+      }
+      if (steel) {
+        const label = String(steel);
+        const option = steelTypes.find((s) => s.label === label);
+        updated.steelType = label;
+        updated.steelPrice = option ? option.price : 0;
+      }
+      if (ral) {
+        const code = String(ral);
+        const option = ralColors.find((c) => c.code === code);
+        updated.ral = code;
+        updated.ralPrice = option ? option.price : 0;
+        updated.ralCustomCode = "";
+      }
+      if (paint) {
+        const label = String(paint);
+        const option = paintTypes.find((p) => p.label === label);
+        updated.paintType = label;
+        updated.paintPrice = option ? option.price : 0;
+      }
+      return updated;
+    };
+    computed = buildComputed();
+
+    // jeśli przychodzimy z galerii, ustawiamy startowy krok sensownie:
+    // - jeśli wszystko jest uzupełnione, przeskakujemy do wymiarów (krok 6)
+    // - jeśli czegoś brakuje, lądujemy na pierwszym brakującym kroku
+    if (prefill === "1") {
+      const c = computed ?? config;
+      const hasType = !!c?.type;
+      const hasMaterial = !!c?.material;
+      const hasSteel = !!c?.steelType;
+      const hasRal =
+        !!c?.ral && !(c?.ral === "INNY" && !String(c?.ralCustomCode || "").trim());
+      const hasPaint = !!c?.paintType;
+
+      if (!hasType) setStep(1);
+      else if (!hasMaterial) setStep(2);
+      else if (!hasSteel) setStep(3);
+      else if (!hasRal) setStep(4);
+      else if (!hasPaint) setStep(5);
+      else setStep(6);
+    } else if (pair === "brama+furtka" && modelId) {
+      setStep(6);
+    } else if (modelId && materialId) {
+      setStep(3);
+    } else if (modelId || materialId) {
+      setStep(2);
+    }
   }, [dbPrices, steelTypes, ralColors, paintTypes, searchParams]);
 
   useEffect(() => {
@@ -383,13 +529,21 @@ export default function KonfiguratorPage() {
       return;
     }
 
-    const detailsPayload = primaryConfig
-      ? { primary: primaryConfig, secondary: config }
-      : { primary: config };
+    // upewniamy się, że aktualnie edytowany element pary jest zapisany
+    if (primaryConfig && secondaryConfig) {
+      persistActivePairConfig(config);
+    }
 
-    const primaryTotal = primaryConfig ? calculateConfigPrice(primaryConfig) : 0;
-    const currentTotal = calculateConfigPrice(config);
-    const combinedTotal = primaryConfig ? primaryTotal + currentTotal : currentTotal;
+    const resolvedPrimary = primaryConfig || config;
+    const resolvedSecondary = primaryConfig ? (secondaryConfig || config) : null;
+
+    const detailsPayload = resolvedSecondary
+      ? { primary: resolvedPrimary, secondary: resolvedSecondary }
+      : { primary: resolvedPrimary };
+
+    const primaryTotal = calculateConfigPrice(resolvedPrimary);
+    const secondaryTotal = resolvedSecondary ? calculateConfigPrice(resolvedSecondary) : 0;
+    const combinedTotal = resolvedSecondary ? primaryTotal + secondaryTotal : primaryTotal;
 
     const { error } = await supabase.from("leads").insert([
       {
@@ -439,6 +593,8 @@ export default function KonfiguratorPage() {
           paintPrice: 0,
         });
         setPrimaryConfig(null);
+        setSecondaryConfig(null);
+        setActivePairPart("primary");
         setAskedSecondary(false);
         setCity("");
         setPostalCode("");
@@ -491,25 +647,45 @@ export default function KonfiguratorPage() {
       if (!primaryConfig && !askedSecondary) {
         setAskedSecondary(true);
         const otherLabel = config.product === "furtka" ? "bramę" : "furtkę";
-        const wants = window.confirm(
-          `Czy chcesz od razu skonfigurować także ${otherLabel}?`
-        );
+        const wants = forcePairFromUrl
+          ? true
+          : window.confirm(
+              `Czy chcesz od razu skonfigurować także ${otherLabel}?`
+            );
         if (wants) {
           setPrimaryConfig(config);
           const nextProduct = config.product === "brama" ? "furtka" : "brama";
 
-          const copyDetails = window.confirm(
-            `Czy skopiować materiał, typ stali, kolor RAL i typ malowania z pierwszej konfiguracji do ${nextProduct === "furtka" ? "furtki" : "bramy"}?`
-          );
+          const copyDetails = forcePairFromUrl
+            ? true
+            : window.confirm(
+                `Czy skopiować materiał, typ stali, kolor RAL i typ malowania z pierwszej konfiguracji do ${nextProduct === "furtka" ? "furtki" : "bramy"}?`
+              );
 
           const baseForCopy = copyDetails ? config : undefined;
 
-          setConfig({
+          // jeśli przyszliśmy z galerii z dwoma różnymi modelami,
+          // spróbuj ustawić drugi model (np. furtki) od razu z URL
+          let nextType = "";
+          let nextBasePrice = 0;
+          let nextWidth = 0;
+          let nextHeight = 0;
+          if (forcePairFromUrl && secondaryModelIdFromUrl && dbPrices.length) {
+            const model = dbPrices.find((p) => p.id === secondaryModelIdFromUrl);
+            if (model) {
+              nextType = model.name;
+              nextBasePrice = model.value;
+              nextWidth = model.min_width ?? 200;
+              nextHeight = model.min_height ?? 100;
+            }
+          }
+
+          const nextConfig: Config = {
             product: nextProduct,
-            type: "",
-            basePrice: 0,
-            width: 0,
-            height: 0,
+            type: nextType,
+            basePrice: nextBasePrice,
+            width: nextWidth,
+            height: nextHeight,
             material: baseForCopy?.material || "",
             materialPrice: baseForCopy?.materialPrice || 0,
             steelType: baseForCopy?.steelType || "",
@@ -519,8 +695,17 @@ export default function KonfiguratorPage() {
             ralCustomCode: baseForCopy?.ralCustomCode || "",
             paintType: baseForCopy?.paintType || "",
             paintPrice: baseForCopy?.paintPrice || 0,
-          });
-          setStep(1);
+          };
+          setSecondaryConfig(nextConfig);
+          setActivePairPart("secondary");
+          setConfig(nextConfig);
+          if (forcePairFromUrl) {
+            setForcePairFromUrl(false);
+          }
+          // para z galerii: drugi element zaczynamy od wymiarów,
+          // ręczne dodanie 2 elementu: zawsze zaczynamy od wyboru modelu (krok 1),
+          // nawet jeśli kopiujemy detale (żeby użytkownik wybrał właściwy typ).
+          setStep(forcePairFromUrl ? 6 : 1);
           return;
         }
 
@@ -528,7 +713,13 @@ export default function KonfiguratorPage() {
         return;
       }
 
-      if (primaryConfig) {
+      if (primaryConfig && secondaryConfig) {
+        // jeśli użytkownik jest na edycji pierwszego elementu, przejdź do drugiego;
+        // jeśli na drugim – do finalizacji
+        if (activePairPart === "primary") {
+          switchActivePairPart("secondary", 6);
+          return;
+        }
         setStep(7);
         return;
       }
@@ -603,66 +794,75 @@ export default function KonfiguratorPage() {
                   <span className="text-[10px] uppercase tracking-[0.25em] text-zinc-500">
                     Konfigurujesz:
                   </span>
-                  <div className="flex rounded-full border border-zinc-800 bg-black/40 p-1">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setConfig((prev) => ({
-                          ...prev,
-                          product: "brama",
-                          type: "",
-                          basePrice: 0,
-                          width: 0,
-                          height: 0,
-                          material: "",
-                          materialPrice: 0,
-                          steelType: "",
-                          steelPrice: 0,
-                          ral: "",
-                          ralPrice: 0,
-                          ralCustomCode: "",
-                          paintType: "",
-                          paintPrice: 0,
-                        }))
-                      }
-                      className={`px-4 py-2 text-[10px] uppercase tracking-[0.25em] transition-all ${
-                        config.product === "brama"
-                          ? "bg-[#D4AF37] text-black"
-                          : "text-zinc-400 hover:text-white"
-                      }`}
-                    >
-                      Brama
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setConfig((prev) => ({
-                          ...prev,
-                          product: "furtka",
-                          type: "",
-                          basePrice: 0,
-                          width: 0,
-                          height: 0,
-                          material: "",
-                          materialPrice: 0,
-                          steelType: "",
-                          steelPrice: 0,
-                          ral: "",
-                          ralPrice: 0,
-                          ralCustomCode: "",
-                          paintType: "",
-                          paintPrice: 0,
-                        }))
-                      }
-                      className={`px-4 py-2 text-[10px] uppercase tracking-[0.25em] transition-all ${
-                        config.product === "furtka"
-                          ? "bg-[#D4AF37] text-black"
-                          : "text-zinc-400 hover:text-white"
-                      }`}
-                    >
-                      Furtka
-                    </button>
-                  </div>
+
+                  {isPairMode ? (
+                    <span className="rounded-full border border-zinc-800 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-[#D4AF37]">
+                      {activePairPart === "primary"
+                        ? `Pierwszy element — ${config.product}`
+                        : `Drugi element — ${config.product}`}
+                    </span>
+                  ) : (
+                    <div className="flex rounded-full border border-zinc-800 bg-black/40 p-1">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setConfig((prev) => ({
+                            ...prev,
+                            product: "brama",
+                            type: "",
+                            basePrice: 0,
+                            width: 0,
+                            height: 0,
+                            material: "",
+                            materialPrice: 0,
+                            steelType: "",
+                            steelPrice: 0,
+                            ral: "",
+                            ralPrice: 0,
+                            ralCustomCode: "",
+                            paintType: "",
+                            paintPrice: 0,
+                          }))
+                        }
+                        className={`px-4 py-2 text-[10px] uppercase tracking-[0.25em] transition-all ${
+                          config.product === "brama"
+                            ? "bg-[#D4AF37] text-black"
+                            : "text-zinc-400 hover:text-white"
+                        }`}
+                      >
+                        Brama
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setConfig((prev) => ({
+                            ...prev,
+                            product: "furtka",
+                            type: "",
+                            basePrice: 0,
+                            width: 0,
+                            height: 0,
+                            material: "",
+                            materialPrice: 0,
+                            steelType: "",
+                            steelPrice: 0,
+                            ral: "",
+                            ralPrice: 0,
+                            ralCustomCode: "",
+                            paintType: "",
+                            paintPrice: 0,
+                          }))
+                        }
+                        className={`px-4 py-2 text-[10px] uppercase tracking-[0.25em] transition-all ${
+                          config.product === "furtka"
+                            ? "bg-[#D4AF37] text-black"
+                            : "text-zinc-400 hover:text-white"
+                        }`}
+                      >
+                        Furtka
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {dbPrices
@@ -932,9 +1132,18 @@ export default function KonfiguratorPage() {
             {/* KROK 6: WYMIARY */}
             {step === 6 && (
               <div className="animate-in fade-in duration-500">
-                <h2 className="mb-8 flex items-center gap-3 text-2xl font-light italic md:text-3xl">
-                  <Ruler className="text-[#D4AF37]" /> Dopasuj wymiary
+                <h2 className="mb-3 flex items-center gap-3 text-2xl font-light italic md:text-3xl">
+                  <Ruler className="text-[#D4AF37]" />{" "}
+                  {primaryConfig
+                    ? `Dopasuj wymiary ${config.product === "furtka" ? "furtki" : "bramy"} (2/2)`
+                    : `Dopasuj wymiary ${config.product === "furtka" ? "furtki" : "bramy"}`}
                 </h2>
+                {primaryConfig && (
+                  <p className="mb-6 text-[11px] uppercase tracking-[0.2em] text-zinc-500">
+                    Najpierw ustawiłeś wymiary pierwszego elementu. Teraz podaj wymiary{" "}
+                    {config.product === "furtka" ? "furtki" : "bramy"}.
+                  </p>
+                )}
                 <div className="space-y-10 border border-zinc-900 bg-zinc-900/20 p-8">
                   <div>
                     <label className="mb-4 flex justify-between text-[10px] uppercase tracking-[0.2em] text-zinc-500">
@@ -1067,94 +1276,324 @@ export default function KonfiguratorPage() {
 
                 {config.type || config.material || (config.width && config.height) ? (
                   <>
-                    <div className="space-y-5">
-                      {config.type && (
-                        <div className="flex items-end justify-between">
-                          <span className="text-[10px] uppercase tracking-widest text-zinc-600">
-                            Baza ({config.product})
-                          </span>
-                          <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                          <span className="text-sm">{config.type}</span>
-                        </div>
-                      )}
-                      {step >= 5 && config.width > 0 && config.height > 0 && (
-                        <div className="flex items-end justify-between">
-                          <span className="text-[10px] uppercase tracking-widest text-zinc-600">
-                            Wymiar
-                          </span>
-                          <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                          <span className="text-sm">
-                            {config.width}×{config.height} cm
-                          </span>
-                        </div>
-                      )}
-                      {step >= 2 && config.material && (
-                        <div className="flex items-end justify-between">
-                          <span className="text-[10px] uppercase tracking-widest text-zinc-600">
-                            Wypełnienie
-                          </span>
-                          <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                          <span className="text-sm">{config.material}</span>
-                        </div>
-                      )}
-                      {step >= 3 && config.steelType && (
-                        <div className="flex items-end justify-between">
-                          <span className="text-[10px] uppercase tracking-widest text-zinc-600">
-                            Stal
-                          </span>
-                          <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                          <span className="text-sm">{config.steelType}</span>
-                        </div>
-                      )}
-                      {step >= 4 && config.ral && (
-                        <div className="flex items-end justify-between">
-                          <span className="text-[10px] uppercase tracking-widest text-zinc-600">
-                            Kolor
-                          </span>
-                          <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                          <span className="text-sm">
-                            {config.ral === "INNY" && config.ralCustomCode
-                              ? config.ralCustomCode
-                              : config.ral}
-                          </span>
-                        </div>
-                      )}
-                      {step >= 5 && config.paintType && (
-                        <div className="flex items-end justify-between">
-                          <span className="text-[10px] uppercase tracking-widest text-zinc-600">
-                            Malowanie
-                          </span>
-                          <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                          <span className="text-sm">{config.paintType}</span>
-                        </div>
-                      )}
-                    </div>
+                    {/* Jeśli mamy konfigurację pary (brama + furtka), pokaż obie osobno */}
+                    {primaryConfig && secondaryConfig ? (
+                      <>
+                        <div className="space-y-4">
+                          {/* PIERWSZY ELEMENT (np. brama) */}
+                          <div className="space-y-2">
+                            <p className="text-[9px] uppercase tracking-[0.25em] text-zinc-500">
+                              Pierwszy element ({primaryConfig.product})
+                            </p>
+                            <div className="space-y-2">
+                              <button
+                                type="button"
+                                onClick={() => switchActivePairPart("primary", 1)}
+                                className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                              >
+                                <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                  Baza
+                                </span>
+                                <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                                <span className="text-sm">{primaryConfig.type}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => switchActivePairPart("primary", 6)}
+                                className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                              >
+                                <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                  Wymiar
+                                </span>
+                                <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                                <span className="text-sm">
+                                  {primaryConfig.width}×{primaryConfig.height} cm
+                                </span>
+                              </button>
+                              {primaryConfig.material && (
+                                <button
+                                  type="button"
+                                  onClick={() => switchActivePairPart("primary", 2)}
+                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                >
+                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                    Wypełnienie
+                                  </span>
+                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                                  <span className="text-sm">{primaryConfig.material}</span>
+                                </button>
+                              )}
+                              {primaryConfig.steelType && (
+                                <button
+                                  type="button"
+                                  onClick={() => switchActivePairPart("primary", 3)}
+                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                >
+                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                    Stal
+                                  </span>
+                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                                  <span className="text-sm">{primaryConfig.steelType}</span>
+                                </button>
+                              )}
+                              {primaryConfig.ral && (
+                                <button
+                                  type="button"
+                                  onClick={() => switchActivePairPart("primary", 4)}
+                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                >
+                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                    Kolor
+                                  </span>
+                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                                  <span className="text-sm">
+                                    {primaryConfig.ral === "INNY" && primaryConfig.ralCustomCode
+                                      ? primaryConfig.ralCustomCode
+                                      : primaryConfig.ral}
+                                  </span>
+                                </button>
+                              )}
+                              {primaryConfig.paintType && (
+                                <button
+                                  type="button"
+                                  onClick={() => switchActivePairPart("primary", 5)}
+                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                >
+                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                    Malowanie
+                                  </span>
+                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                                  <span className="text-sm">{primaryConfig.paintType}</span>
+                                </button>
+                              )}
+                            </div>
+                          </div>
 
-                    {config.type &&
-                    config.material &&
-                    config.steelType &&
-                    config.ral &&
-                    config.paintType &&
-                    config.width > 0 &&
-                    config.height > 0 ? (
-                      <div className="space-y-1">
-                        <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
-                          Szacowany koszt
-                        </span>
-                        <div className="text-5xl font-light tracking-tighter text-[#D4AF37]">
-                          {totalPrice.toLocaleString()}{" "}
-                          <span className="text-xs text-zinc-500">PLN</span>
+                          {/* DRUGI ELEMENT (np. furtka) */}
+                          <div className="space-y-2 pt-4 border-t border-zinc-900/60">
+                            <p className="text-[9px] uppercase tracking-[0.25em] text-zinc-500">
+                              Drugi element ({secondaryConfig.product})
+                            </p>
+                            <div className="space-y-2">
+                              {secondaryConfig.type && (
+                                <button
+                                  type="button"
+                                  onClick={() => switchActivePairPart("secondary", 1)}
+                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                >
+                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                    Baza
+                                  </span>
+                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                                  <span className="text-sm">{secondaryConfig.type}</span>
+                                </button>
+                              )}
+                              {secondaryConfig.width > 0 && secondaryConfig.height > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => switchActivePairPart("secondary", 6)}
+                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                >
+                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                    Wymiar
+                                  </span>
+                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                                  <span className="text-sm">
+                                    {secondaryConfig.width}×{secondaryConfig.height} cm
+                                  </span>
+                                </button>
+                              )}
+                              {secondaryConfig.material && (
+                                <button
+                                  type="button"
+                                  onClick={() => switchActivePairPart("secondary", 2)}
+                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                >
+                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                    Wypełnienie
+                                  </span>
+                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                                  <span className="text-sm">{secondaryConfig.material}</span>
+                                </button>
+                              )}
+                              {secondaryConfig.steelType && (
+                                <button
+                                  type="button"
+                                  onClick={() => switchActivePairPart("secondary", 3)}
+                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                >
+                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                    Stal
+                                  </span>
+                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                                  <span className="text-sm">{secondaryConfig.steelType}</span>
+                                </button>
+                              )}
+                              {secondaryConfig.ral && (
+                                <button
+                                  type="button"
+                                  onClick={() => switchActivePairPart("secondary", 4)}
+                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                >
+                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                    Kolor
+                                  </span>
+                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                                  <span className="text-sm">
+                                    {secondaryConfig.ral === "INNY" && secondaryConfig.ralCustomCode
+                                      ? secondaryConfig.ralCustomCode
+                                      : secondaryConfig.ral}
+                                  </span>
+                                </button>
+                              )}
+                              {secondaryConfig.paintType && (
+                                <button
+                                  type="button"
+                                  onClick={() => switchActivePairPart("secondary", 5)}
+                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                >
+                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                    Malowanie
+                                  </span>
+                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                                  <span className="text-sm">{secondaryConfig.paintType}</span>
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <p className="pt-2 text-[10px] text-zinc-500">
-                          Ostateczna oferta zależy m.in. od warunków montażu,
-                          automatyki oraz wybranego wykończenia.
-                        </p>
-                      </div>
+
+                        {/* SUMA DLA DWÓCH ELEMENTÓW */}
+                        <div className="space-y-1 pt-4">
+                          <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+                            Szacowany koszt łącznie (brama + furtka)
+                          </span>
+                          <div className="text-5xl font-light tracking-tighter text-[#D4AF37]">
+                            {(calculateConfigPrice(primaryConfig) + calculateConfigPrice(secondaryConfig || config)).toLocaleString()}{" "}
+                            <span className="text-xs text-zinc-500">PLN</span>
+                          </div>
+                          <p className="pt-2 text-[10px] text-zinc-500">
+                            Ostateczna oferta zależy m.in. od warunków montażu,
+                            automatyki oraz wybranego wykończenia.
+                          </p>
+                        </div>
+                      </>
                     ) : (
-                      <p className="pt-2 text-[10px] text-zinc-500">
-                        Uzupełnij kolejne kroki konfiguratora, aby zobaczyć
-                        podsumowanie i wycenę.
-                      </p>
+                      <>
+                        <div className="space-y-5">
+                          {config.type && (
+                            <button
+                              type="button"
+                              onClick={() => setStep(1)}
+                              className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                            >
+                              <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                Baza ({config.product})
+                              </span>
+                              <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                              <span className="text-sm">{config.type}</span>
+                            </button>
+                          )}
+                          {config.width > 0 && config.height > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setStep(6)}
+                              className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                            >
+                              <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                Wymiar
+                              </span>
+                              <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                              <span className="text-sm">
+                                {config.width}×{config.height} cm
+                              </span>
+                            </button>
+                          )}
+                          {config.material && (
+                            <button
+                              type="button"
+                              onClick={() => setStep(2)}
+                              className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                            >
+                              <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                Wypełnienie
+                              </span>
+                              <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                              <span className="text-sm">{config.material}</span>
+                            </button>
+                          )}
+                          {config.steelType && (
+                            <button
+                              type="button"
+                              onClick={() => setStep(3)}
+                              className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                            >
+                              <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                Stal
+                              </span>
+                              <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                              <span className="text-sm">{config.steelType}</span>
+                            </button>
+                          )}
+                          {config.ral && (
+                            <button
+                              type="button"
+                              onClick={() => setStep(4)}
+                              className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                            >
+                              <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                Kolor
+                              </span>
+                              <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                              <span className="text-sm">
+                                {config.ral === "INNY" && config.ralCustomCode
+                                  ? config.ralCustomCode
+                                  : config.ral}
+                              </span>
+                            </button>
+                          )}
+                          {config.paintType && (
+                            <button
+                              type="button"
+                              onClick={() => setStep(5)}
+                              className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                            >
+                              <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                Malowanie
+                              </span>
+                              <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
+                              <span className="text-sm">{config.paintType}</span>
+                            </button>
+                          )}
+                        </div>
+
+                        {config.type &&
+                        config.material &&
+                        config.steelType &&
+                        config.ral &&
+                        config.paintType &&
+                        config.width > 0 &&
+                        config.height > 0 ? (
+                          <div className="space-y-1">
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+                              Szacowany koszt
+                            </span>
+                            <div className="text-5xl font-light tracking-tighter text-[#D4AF37]">
+                              {totalPrice.toLocaleString()}{" "}
+                              <span className="text-xs text-zinc-500">PLN</span>
+                            </div>
+                            <p className="pt-2 text-[10px] text-zinc-500">
+                              Ostateczna oferta zależy m.in. od warunków montażu,
+                              automatyki oraz wybranego wykończenia.
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="pt-2 text-[10px] text-zinc-500">
+                            Uzupełnij kolejne kroki konfiguratora, aby zobaczyć
+                            podsumowanie i wycenę.
+                          </p>
+                        )}
+                      </>
                     )}
                   </>
                 ) : (

@@ -41,13 +41,42 @@ export default function AdminPanel() {
     description: '',
     dimensions: '',
     price: '',
+    // zostawiamy stare pola dla zgodności ze starymi rekordami
     model_id: '',
     material_id: '',
-    product: '' as '' | 'brama' | 'furtka',
+    // nowe: osobne modele dla bramy i furtki na jednym zdjęciu
+    gate_model_id: '',
+    wicket_model_id: '',
+    product: '' as string,
+    hasGate: false,
+    hasWicket: false,
     steel_type: '',
     ral_code: '',
     paint_type: '',
   });
+
+  const updateNewItemProductFlags = (next: { hasGate?: boolean; hasWicket?: boolean }) => {
+    setNewItem((prev) => {
+      const hasGate = typeof next.hasGate === 'boolean' ? next.hasGate : prev.hasGate;
+      const hasWicket = typeof next.hasWicket === 'boolean' ? next.hasWicket : prev.hasWicket;
+
+      let product = '';
+      if (hasGate && hasWicket) {
+        product = 'brama+furtka';
+      } else if (hasGate) {
+        product = 'brama';
+      } else if (hasWicket) {
+        product = 'furtka';
+      }
+
+      return {
+        ...prev,
+        hasGate,
+        hasWicket,
+        product,
+      };
+    });
+  };
 
   // --- INICJALIZACJA ---
   useEffect(() => {
@@ -320,13 +349,16 @@ export default function AdminPanel() {
 
       const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(fileName);
       
-      const { error: dbError } = await supabase.from('gallery').insert([{ 
+      // fallback: dla starych widoków zawsze jakiś model główny
+      const { error: dbError } = await supabase.from('gallery').insert([{
         image_url: publicUrl,
         description: newItem.description || null,
         dimensions: newItem.dimensions || null,
         price: parseFloat(newItem.price) || 0,
-        model_id: newItem.model_id || null,
+        model_id: newItem.model_id || newItem.gate_model_id || newItem.wicket_model_id || null,
         material_id: newItem.material_id || null,
+        gate_model_id: newItem.gate_model_id || null,
+        wicket_model_id: newItem.wicket_model_id || null,
         product: newItem.product || null,
         steel_type: newItem.steel_type || null,
         ral_code: newItem.ral_code || null,
@@ -341,7 +373,11 @@ export default function AdminPanel() {
         price: '',
         model_id: '',
         material_id: '',
+        gate_model_id: '',
+        wicket_model_id: '',
         product: '',
+        hasGate: false,
+        hasWicket: false,
         steel_type: '',
         ral_code: '',
         paint_type: '',
@@ -1270,39 +1306,68 @@ export default function AdminPanel() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 <div className="lg:col-span-2 space-y-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div className="space-y-4">
-                      <label className="text-[11px] text-zinc-500 uppercase font-black tracking-widest">
-                        Model (brama / furtka)
-                      </label>
-                      <select 
-                        className="w-full bg-black border border-zinc-800 p-5 text-sm font-black uppercase text-white outline-none focus:border-[#D4AF37] appearance-none cursor-pointer"
-                        value={newItem.model_id}
-                        onChange={e => {
-                          const value = e.target.value;
-                          const selected = prices.find(p => String(p.id) === value);
-                          const product =
-                            selected?.category === 'wicket_base'
-                              ? 'furtka'
-                              : selected
-                                ? 'brama'
-                                : '';
-                          setNewItem({
-                            ...newItem,
-                            model_id: value,
-                            product,
-                          });
-                        }}
-                      >
-                        <option value="">-- WYBIERZ --</option>
-                        {prices
-                          .filter(p => p.category === 'base' || p.category === 'wicket_base')
-                          .map(p => (
-                            <option key={p.id} value={p.id}>
-                              {p.category === 'wicket_base' ? 'FURTKA: ' : 'BRAMA: '}
-                              {p.name}
-                            </option>
-                          ))}
-                      </select>
+                    <div className="space-y-6">
+                      <div className="space-y-4">
+                        <label className="text-[11px] text-zinc-500 uppercase font-black tracking-widest">
+                          Model bramy
+                        </label>
+                        <select 
+                          className="w-full bg-black border border-zinc-800 p-5 text-sm font-black uppercase text-white outline-none focus:border-[#D4AF37] appearance-none cursor-pointer"
+                          value={newItem.gate_model_id}
+                          onChange={e => {
+                            const value = e.target.value;
+                            setNewItem(prev => ({
+                              ...prev,
+                              gate_model_id: value,
+                              // dla zgodności ze starym polem model_id preferujemy bramę jako główny model
+                              model_id: value || prev.model_id,
+                            }));
+                            updateNewItemProductFlags({
+                              hasGate: !!value,
+                            });
+                          }}
+                        >
+                          <option value="">-- BRAK / NIE DOTYCZY --</option>
+                          {prices
+                            .filter(p => p.category === 'base')
+                            .map(p => (
+                              <option key={p.id} value={p.id}>
+                                {p.name}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="text-[11px] text-zinc-500 uppercase font-black tracking-widest">
+                          Model furtki
+                        </label>
+                        <select 
+                          className="w-full bg-black border border-zinc-800 p-5 text-sm font-black uppercase text-white outline-none focus:border-[#D4AF37] appearance-none cursor-pointer"
+                          value={newItem.wicket_model_id}
+                          onChange={e => {
+                            const value = e.target.value;
+                            setNewItem(prev => ({
+                              ...prev,
+                              wicket_model_id: value,
+                              // jeśli nie ma bramy, ustawiamy furtkę jako główny model
+                              model_id: prev.gate_model_id ? prev.model_id : (value || prev.model_id),
+                            }));
+                            updateNewItemProductFlags({
+                              hasWicket: !!value,
+                            });
+                          }}
+                        >
+                          <option value="">-- BRAK / NIE DOTYCZY --</option>
+                          {prices
+                            .filter(p => p.category === 'wicket_base')
+                            .map(p => (
+                              <option key={p.id} value={p.id}>
+                                {p.name}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
                     </div>
 
                     <div className="space-y-4">
@@ -1436,7 +1501,26 @@ export default function AdminPanel() {
                     <div className="flex-1 space-y-1 text-[8px] font-black uppercase">
                       <div className="text-[#D4AF37] flex items-center gap-2">
                         <CheckCircle size={10}/>
-                        {prices.find(p => p.id === item.model_id)?.name || 'Brak powiązania'}
+                        {/* Model bramy / furtki (nowe pola + fallback do starego) */}
+                        {(() => {
+                          const gate = item.gate_model_id
+                            ? prices.find(p => p.id === item.gate_model_id)
+                            : null;
+                          const wicket = item.wicket_model_id
+                            ? prices.find(p => p.id === item.wicket_model_id)
+                            : null;
+                          const legacy = (!gate && !wicket && item.model_id)
+                            ? prices.find(p => p.id === item.model_id)
+                            : null;
+
+                          if (gate && wicket) {
+                            return `BRAMA: ${gate.name} / FURTKA: ${wicket.name}`;
+                          }
+                          if (gate) return `BRAMA: ${gate.name}`;
+                          if (wicket) return `FURTKA: ${wicket.name}`;
+                          if (legacy) return legacy.name;
+                          return 'Brak powiązania';
+                        })()}
                       </div>
                       {item.material_id && (
                         <div className="text-zinc-600 flex items-center gap-2">
