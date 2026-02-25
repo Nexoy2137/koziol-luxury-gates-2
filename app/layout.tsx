@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { CursorGlow } from "@/components/ui/CursorGlow";
@@ -42,6 +42,14 @@ export const metadata: Metadata = {
   icons: {
     icon: "/logo.svg",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  minimumScale: 0.5,
+  maximumScale: 5,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

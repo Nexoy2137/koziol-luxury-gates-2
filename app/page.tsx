@@ -58,6 +58,7 @@ export default function Home() {
         <style>{`
           .hero-cols { display:flex; flex-direction:column; gap:48px; }
           .hero-brand { width:100%; max-width:460px; margin:0 auto; }
+          .hero-padding { padding: 48px 20px 56px; }
           .about-cols { display:flex; flex-direction:column; gap:48px; }
           .about-side { flex-shrink:0; }
           .stats-grid { display:grid; grid-template-columns:1fr; gap:16px; }
@@ -70,9 +71,11 @@ export default function Home() {
             .features-grid { grid-template-columns:repeat(2,1fr); }
             .process-grid { grid-template-columns:repeat(3,1fr); }
           }
+          @media(min-width:768px){ .hero-padding { padding: 72px 32px 80px; } }
           @media(min-width:1024px){
             .hero-cols { flex-direction:row; align-items:center; gap:80px; }
             .hero-brand { width:420px; margin:0; }
+            .hero-padding { padding: 96px 32px; }
             .about-cols { flex-direction:row; align-items:flex-start; gap:80px; }
             .about-side { width:288px; position:sticky; top:112px; }
             .features-grid { grid-template-columns:repeat(4,1fr); }
@@ -166,7 +169,7 @@ export default function Home() {
           </div>
 
           {/* Content */}
-          <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "96px 32px" }}>
+          <div className="hero-padding" style={{ position: "relative", maxWidth: 1280, margin: "0 auto" }}>
             <div className="hero-cols">
 
               {/* Text column */}
