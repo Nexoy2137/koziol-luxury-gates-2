@@ -23,22 +23,13 @@ export function ScrollReveal({
   style,
 }: ScrollRevealProps) {
   return (
-    <div className="scroll-reveal-wrap">
-      <motion.div
-        initial={{ opacity: 0, y, scale: scale ? 0.96 : 1 }}
-        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-        viewport={{ once: true, amount: 0, margin: "80px 0px 80px 0px" }}
-        transition={{
-          duration,
-          delay,
-          ease: [0.25, 0.46, 0.45, 0.94],
-        }}
-        className={className}
-        style={style}
-      >
-        {children}
-      </motion.div>
-    </div>
+    <motion.div
+      initial={{ opacity: 1, y: 0, scale: 1 }}
+      className={className}
+      style={style}
+    >
+      {children}
+    </motion.div>
   );
 }
 
@@ -56,23 +47,19 @@ export function StaggerContainer({
   staggerDelay = 0.1,
 }: StaggerContainerProps) {
   return (
-    <div className="scroll-reveal-wrap">
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0, margin: "80px 0px 80px 0px" }}
-        style={style}
-        variants={{
-          hidden: {},
-          visible: {
-            transition: { staggerChildren: staggerDelay },
-          },
-        }}
-        className={className}
-      >
-        {children}
-      </motion.div>
-    </div>
+    <motion.div
+      initial="visible"
+      variants={{
+        hidden: {},
+        visible: {
+          transition: { staggerChildren: staggerDelay },
+        },
+      }}
+      style={style}
+      className={className}
+    >
+      {children}
+    </motion.div>
   );
 }
 

@@ -2,24 +2,36 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 
 const EASE_GATE = [0.76, 0, 0.24, 1] as const;
 
+function useWillShowGate() {
+  const [willShow, setWillShow] = useState<boolean | null>(null);
+  useEffect(() => {
+    const show = !sessionStorage.getItem("kzl-gate-shown");
+    setWillShow(show);
+    if (show) sessionStorage.setItem("kzl-gate-shown", "1");
+  }, []);
+  return willShow;
+}
+
 export function GateReveal() {
+  const willShow = useWillShowGate();
   const [visible, setVisible] = useState(false);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    // Show only once per browser session (defer setState to avoid cascading renders)
-    if (typeof sessionStorage !== "undefined" && !sessionStorage.getItem("kzl-gate-shown")) {
-      sessionStorage.setItem("kzl-gate-shown", "1");
+    if (willShow === true) {
       const id = setTimeout(() => setVisible(true), 0);
       return () => clearTimeout(id);
     }
-  }, []);
+    if (willShow === false) setDone(true);
+  }, [willShow]);
 
-  if (done || !visible) return null;
+  if (done || willShow === false) return null;
+  if (!visible) {
+    return <div className="fixed inset-0 z-[9999] bg-black" aria-hidden="true" />;
+  }
 
   return (
     <AnimatePresence onExitComplete={() => setDone(true)}>
@@ -77,13 +89,14 @@ export function GateReveal() {
               transition={{ duration: 0.7, delay: 0.5 }}
               className="flex flex-col items-center gap-3"
             >
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src="/logo.svg"
                 alt="Koziol Luxury Gates"
                 width={260}
                 height={80}
                 className="w-96 md:w-[30rem] object-contain"
-                priority
+                fetchPriority="high"
               />
               <p className="text-[9px] font-semibold uppercase tracking-[0.55em] text-[#D4AF37] opacity-80">
                 Luxury Gates &amp; Fences

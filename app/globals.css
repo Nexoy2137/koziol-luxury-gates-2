@@ -18,13 +18,9 @@ a {
   --gold-rgb: 212, 175, 55;
 }
 
-/* ─── Mobile: zawsze pokazuj treść ScrollReveal (IntersectionObserver może nie działać przy zoom) ─ */
-.scroll-reveal-wrap { display: contents; }
-@media (max-width: 768px) {
-  .scroll-reveal-wrap > div {
-    opacity: 1 !important;
-    transform: none !important;
-  }
+/* ─── iOS: font 16px w inputach na mobile zapobiega automatycznemu zoom przy focus ─ */
+@media (max-width: 767px) {
+  input, textarea, select { font-size: 16px !important; }
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────────── */
