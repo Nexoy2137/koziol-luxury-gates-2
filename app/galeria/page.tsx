@@ -146,18 +146,17 @@ export default function PublicGallery() {
     setFilterColor("");
   };
 
-  const selectClass =
-    "w-full rounded-xl border border-zinc-800 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-300 transition-colors focus:border-[#D4AF37]/60 focus:outline-none hover:border-zinc-700 appearance-none";
+  const selectClass = "gallery-filter-select";
 
   return (
     <main className="min-h-screen bg-black text-white">
       <MainHeader />
 
       {/* ── HERO ──────────────────────────────────────────────────────────────── */}
-      <section className="relative border-b border-zinc-800">
-        <div className="pointer-events-none absolute inset-0 gold-glow-center" />
+      <section className="relative border-b border-zinc-800 bg-[#030303] grid-overlay overflow-hidden">
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(133,102,47,0.16) 0%, transparent 65%)" }} />
 
-        <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-20 md:px-8 md:pb-20 md:pt-28">
+        <div className="relative mx-auto max-w-7xl px-5 pt-24 md:px-8 md:pt-32" style={{ paddingBottom: 40 }}>
           <ScrollReveal>
             <p className="mb-4 text-[9px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">
               Nasze realizacje
@@ -165,13 +164,13 @@ export default function PublicGallery() {
             <h1 className="font-display max-w-3xl text-4xl font-normal italic leading-tight tracking-tight md:text-5xl lg:text-6xl">
               Luxury Gates Portfolio
             </h1>
-            <p className="mt-5 max-w-xl text-[15px] font-light leading-relaxed text-zinc-500">
+            <p className="mt-6 max-w-xl text-[15px] font-light leading-relaxed text-zinc-400">
               Każda inwestycja powstała na indywidualne zamówienie — z dbałością
               o detal i dopasowanie do architektury budynku.
             </p>
           </ScrollReveal>
 
-          <ScrollReveal delay={0.2} className="mt-8">
+          <ScrollReveal delay={0.2} style={{ marginTop: 32 }}>
             <LuxButton href="/konfigurator" variant="outline">
               Skonfiguruj podobną bramę
               <ArrowRight className="h-4 w-4" />
@@ -181,18 +180,19 @@ export default function PublicGallery() {
       </section>
 
       {/* ── FILTER BAR ────────────────────────────────────────────────────────── */}
-      <div className="sticky top-[69px] z-40 border-b border-zinc-800 bg-black/80 backdrop-blur-xl">
-        <div className="mx-auto max-w-7xl px-5 py-3 md:px-8">
+      <div className="sticky top-0 z-40 border-b border-zinc-800 bg-black/90 backdrop-blur-xl" style={{ paddingTop: 20, paddingBottom: 20 }}>
+        <div className="mx-auto max-w-7xl px-5 md:px-8">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <button
                 type="button"
                 onClick={() => setShowFilters((s) => !s)}
-                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-medium uppercase tracking-[0.28em] transition-all ${
+                className={`inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] transition-all ${
                   showFilters
-                    ? "border-[#D4AF37]/60 bg-[#D4AF37]/10 text-[#D4AF37]"
-                    : "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                    ? "border-[#D4AF37]/70 bg-[#D4AF37]/15 text-[#D4AF37]"
+                    : "border-zinc-700 bg-zinc-900/80 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200"
                 }`}
+                style={showFilters ? { boxShadow: "0 0 24px rgba(212,175,55,0.15)" } : undefined}
               >
                 <SlidersHorizontal className="h-3.5 w-3.5" />
                 Filtry
@@ -228,8 +228,8 @@ export default function PublicGallery() {
                 transition={{ duration: 0.35, ease: "easeInOut" }}
                 className="overflow-hidden"
               >
-                <div className="grid grid-cols-1 gap-4 border-t border-zinc-800 py-5 sm:grid-cols-2 lg:grid-cols-5">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 border-t border-zinc-800" style={{ gap: "16px 20px", paddingTop: 20, paddingBottom: 16 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     <label className="block text-[9px] uppercase tracking-[0.3em] text-zinc-600">
                       Cena
                     </label>
@@ -239,7 +239,7 @@ export default function PublicGallery() {
                       ))}
                     </select>
                   </div>
-                  <div className="space-y-2">
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     <label className="block text-[9px] uppercase tracking-[0.3em] text-zinc-600">
                       Model bramy
                     </label>
@@ -250,7 +250,7 @@ export default function PublicGallery() {
                       ))}
                     </select>
                   </div>
-                  <div className="space-y-2">
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     <label className="block text-[9px] uppercase tracking-[0.3em] text-zinc-600">
                       Model furtki
                     </label>
@@ -261,7 +261,7 @@ export default function PublicGallery() {
                       ))}
                     </select>
                   </div>
-                  <div className="space-y-2">
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     <label className="block text-[9px] uppercase tracking-[0.3em] text-zinc-600">
                       Wypełnienie
                     </label>
@@ -272,7 +272,7 @@ export default function PublicGallery() {
                       ))}
                     </select>
                   </div>
-                  <div className="space-y-2">
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     <label className="block text-[9px] uppercase tracking-[0.3em] text-zinc-600">
                       Kolor RAL
                     </label>
@@ -291,24 +291,25 @@ export default function PublicGallery() {
       </div>
 
       {/* ── MASONRY GALLERY ───────────────────────────────────────────────────── */}
-      <section className="bg-black">
-        <div className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
+      <section className="relative bg-black">
+        <div className="pointer-events-none absolute inset-0 grid-overlay opacity-50" />
+        <div className="relative mx-auto max-w-7xl px-5 md:px-8" style={{ paddingTop: 64, paddingBottom: 28 }}>
           {filteredItems.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex flex-col items-center gap-6 py-24 text-center"
+              className="flex flex-col items-center gap-8 py-32 text-center"
             >
-              <div className="flex h-16 w-16 items-center justify-center rounded-full border border-zinc-800 bg-zinc-950">
-                <Filter className="h-6 w-6 text-zinc-700" />
+              <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-950/80">
+                <Filter className="h-8 w-8 text-zinc-600" />
               </div>
-              <p className="text-sm text-zinc-600">
+              <p className="text-[15px] text-zinc-500">
                 Brak realizacji spełniających wybrane filtry.
               </p>
               <button
                 type="button"
                 onClick={clearFilters}
-                className="text-[10px] uppercase tracking-[0.3em] text-[#D4AF37] hover:text-white"
+                className="rounded-full border border-zinc-700 px-6 py-3 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#D4AF37] transition-all hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/10"
               >
                 Wyczyść filtry
               </button>
@@ -318,52 +319,33 @@ export default function PublicGallery() {
               {filteredItems.map((item, i) => (
                 <motion.div
                   key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: Math.min(i * 0.04, 0.6), ease: "easeOut" }}
+                  transition={{ duration: 0.5, delay: Math.min(i * 0.04, 0.6), ease: [0.25, 0.46, 0.45, 0.94] }}
                   className="masonry-item"
                 >
                   <Link href={`/galeria/${item.id}`} className="group block">
-                    <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 transition-all duration-300 hover:border-[#D4AF37]/30 hover:shadow-gold">
-                      {/* Image */}
-                      <div className="overflow-hidden">
-                        <img
-                          src={item.image_url}
-                          alt={item.description || "Realizacja bramy"}
-                          className="w-full object-cover opacity-75 transition-all duration-700 group-hover:scale-105 group-hover:opacity-95"
-                          style={{ aspectRatio: i % 3 === 1 ? "4/5" : "16/10" }}
-                        />
-                      </div>
+                      <div className="gallery-card">
+                        {/* Image w ramce */}
+                        <div className="gallery-img-wrap">
+                          <img
+                            src={item.image_url}
+                            alt={item.description || "Realizacja bramy"}
+                            className="w-full object-cover"
+                            style={{ aspectRatio: i % 3 === 1 ? "4/5" : "16/10" }}
+                          />
+                        </div>
 
-                      {/* Hover overlay */}
-                      <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/30 to-transparent p-5 opacity-0 transition-all duration-500 group-hover:opacity-100">
-                        {item.description && (
-                          <p className="text-xs leading-relaxed text-zinc-300">
-                            {item.description}
-                          </p>
-                        )}
-                        <div className="mt-3 flex items-center justify-between">
-                          <span className="text-[10px] uppercase tracking-[0.3em] text-[#D4AF37]">
-                            {item.price ? `${item.price.toLocaleString("pl-PL")} PLN` : "Na zapytanie"}
-                          </span>
-                          <span className="flex items-center gap-1.5 text-[9px] uppercase tracking-[0.3em] text-zinc-500">
-                            Szczegóły
-                            <ArrowRight className="h-3 w-3" />
+                        {/* Hover overlay - tylko przycisk */}
+                        <div className="gallery-overlay absolute inset-0 flex items-center justify-center bg-black/50">
+                          <span className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37] bg-[#D4AF37]/20 px-5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]">
+                            Zobacz szczegóły
+                            <ArrowRight className="h-3.5 w-3.5" />
                           </span>
                         </div>
-                      </div>
 
-                      {/* Bottom info bar */}
-                      <div className="flex items-center justify-between gap-3 border-t border-zinc-800/60 px-4 py-3">
-                        <span className="rounded-full border border-zinc-800/60 px-2.5 py-1 text-[9px] uppercase tracking-[0.28em] text-zinc-600">
-                          {item.ral_code ? `RAL ${item.ral_code}` : item.product ?? "premium"}
-                        </span>
-                        <span className="text-[9px] uppercase tracking-[0.28em] text-zinc-700 transition-colors group-hover:text-[#D4AF37]">
-                          {item.price ? `${item.price.toLocaleString("pl-PL")} PLN` : "Na zapytanie"}
-                        </span>
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
                 </motion.div>
               ))}
             </div>
@@ -372,20 +354,21 @@ export default function PublicGallery() {
       </section>
 
       {/* ── CTA ───────────────────────────────────────────────────────────────── */}
-      <section className="border-t border-zinc-800 bg-black">
-        <div className="mx-auto max-w-7xl px-5 py-20 text-center md:px-8 md:py-24">
-          <ScrollReveal>
+      <section className="relative border-t border-zinc-800 bg-[#030303] grid-overlay" style={{ paddingTop: 24, paddingBottom: 28 }}>
+        <div className="relative mx-auto max-w-7xl px-5 text-center">
+          <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(133,102,47,0.12) 0%, transparent 70%)" }} />
+          <ScrollReveal className="relative">
             <p className="mb-4 text-[9px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">
               Zainspirowany?
             </p>
             <h2 className="font-display mx-auto max-w-2xl text-3xl font-normal italic leading-tight md:text-4xl">
               Skonfiguruj swoją bramę i otrzymaj wycenę.
             </h2>
-            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <LuxButton href="/konfigurator" variant="gold">
+            <div style={{ marginTop: 32, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 14 }}>
+              <LuxButton href="/konfigurator" variant="gold" size="lg">
                 Otwórz konfigurator
               </LuxButton>
-              <LuxButton href="/kontakt" variant="outline">
+              <LuxButton href="/kontakt" variant="outline" size="lg">
                 Umów spotkanie
               </LuxButton>
             </div>

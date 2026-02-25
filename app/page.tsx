@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Box, ShieldCheck, Ruler, Zap } from "lucide-react";
 import { MainHeader } from "@/components/MainHeader";
@@ -9,7 +7,6 @@ import { MainFooter } from "@/components/MainFooter";
 import { LuxButton } from "@/components/ui/LuxButton";
 import { GateReveal } from "@/components/ui/GateReveal";
 import { TiltCard } from "@/components/ui/TiltCard";
-import { CountUp } from "@/components/ui/CountUp";
 import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/ui/ScrollReveal";
 
 /* ── Deterministic particles (no SSR mismatch) ───────────────────────────────── */
@@ -57,6 +54,31 @@ export default function Home() {
       <GateReveal />
 
       <main className="min-h-screen bg-black text-white">
+        {/* ─ Real CSS responsive rules (Tailwind responsive broken in this project) ─ */}
+        <style>{`
+          .hero-cols { display:flex; flex-direction:column; gap:48px; }
+          .hero-brand { width:100%; max-width:460px; margin:0 auto; }
+          .about-cols { display:flex; flex-direction:column; gap:48px; }
+          .about-side { flex-shrink:0; }
+          .stats-grid { display:grid; grid-template-columns:1fr; gap:16px; }
+          .features-grid { display:grid; grid-template-columns:1fr; gap:20px; }
+          .process-grid { display:grid; grid-template-columns:1fr; gap:20px; }
+          .portfolio-cols { display:flex; flex-direction:column; gap:48px; }
+          .portfolio-tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+          @media(min-width:768px){
+            .stats-grid { grid-template-columns:repeat(3,1fr); }
+            .features-grid { grid-template-columns:repeat(2,1fr); }
+            .process-grid { grid-template-columns:repeat(3,1fr); }
+          }
+          @media(min-width:1024px){
+            .hero-cols { flex-direction:row; align-items:center; gap:80px; }
+            .hero-brand { width:420px; margin:0; }
+            .about-cols { flex-direction:row; align-items:flex-start; gap:80px; }
+            .about-side { width:288px; position:sticky; top:112px; }
+            .features-grid { grid-template-columns:repeat(4,1fr); }
+            .portfolio-cols { flex-direction:row; align-items:center; justify-content:space-between; }
+          }
+        `}</style>
         <MainHeader />
 
         {/* ══════════════════════════════════════════════════════════════════════ */}
@@ -144,11 +166,11 @@ export default function Home() {
           </div>
 
           {/* Content */}
-          <div className="relative mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-32 lg:py-36">
-            <div className="flex flex-col gap-16 lg:flex-row lg:items-center lg:gap-16 xl:gap-24">
+          <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "96px 32px" }}>
+            <div className="hero-cols">
 
               {/* Text column */}
-              <div className="flex min-w-0 flex-1 flex-col gap-7">
+              <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 28 }}>
                 <motion.p
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -159,22 +181,32 @@ export default function Home() {
                 </motion.p>
 
                 <h1 className="font-display text-[clamp(3rem,7vw,6rem)] font-normal italic leading-[1.04] tracking-tight">
-                  {[
-                    { t: "Twoja ",     c: "" },
-                    { t: "brama",      c: "" },
-                    { t: "\nto ",      c: "text-gold-gradient not-italic" },
-                    { t: "pierwsze",   c: "text-gold-gradient not-italic" },
-                    { t: "\nwrażenie.", c: "" },
-                  ].map((w, i) => (
-                    <motion.span key={i}
-                      className={`inline-block whitespace-pre-wrap ${w.c}`}
-                      initial={{ opacity: 0, y: 40, filter: "blur(6px)" }}
-                      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                      transition={{ duration: 0.75, delay: 0.1 + i * 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    >
-                      {w.t}
-                    </motion.span>
-                  ))}
+                  <motion.span
+                    className="inline-block"
+                    initial={{ opacity: 0, y: 40, filter: "blur(6px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{ duration: 0.75, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  >
+                    Twoja brama
+                  </motion.span>
+                  <br />
+                  <motion.span
+                    className="inline-block text-gold-gradient not-italic"
+                    initial={{ opacity: 0, y: 40, filter: "blur(6px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{ duration: 0.75, delay: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  >
+                    to pierwsze
+                  </motion.span>
+                  <br />
+                  <motion.span
+                    className="inline-block"
+                    initial={{ opacity: 0, y: 40, filter: "blur(6px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{ duration: 0.75, delay: 0.34, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  >
+                    wrażenie.
+                  </motion.span>
                 </h1>
 
                 <motion.p
@@ -191,7 +223,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.65, delay: 0.85 }}
-                  className="flex flex-wrap items-center gap-4"
+                  style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12 }}
                 >
                   <LuxButton href="/konfigurator" variant="gold" size="lg">
                     Otwórz konfigurator
@@ -202,19 +234,33 @@ export default function Home() {
                   </LuxButton>
                 </motion.div>
 
-                {/* Animated counters */}
+                {/* Stats — direct values (no CountUp flash bug) */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ duration: 0.9, delay: 1.05 }}
-                  className="flex flex-wrap gap-x-12 gap-y-5 border-t border-zinc-800 pt-7"
+                  transition={{ duration: 0.8, delay: 1.0 }}
+                  style={{
+                    display: "flex", flexWrap: "wrap",
+                    gap: "20px 40px",
+                    borderTop: "1px solid rgba(63,63,70,0.7)",
+                    paddingTop: 28,
+                    marginTop: 8,
+                  }}
                 >
                   {STATS.map((s) => (
-                    <div key={s.label} className="flex flex-col gap-2">
-                      <span className="font-display text-[2.4rem] font-semibold leading-none text-gold-gradient">
-                        <CountUp to={s.value} suffix={s.suffix} />
+                    <div key={s.label} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <span style={{
+                        fontFamily: "var(--font-playfair, 'Playfair Display', Georgia, serif)",
+                        fontSize: "2.4rem", fontWeight: 700, lineHeight: 1,
+                        background: "linear-gradient(135deg,#C9A227,#E8C97A,#D4AF37,#B8961F)",
+                        WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                        backgroundClip: "text",
+                      }}>
+                        {s.value}{s.suffix}
                       </span>
-                      <span className="text-[10px] uppercase tracking-[0.4em] text-zinc-500">{s.label}</span>
+                      <span style={{ fontSize: 10, letterSpacing: "0.38em", textTransform: "uppercase", color: "#71717a" }}>
+                        {s.label}
+                      </span>
                     </div>
                   ))}
                 </motion.div>
@@ -225,51 +271,65 @@ export default function Home() {
                 initial={{ opacity: 0, y: 32 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1.1, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="w-full flex-shrink-0 lg:w-[380px] xl:w-[420px]"
+                className="hero-brand" style={{ flexShrink: 0 }}
               >
-                <TiltCard intensity={7}>
+                <TiltCard intensity={7} className="h-full">
+                  {/* Beam wrapper via inline padding trick */}
                   <div className="beam-wrapper">
-                    <div className="beam-inner relative flex flex-col items-center gap-7 rounded-2xl p-10">
-                      {/* Inner ambient glow */}
-                      <div className="pointer-events-none absolute inset-0 rounded-2xl"
-                        style={{ background: "radial-gradient(ellipse 75% 60% at 50% 20%, rgba(133,102,47,0.22) 0%, transparent 65%)" }}
-                      />
+                    <div className="beam-inner rounded-2xl" style={{ padding: "36px 32px", display: "flex", flexDirection: "column", gap: 22 }}>
 
-                      {/* Logo — clearly visible at proper size */}
-                      <div className="relative w-full rounded-xl border border-zinc-700 bg-black/50 px-6 py-7">
-                        <Image
-                          src="/logo.jpg"
-                          alt="Koziol Luxury Gates"
-                          width={360}
-                          height={120}
-                          className="relative w-full object-contain"
-                          priority
-                        />
+                      {/* Inner glow */}
+                      <div style={{
+                        position: "absolute", inset: 0, borderRadius: 16, pointerEvents: "none",
+                        background: "radial-gradient(ellipse 75% 55% at 50% 20%, rgba(133,102,47,0.20) 0%, transparent 65%)",
+                      }} />
+
+                      {/* Logo */}
+                      <div style={{
+                        position: "relative", width: "100%",
+                        padding: "24px 22px",
+                        border: "1px solid rgba(63,63,70,0.6)",
+                        borderRadius: 14,
+                        background: "rgba(0,0,0,0.6)",
+                        display: "flex", justifyContent: "center", alignItems: "center",
+                      }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/logo.svg" alt="Koziol Luxury Gates" style={{ height: 210, width: 210, display: "block" }} />
                       </div>
 
-                      <div className="gold-line w-full" />
+                      {/* Gold divider */}
+                      <div style={{ height: 1, background: "linear-gradient(to right, transparent, rgba(212,175,55,0.5), transparent)" }} />
 
                       {/* Info grid */}
-                      <div className="grid w-full grid-cols-2 gap-2">
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                         {[
                           { label: "Siedziba",      value: "Ozorków" },
                           { label: "Rok założenia", value: "2009" },
                           { label: "Zasięg",        value: "Cała Polska" },
                           { label: "Gwarancja",     value: "20 lat" },
                         ].map((item) => (
-                          <div key={item.label} className="flex flex-col gap-1.5 rounded-xl border border-zinc-800 bg-zinc-950/70 p-4">
-                            <span className="text-[9px] uppercase tracking-[0.38em] text-zinc-600">{item.label}</span>
-                            <span className="text-[13px] font-medium text-zinc-200">{item.value}</span>
+                          <div key={item.label} style={{
+                            padding: "16px 18px",
+                            border: "1px solid rgba(63,63,70,0.5)",
+                            borderRadius: 12,
+                            background: "rgba(9,9,11,0.7)",
+                            display: "flex", flexDirection: "column", gap: 6,
+                          }}>
+                            <span style={{ fontSize: 9, letterSpacing: "0.38em", textTransform: "uppercase", color: "#52525b" }}>
+                              {item.label}
+                            </span>
+                            <span style={{ fontSize: 14, fontWeight: 600, color: "#e4e4e7" }}>
+                              {item.value}
+                            </span>
                           </div>
                         ))}
                       </div>
 
-                      <Link href="/kontakt"
-                        className="group flex w-full items-center justify-center gap-2.5 rounded-xl border border-zinc-800 bg-zinc-950/50 px-5 py-3.5 text-[11px] font-medium text-zinc-400 transition-all hover:border-[#D4AF37]/55 hover:text-[#D4AF37]"
-                      >
+                      {/* CTA link */}
+                      <LuxButton href="/kontakt" variant="outline" size="lg">
                         Umów spotkanie w showroomie
-                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                      </Link>
+                        <ArrowRight size={14} />
+                      </LuxButton>
                     </div>
                   </div>
                 </TiltCard>
@@ -279,12 +339,14 @@ export default function Home() {
         </section>
 
         {/* ══ TICKER ═════════════════════════════════════════════════════════════ */}
-        <div className="overflow-hidden border-b border-zinc-800 bg-zinc-950/70 py-4">
-          <div className="marquee-track flex gap-12 whitespace-nowrap">
+        <div style={{ overflow: "hidden", borderBottom: "1px solid #27272a", background: "rgba(9,9,11,0.8)", padding: "14px 0" }}>
+          <div className="marquee-track" style={{ display: "flex", gap: 48, whiteSpace: "nowrap" }}>
             {[...TICKER, ...TICKER].map((item, i) => (
-              <span key={i} className="inline-flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-zinc-400">
-                <span className="h-[5px] w-[5px] flex-shrink-0 rounded-full bg-[#D4AF37]" />
-                {item}
+              <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#D4AF37", flexShrink: 0, display: "block" }} />
+                <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "#a1a1aa" }}>
+                  {item}
+                </span>
               </span>
             ))}
           </div>
@@ -294,11 +356,11 @@ export default function Home() {
         <section className="relative border-b border-zinc-800 bg-[#030303] grid-overlay">
           <div className="pointer-events-none absolute inset-0 gold-glow-left" />
 
-          <div className="relative mx-auto max-w-7xl px-5 py-28 md:px-8 md:py-32">
-            <div className="flex flex-col gap-14 lg:flex-row lg:items-start lg:gap-24">
+          <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "96px 32px" }}>
+            <div className="about-cols">
 
               {/* Sticky label */}
-              <ScrollReveal className="lg:sticky lg:top-28 lg:w-72 lg:flex-shrink-0">
+              <ScrollReveal className="about-side">
                 <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">O nas</p>
                 <h2 className="font-display text-[clamp(2.2rem,4.5vw,3.2rem)] font-normal italic leading-tight tracking-tight">
                   Rzemiosło, precyzja i stal.
@@ -307,7 +369,7 @@ export default function Home() {
                 <p className="mt-6 text-[15px] leading-relaxed text-zinc-400">
                   Realizujemy bramy od pomysłu do montażu. Wszystko we własnym zakładzie w Ozorkowie.
                 </p>
-                <div className="mt-8">
+                <div style={{ marginTop: 28 }}>
                   <LuxButton href="/galeria" variant="outline">
                     Przeglądaj portfolio
                     <ArrowRight className="h-4 w-4" />
@@ -316,10 +378,10 @@ export default function Home() {
               </ScrollReveal>
 
               {/* Cards */}
-              <div className="flex flex-1 flex-col gap-5">
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
                 <ScrollReveal delay={0.1}>
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-9">
-                    <p className="mb-5 text-[9px] uppercase tracking-[0.38em] text-zinc-500">Nasza filozofia</p>
+                  <div className="page-card page-card-accent" style={{ padding: "36px 32px" }}>
+                    <p className="mb-4 text-[9px] font-semibold uppercase tracking-[0.4em] text-[#D4AF37]/80">Nasza filozofia</p>
                     <p className="text-[17px] font-light leading-relaxed text-zinc-200">
                       Koziol Luxury Gates to pracownia, gdzie każdy projekt startuje od zrozumienia architektury
                       budynku i oczekiwań inwestora. Dobieramy wypełnienie, podział przęseł, kolorystykę i
@@ -328,24 +390,32 @@ export default function Home() {
                   </div>
                 </ScrollReveal>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                  {STATS.map((s, i) => (
-                    <ScrollReveal key={s.label} delay={0.1 * (i + 1)}>
-                      <TiltCard intensity={9}>
-                        <div className="flex flex-col gap-4 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-7 transition-colors hover:border-[#D4AF37]/40">
-                          <span className="font-display text-6xl font-semibold leading-none text-gold-gradient">
-                            <CountUp to={s.value} suffix={s.suffix} />
-                          </span>
-                          <span className="text-[10px] uppercase tracking-[0.38em] text-zinc-500">{s.label}</span>
-                        </div>
-                      </TiltCard>
-                    </ScrollReveal>
+                <div className="stats-grid">
+                  {STATS.map((s) => (
+                    <TiltCard key={s.label} intensity={9}>
+                      <div className="page-card-stat" style={{
+                        display: "flex", flexDirection: "column", gap: 14,
+                        padding: "32px 28px",
+                      }}>
+                        <span style={{
+                          fontFamily: "var(--font-playfair, Georgia, serif)",
+                          fontSize: "3.5rem", fontWeight: 700, lineHeight: 1,
+                          background: "linear-gradient(135deg,#C9A227,#E8C97A,#D4AF37,#B8961F)",
+                          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+                        }}>
+                          {s.value}{s.suffix}
+                        </span>
+                        <span style={{ fontSize: 10, letterSpacing: "0.38em", textTransform: "uppercase", color: "#71717a" }}>
+                          {s.label}
+                        </span>
+                      </div>
+                    </TiltCard>
                   ))}
                 </div>
 
                 <ScrollReveal delay={0.2}>
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-9">
-                    <p className="mb-5 text-[9px] uppercase tracking-[0.38em] text-zinc-500">Materiały i technologia</p>
+                  <div className="page-card page-card-accent" style={{ padding: "36px 32px" }}>
+                    <p className="mb-4 text-[9px] font-semibold uppercase tracking-[0.4em] text-[#D4AF37]/80">Materiały i technologia</p>
                     <p className="text-[15px] leading-relaxed text-zinc-400">
                       Cynkowanie ogniowe, malowanie proszkowe RAL, profile zamknięte 60×60 do 100×100. Każde
                       ogrodzenie systemowe dobieramy pod projekt bramy, aby całość tworzyła jednolitą całość.
@@ -365,32 +435,32 @@ export default function Home() {
             style={{ background: "radial-gradient(ellipse 90% 70% at 50% 0%, rgba(133,102,47,0.16) 0%, transparent 60%)" }}
           />
 
-          <div className="relative mx-auto max-w-7xl px-5 py-28 md:px-8 md:py-32">
+          <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "96px 32px" }}>
             <ScrollReveal>
-              <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 24, justifyContent: "space-between", alignItems: "flex-end" }}>
                 <div>
                   <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">Technologia</p>
-                  <h2 className="font-display text-[clamp(2.2rem,4.5vw,3.2rem)] font-normal italic leading-tight">
+                  <h2 className="font-display" style={{ fontSize: "clamp(2.2rem,4.5vw,3.2rem)", fontWeight: 400, fontStyle: "italic", lineHeight: 1.15 }}>
                     Wyróżnia nas każdy detal.
                   </h2>
                 </div>
-                <p className="max-w-sm text-[15px] leading-relaxed text-zinc-500">
+                <p style={{ maxWidth: 320, fontSize: 15, lineHeight: 1.7, color: "#71717a" }}>
                   Od doboru stali po automatykę — nasze standardy wykraczają poza produkcję seryjną.
                 </p>
               </div>
             </ScrollReveal>
 
-            <StaggerContainer className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4" staggerDelay={0.09}>
+            <StaggerContainer className="features-grid" style={{ marginTop: 48 }} staggerDelay={0.09}>
               {FEATURES.map(({ Icon, eyebrow, title, desc }) => (
                 <StaggerItem key={title}>
                   <TiltCard intensity={9} className="h-full">
                     <div className="beam-wrapper h-full">
-                      <div className="beam-inner flex h-full flex-col gap-6 rounded-2xl p-8">
-                        <div className="flex h-13 w-13 items-center justify-center rounded-full border border-[#D4AF37]/35 bg-black">
+                      <div className="beam-inner flex h-full flex-col gap-5 rounded-2xl" style={{ padding: "36px 32px" }}>
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#D4AF37]/40 bg-black/80">
                           <Icon className="h-6 w-6 text-[#D4AF37]" />
                         </div>
-                        <p className="text-[9px] uppercase tracking-[0.38em] text-zinc-600">{eyebrow}</p>
-                        <h3 className="text-[14px] font-semibold leading-snug text-white">{title}</h3>
+                        <p className="text-[9px] font-semibold uppercase tracking-[0.4em] text-[#D4AF37]/70">{eyebrow}</p>
+                        <h3 className="text-[15px] font-semibold leading-snug text-white">{title}</h3>
                         <p className="text-[13px] leading-relaxed text-zinc-400">{desc}</p>
                       </div>
                     </div>
@@ -403,7 +473,7 @@ export default function Home() {
 
         {/* ══ PROCES ═════════════════════════════════════════════════════════════ */}
         <section className="relative border-b border-zinc-800 bg-[#030303] grid-overlay">
-          <div className="mx-auto max-w-7xl px-5 py-28 md:px-8 md:py-32">
+          <div style={{ maxWidth: 1280, margin: "0 auto", padding: "96px 32px" }}>
             <ScrollReveal>
               <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">Jak działamy</p>
               <h2 className="font-display max-w-xl text-[clamp(2.2rem,4.5vw,3.2rem)] font-normal italic leading-tight">
@@ -411,24 +481,24 @@ export default function Home() {
               </h2>
             </ScrollReveal>
 
-            <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
+            <div className="process-grid" style={{ marginTop: 48 }}>
               {PROCESS.map((step, i) => (
                 <ScrollReveal key={step.num} delay={i * 0.13}>
                   <TiltCard intensity={7} className="h-full">
-                    <div className="group flex h-full flex-col gap-6 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-9 transition-all duration-300 hover:border-[#D4AF37]/50 hover:shadow-gold">
-                      <span className="font-display text-[5.5rem] font-normal leading-none text-[#D4AF37]/20 transition-colors duration-300 group-hover:text-[#D4AF37]/50">
+                    <div className="page-card group flex h-full flex-col gap-5 transition-all duration-300" style={{ padding: "36px 32px" }}>
+                      <span className="font-display text-[4.5rem] font-normal leading-none text-[#D4AF37]/25 transition-colors duration-300 group-hover:text-[#D4AF37]/45">
                         {step.num}
                       </span>
-                      <div className="flex flex-col gap-3">
+                      <div className="flex flex-col gap-2">
                         <h3 className="text-[15px] font-semibold text-white">{step.title}</h3>
                         <p className="text-[13px] leading-relaxed text-zinc-400">{step.desc}</p>
                       </div>
-                      <Link href={step.href}
-                        className="mt-auto flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-zinc-600 transition-colors group-hover:text-[#D4AF37]"
-                      >
-                        {step.cta}
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </Link>
+                      <div className="mt-auto pt-2">
+                        <LuxButton href={step.href} variant="outline" size="md">
+                          {step.cta}
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </LuxButton>
+                      </div>
                     </div>
                   </TiltCard>
                 </ScrollReveal>
@@ -443,18 +513,19 @@ export default function Home() {
             style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(133,102,47,0.12) 0%, transparent 65%)" }}
           />
 
-          <div className="relative mx-auto max-w-7xl px-5 py-28 md:px-8 md:py-32">
-            <div className="flex flex-col gap-14 md:flex-row md:items-center md:justify-between">
-              <ScrollReveal className="md:max-w-xl">
-                <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">Portfolio</p>
-                <h2 className="font-display text-[clamp(2.2rem,4.5vw,3.2rem)] font-normal italic leading-tight">
-                  Każda brama,<br className="hidden sm:block" /> inna historia.
+          <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "96px 32px" }}>
+            <div className="portfolio-cols">
+              {/* Left: heading + text + buttons */}
+              <ScrollReveal style={{ maxWidth: 560 }}>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.5em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 16 }}>Portfolio</p>
+                <h2 className="font-display" style={{ fontSize: "clamp(2.2rem,4.5vw,3.2rem)", fontWeight: 400, fontStyle: "italic", lineHeight: 1.15, marginBottom: 20 }}>
+                  Każda brama, inna historia.
                 </h2>
-                <p className="mt-5 text-[16px] font-light leading-relaxed text-zinc-400">
-                  Bramy przesuwne, skrzydłowe, samonośne. Każdy projekt indywidualny, każde
-                  wykończenie dobrane do architektury budynku.
+                <p style={{ fontSize: 16, fontWeight: 300, lineHeight: 1.7, color: "#a1a1aa", marginBottom: 36 }}>
+                  Bramy przesuwne, skrzydłowe, samonośne. Każdy projekt indywidualny,
+                  każde wykończenie dobrane do architektury budynku.
                 </p>
-                <div className="mt-9 flex flex-wrap gap-4">
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
                   <LuxButton href="/galeria" variant="gold" size="lg">
                     Przeglądaj portfolio
                     <ArrowRight className="h-4 w-4" />
@@ -465,26 +536,35 @@ export default function Home() {
                 </div>
               </ScrollReveal>
 
-              <ScrollReveal delay={0.15}>
-                <div className="beam-wrapper w-full md:w-80">
-                  <div className="beam-inner rounded-2xl p-9">
-                    <div className="space-y-5">
-                      {[
-                        { label: "Bramy przesuwne",   to: 80 },
-                        { label: "Bramy skrzydłowe",  to: 70 },
-                        { label: "Bramy + furtki",    to: 50 },
-                      ].map((row) => (
-                        <div key={row.label} className="flex items-center justify-between border-b border-zinc-800 pb-5 last:border-0 last:pb-0">
-                          <span className="text-[14px] text-zinc-400">{row.label}</span>
-                          <span className="font-display text-2xl font-semibold text-gold-gradient">
-                            <CountUp to={row.to} suffix="+" />
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                    <p className="mt-7 text-[9px] uppercase tracking-[0.4em] text-zinc-600">Realizacje w całej Polsce</p>
-                  </div>
+              {/* Right: 3 stat tiles */}
+              <ScrollReveal delay={0.15} style={{ width: "100%", maxWidth: 480 }}>
+                <div className="portfolio-tiles">
+                  {[
+                    { num: "80+", label: "Bramy przesuwne" },
+                    { num: "70+", label: "Bramy skrzydłowe" },
+                    { num: "50+", label: "Bramy + furtki" },
+                  ].map((item) => (
+                    <TiltCard key={item.label} intensity={8}>
+                      <div className="page-card-stat" style={{
+                        display: "flex", flexDirection: "column", gap: 12,
+                        padding: "32px 28px", textAlign: "center",
+                      }}>
+                        <span style={{
+                          fontFamily: "var(--font-playfair, Georgia, serif)",
+                          fontSize: "2.6rem", fontWeight: 700, lineHeight: 1,
+                          background: "linear-gradient(135deg,#C9A227,#E8C97A,#D4AF37)",
+                          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+                        }}>
+                          {item.num}
+                        </span>
+                        <span style={{ fontSize: 11, color: "#71717a", lineHeight: 1.4 }}>{item.label}</span>
+                      </div>
+                    </TiltCard>
+                  ))}
                 </div>
+                <p style={{ marginTop: 16, fontSize: 9, letterSpacing: "0.4em", textTransform: "uppercase", color: "#52525b", textAlign: "center" }}>
+                  Realizacje w całej Polsce
+                </p>
               </ScrollReveal>
             </div>
           </div>
@@ -513,14 +593,16 @@ export default function Home() {
               </p>
             </ScrollReveal>
 
-            <ScrollReveal delay={0.18} className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <LuxButton href="/konfigurator" variant="gold" size="lg">
-                Otwórz konfigurator
-                <ArrowRight className="h-4 w-4" />
-              </LuxButton>
-              <LuxButton href="/kontakt" variant="outline" size="lg">
-                Skontaktuj się z nami
-              </LuxButton>
+            <ScrollReveal delay={0.18}>
+              <div style={{ marginTop: 36, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 14 }}>
+                <LuxButton href="/konfigurator" variant="gold" size="lg">
+                  Otwórz konfigurator
+                  <ArrowRight className="h-4 w-4" />
+                </LuxButton>
+                <LuxButton href="/kontakt" variant="outline" size="lg">
+                  Skontaktuj się z nami
+                </LuxButton>
+              </div>
             </ScrollReveal>
 
             <ScrollReveal delay={0.32} className="mt-12 flex flex-wrap justify-center gap-3">

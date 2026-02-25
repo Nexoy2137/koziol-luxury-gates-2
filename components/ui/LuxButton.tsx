@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { ReactNode, CSSProperties } from "react";
 
 interface LuxButtonProps {
   href: string;
@@ -7,6 +9,7 @@ interface LuxButtonProps {
   variant?: "gold" | "outline";
   className?: string;
   size?: "md" | "lg";
+  style?: CSSProperties;
 }
 
 export function LuxButton({
@@ -15,31 +18,88 @@ export function LuxButton({
   variant = "gold",
   className = "",
   size = "md",
+  style,
 }: LuxButtonProps) {
-  const padding = size === "lg" ? "px-10 py-4 text-[12px]" : "px-7 py-3.5 text-[11px]";
+  const fontSize = size === "lg" ? 12 : 11;
+  const padding  = size === "lg" ? "13px 28px" : "10px 22px";
+
+  const baseStyle: CSSProperties = {
+    position: "relative",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    borderRadius: 999,
+    fontSize,
+    fontWeight: 700,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase" as const,
+    textDecoration: "none",
+    padding,
+    transition: "background 0.25s, box-shadow 0.25s, border-color 0.25s, color 0.25s",
+    whiteSpace: "nowrap" as const,
+    cursor: "pointer",
+    overflow: "hidden",
+    ...style,
+  };
 
   if (variant === "gold") {
     return (
       <Link
         href={href}
-        className={`group relative inline-flex overflow-hidden items-center gap-2.5 rounded-full bg-[#D4AF37] font-semibold uppercase tracking-[0.32em] text-black transition-all duration-300 hover:bg-[#C9A227] shadow-[0_0_30px_rgba(212,175,55,0.28)] hover:shadow-[0_0_55px_rgba(212,175,55,0.55)] ${padding} ${className}`}
+        className={className}
+        style={{ ...baseStyle, background: "#D4AF37", color: "#000", boxShadow: "0 0 28px rgba(212,175,55,0.32)" }}
+        onMouseEnter={(e) => {
+          const el = e.currentTarget as HTMLAnchorElement;
+          el.style.background = "#C9A227";
+          el.style.boxShadow = "0 0 52px rgba(212,175,55,0.62)";
+        }}
+        onMouseLeave={(e) => {
+          const el = e.currentTarget as HTMLAnchorElement;
+          el.style.background = "#D4AF37";
+          el.style.boxShadow = "0 0 28px rgba(212,175,55,0.32)";
+        }}
       >
-        {/* Shimmer sweep on hover */}
-        <span
-          className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-15deg] bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-[600ms] ease-in-out group-hover:translate-x-full"
-          aria-hidden="true"
+        {/* Shimmer */}
+        <span style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.28) 50%, transparent 60%)",
+          transform: "translateX(-100%)",
+          transition: "transform 0.65s ease",
+          pointerEvents: "none",
+        }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateX(100%)"; }}
         />
-        <span className="relative flex items-center gap-2.5">{children}</span>
+        {children}
       </Link>
     );
   }
 
+  // Outline variant
   return (
     <Link
       href={href}
-      className={`group relative inline-flex items-center gap-2.5 rounded-full border border-[#D4AF37]/55 font-semibold uppercase tracking-[0.32em] text-[#D4AF37] transition-all duration-300 hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 hover:shadow-[0_0_32px_rgba(212,175,55,0.22)] ${padding} ${className}`}
+      className={className}
+      style={{
+        ...baseStyle,
+        background: "transparent",
+        color: "#D4AF37",
+        border: "1.5px solid #D4AF37",
+        boxShadow: "none",
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLAnchorElement;
+        el.style.background = "rgba(212,175,55,0.12)";
+        el.style.borderColor = "#E8C97A";
+        el.style.boxShadow = "0 0 24px rgba(212,175,55,0.22)";
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget as HTMLAnchorElement;
+        el.style.background = "transparent";
+        el.style.borderColor = "#D4AF37";
+        el.style.boxShadow = "none";
+      }}
     >
-      <span className="relative flex items-center gap-2.5">{children}</span>
+      {children}
     </Link>
   );
 }

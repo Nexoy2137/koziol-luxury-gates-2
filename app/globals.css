@@ -102,6 +102,26 @@ body {
   animation-duration: 3s;
 }
 
+/* Stronger gold beam (gallery detail) */
+.beam-wrapper-strong {
+  background: rgba(212, 175, 55, 0.35);
+  padding: 2px;
+}
+.beam-wrapper-strong .beam-inner {
+  border-radius: calc(1rem - 2px);
+}
+.beam-wrapper-strong::before {
+  background: conic-gradient(
+    from 0deg,
+    transparent   0%,
+    transparent   60%,
+    rgba(212, 175, 55, 0.5)   72%,
+    rgba(212, 175, 55, 1)     85%,
+    rgba(212, 175, 55, 0.5)   92%,
+    transparent  100%
+  );
+}
+
 /* ─── Grain overlay ──────────────────────────────────────────────────────────── */
 .grain-overlay {
   position: fixed;
@@ -134,6 +154,32 @@ body {
   color: transparent; /* Firefox fallback */
 }
 
+/* ─── Page content cards (unified luxury style) ───────────────────────────────── */
+.page-card {
+  background: linear-gradient(160deg, rgba(12,12,14,0.95) 0%, rgba(6,6,8,0.98) 100%);
+  border: 1px solid rgba(63,63,70,0.5);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.02);
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.page-card:hover {
+  border-color: rgba(212,175,55,0.2);
+  box-shadow: 0 8px 36px rgba(0,0,0,0.45), 0 0 0 1px rgba(212,175,55,0.06);
+}
+.page-card-accent {
+  border-left: 3px solid rgba(212,175,55,0.45);
+}
+.page-card-stat {
+  background: linear-gradient(160deg, rgba(9,9,11,0.9) 0%, rgba(4,4,6,0.98) 100%);
+  border: 1px solid rgba(63,63,70,0.5);
+  border-radius: 16px;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.page-card-stat:hover {
+  border-color: rgba(212,175,55,0.25);
+  box-shadow: 0 4px 20px rgba(212,175,55,0.06);
+}
+
 /* ─── Gold Shadows ───────────────────────────────────────────────────────────── */
 .shadow-gold {
   box-shadow: 0 8px 40px -10px rgba(212,175,55,0.40);
@@ -163,11 +209,99 @@ body {
 }
 .gold-underline:hover::after { width: 100%; }
 
+/* ─── Gallery filter select (luxury style) ─────────────────────────────────────── */
+.gallery-filter-select {
+  width: 100%;
+  padding: 8px 32px 8px 14px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: #a1a1aa;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"), linear-gradient(160deg, rgba(9,9,11,0.95) 0%, rgba(4,4,6,0.98) 100%);
+  background-repeat: no-repeat, no-repeat;
+  background-position: right 10px center, 0 0;
+  background-size: 12px, auto;
+  border: 1px solid rgba(63,63,70,0.5);
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.02);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+}
+.gallery-filter-select:hover {
+  border-color: rgba(63,63,70,0.8);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.35);
+}
+.gallery-filter-select:focus {
+  outline: none;
+  border-color: rgba(212,175,55,0.45);
+  box-shadow: 0 0 0 1px rgba(212,175,55,0.15), 0 2px 16px rgba(0,0,0,0.35);
+}
+.gallery-filter-select option {
+  background: #0a0a0b;
+  color: #e4e4e7;
+}
+
 /* ─── Masonry CSS columns ─────────────────────────────────────────────────────── */
-.masonry-grid { columns: 1; column-gap: 1.25rem; }
-@media (min-width: 640px)  { .masonry-grid { columns: 2; } }
-@media (min-width: 1024px) { .masonry-grid { columns: 3; } }
-.masonry-item { break-inside: avoid; margin-bottom: 1.25rem; }
+.masonry-grid { columns: 1; column-gap: 1.75rem; }
+@media (min-width: 640px)  { .masonry-grid { columns: 2; column-gap: 2rem; } }
+@media (min-width: 1024px) { .masonry-grid { columns: 3; column-gap: 2rem; } }
+.masonry-item { break-inside: avoid; margin-bottom: 2rem; }
+
+/* ─── Gallery card (luxury frame + hover) ──────────────────────────────────────── */
+.gallery-card {
+  position: relative;
+  padding: 12px;
+  background: linear-gradient(160deg, rgba(18,18,20,0.98) 0%, rgba(8,8,10,0.99) 100%);
+  border: 2px solid rgba(63,63,70,0.6);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.2);
+  transition: transform 0.35s ease, border-color 0.3s, box-shadow 0.3s;
+}
+.gallery-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(212,175,55,0.5);
+  border-width: 2px;
+  box-shadow: 0 20px 56px rgba(0,0,0,0.55), 0 0 0 1px rgba(212,175,55,0.15), 0 0 40px rgba(212,175,55,0.08);
+}
+.gallery-card .gallery-img-wrap {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.06);
+  transition: transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.gallery-card:hover .gallery-img-wrap { transform: scale(1.03); }
+.gallery-card .gallery-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.gallery-card:hover .gallery-overlay { opacity: 1; }
+
+/* ─── Gallery detail spec row ─────────────────────────────────────────────────── */
+.gallery-spec-row {
+  display: flex; align-items: flex-start; gap: 20px;
+  padding: 20px 24px; border-radius: 14px;
+  background: rgba(9,9,11,0.5); border: 1px solid rgba(63,63,70,0.4);
+  transition: border-color 0.2s, background 0.2s;
+}
+.gallery-spec-row:hover { border-color: rgba(212,175,55,0.2); background: rgba(212,175,55,0.04); }
+.gallery-spec-row .gallery-spec-icon { flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(212,175,55,0.12); color: #D4AF37; }
+.gallery-spec-row .gallery-spec-label { font-size: 9px; font-weight: 600; letter-spacing: 0.4em; text-transform: uppercase; color: #71717a; margin-bottom: 6px; }
+.gallery-spec-row .gallery-spec-value { font-size: 16px; font-weight: 400; color: #e4e4e7; line-height: 1.4; }
+
+/* ─── Gallery detail spec tile (compact, for grid) ─────────────────────────────── */
+.gallery-spec-tile {
+  padding: 16px 18px; border-radius: 12px;
+  background: rgba(9,9,11,0.6); border: 1px solid rgba(63,63,70,0.4);
+  transition: border-color 0.2s, background 0.2s;
+}
+.gallery-spec-tile:hover { border-color: rgba(212,175,55,0.25); background: rgba(212,175,55,0.06); }
+.gallery-spec-tile .gallery-spec-tile-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(212,175,55,0.12); color: #D4AF37; margin-bottom: 10px; }
+.gallery-spec-tile .gallery-spec-tile-label { font-size: 8px; font-weight: 600; letter-spacing: 0.35em; text-transform: uppercase; color: #71717a; margin-bottom: 4px; }
+.gallery-spec-tile .gallery-spec-tile-value { font-size: 14px; font-weight: 400; color: #e4e4e7; line-height: 1.35; }
 
 /* ─── Magnetic button ────────────────────────────────────────────────────────── */
 .magnetic           { transition: transform 0.1s ease; will-change: transform; }
@@ -192,6 +326,15 @@ body {
     linear-gradient(rgba(212,175,55,0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(212,175,55,0.04) 1px, transparent 1px);
   background-size: 72px 72px;
+}
+
+/* ─── Lokalizacja map (dark default, bright on hover) ─────────────────────────── */
+.map-wrapper .map-iframe {
+  filter: grayscale(1) invert(1) brightness(0.18) contrast(1.1);
+  transition: filter 0.8s ease;
+}
+.map-wrapper:hover .map-iframe {
+  filter: grayscale(0) invert(0) brightness(1) contrast(1);
 }
 
 /* ─── Gate reveal animation ──────────────────────────────────────────────────── */

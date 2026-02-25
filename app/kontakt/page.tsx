@@ -2,30 +2,29 @@
 
 import { useState } from "react";
 import { Phone, Mail, MapPin, Clock, ArrowRight, CheckCircle } from "lucide-react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { MainHeader } from "@/components/MainHeader";
 import { MainFooter } from "@/components/MainFooter";
 import { LuxButton } from "@/components/ui/LuxButton";
-import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/ui/ScrollReveal";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 const contactCards = [
   {
-    icon: Phone,
+    Icon: Phone,
     label: "Telefon",
     value: "+48 602 384 821",
-    sub: "Pon – Pt, 9:00 – 18:00",
+    sub: "Poniedziałek – Piątek, 9:00 – 18:00",
     href: "tel:+48602384821",
   },
   {
-    icon: Mail,
+    Icon: Mail,
     label: "E-mail",
     value: "biuro@koziol-gates.pl",
-    sub: "Odpowiadamy w ciągu 24 godzin",
+    sub: "Odpowiadamy w ciągu 24 godzin roboczych",
     href: "mailto:biuro@koziol-gates.pl",
   },
   {
-    icon: Clock,
+    Icon: Clock,
     label: "Spotkania",
     value: "Po wcześniejszym umówieniu",
     sub: "Możliwy dojazd do klienta na teren budowy",
@@ -33,32 +32,66 @@ const contactCards = [
   },
 ];
 
+const inputStyle = {
+  width: "100%",
+  background: "rgba(18,18,20,0.9)",
+  border: "1px solid rgba(63,63,70,0.7)",
+  borderRadius: 12,
+  padding: "14px 18px",
+  fontSize: 14,
+  color: "#e4e4e7",
+  outline: "none",
+  transition: "border-color 0.2s, box-shadow 0.2s",
+  boxSizing: "border-box" as const,
+};
+
+const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  e.target.style.borderColor = "rgba(212,175,55,0.6)";
+  e.target.style.boxShadow = "0 0 0 2px rgba(212,175,55,0.12)";
+};
+const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  e.target.style.borderColor = "rgba(63,63,70,0.7)";
+  e.target.style.boxShadow = "none";
+};
+
 export default function KontaktPage() {
   const [sent, setSent] = useState(false);
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
+      <style>{`
+        .kcontact-form input::placeholder, .kcontact-form textarea::placeholder { color:#71717a; }
+        .contact-cards { display:grid; grid-template-columns:1fr; gap:16px; }
+        .contact-layout { display:grid; grid-template-columns:1fr; gap:40px; }
+        .form-row { display:grid; grid-template-columns:1fr; gap:14px; }
+        @media(min-width:640px){
+          .contact-cards { grid-template-columns:repeat(3,1fr); }
+          .form-row { grid-template-columns:1fr 1fr; }
+        }
+        @media(min-width:900px){
+          .contact-layout { grid-template-columns:1fr 1.15fr; gap:56px; }
+        }
+      `}</style>
       <MainHeader />
 
-      {/* ── HERO ──────────────────────────────────────────────────────────────── */}
-      <section className="relative border-b border-zinc-800">
-        <div className="pointer-events-none absolute inset-0 gold-glow-center" />
+      {/* ── HERO ────────────────────────────────────────────────────────────── */}
+      <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)", position: "relative" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(133,102,47,0.16) 0%, transparent 65%)", pointerEvents: "none" }} />
 
-        <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-20 md:px-8 md:pb-20 md:pt-28">
+        <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "80px 32px 64px" }}>
           <ScrollReveal>
-            <p className="mb-4 text-[9px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">
+            <p style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.5em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 16 }}>
               Kontakt
             </p>
-            <h1 className="font-display max-w-3xl text-4xl font-normal italic leading-tight tracking-tight md:text-5xl lg:text-6xl">
+            <h1 className="font-display" style={{ fontSize: "clamp(2.4rem,6vw,4rem)", fontWeight: 400, fontStyle: "italic", lineHeight: 1.1, marginBottom: 20 }}>
               Porozmawiajmy o Twojej inwestycji.
             </h1>
-            <p className="mt-5 max-w-xl text-[15px] font-light leading-relaxed text-zinc-500">
+            <p style={{ fontSize: 16, fontWeight: 300, lineHeight: 1.7, color: "#a1a1aa", maxWidth: 520, marginBottom: 36 }}>
               Zadzwoń, napisz lub umów spotkanie w naszym showroomie. Dobierzemy
               rozwiązanie dopasowane do architektury budynku i charakteru posesji.
             </p>
           </ScrollReveal>
-
-          <ScrollReveal delay={0.2} className="mt-8">
+          <ScrollReveal delay={0.15}>
             <LuxButton href="/konfigurator" variant="outline">
               Otwórz konfigurator
               <ArrowRight className="h-4 w-4" />
@@ -67,223 +100,196 @@ export default function KontaktPage() {
         </div>
       </section>
 
-      {/* ── CONTACT CARDS ─────────────────────────────────────────────────────── */}
-      <section className="border-b border-zinc-800 bg-[#030303]">
-        <div className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
-          <StaggerContainer className="grid grid-cols-1 gap-4 sm:grid-cols-3" staggerDelay={0.1}>
-            {contactCards.map((card) => (
-              <StaggerItem key={card.label}>
-                <div className="group beam-border h-full">
-                  <div className="beam-inner flex h-full flex-col gap-5 rounded-2xl p-7 transition-all">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[#D4AF37]/30 bg-black/60">
-                      <card.icon className="h-5 w-5 text-[#D4AF37]" />
-                    </div>
-                    <p className="text-[9px] uppercase tracking-[0.4em] text-zinc-600">
-                      {card.label}
-                    </p>
-                    {card.href ? (
-                      <a
-                        href={card.href}
-                        className="text-lg font-light text-white transition-colors hover:text-[#D4AF37]"
-                      >
-                        {card.value}
-                      </a>
-                    ) : (
-                      <p className="text-base font-light text-white">{card.value}</p>
-                    )}
-                    <p className="mt-auto text-xs leading-relaxed text-zinc-600">{card.sub}</p>
-                  </div>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </div>
-      </section>
-
-      {/* ── ADDRESS + FORM ────────────────────────────────────────────────────── */}
-      <section className="border-b border-zinc-800 bg-black">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-5 py-16 md:grid-cols-[1fr_1.1fr] md:px-8 md:py-24">
-          {/* Address */}
-          <ScrollReveal className="space-y-8">
-            <div>
-              <p className="mb-4 text-[9px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">
-                Siedziba
-              </p>
-              <h2 className="font-display text-2xl font-normal italic leading-tight md:text-3xl">
-                Koziol Luxury Gates — showroom
-              </h2>
-            </div>
-
-            <div className="space-y-5">
-              <div className="flex items-start gap-4">
-                <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-zinc-800 bg-zinc-950">
-                  <MapPin className="h-4 w-4 text-[#D4AF37]" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[9px] uppercase tracking-[0.3em] text-zinc-600">Adres</p>
-                  <p className="text-sm leading-relaxed text-zinc-300">
-                    ul. Adamówek 41
-                    <br />
-                    95-035 Ozorków
-                    <br />
-                    Polska
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-zinc-800 bg-zinc-950">
-                  <Clock className="h-4 w-4 text-[#D4AF37]" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[9px] uppercase tracking-[0.3em] text-zinc-600">Godziny</p>
-                  <p className="text-sm leading-relaxed text-zinc-300">
-                    Poniedziałek – Piątek
-                    <br />
-                    9:00 – 18:00
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="gold-line" />
-
-            <p className="text-sm leading-relaxed text-zinc-600">
-              Zapraszamy do kontaktu przed przyjazdem — przygotujemy próbki,
-              katalogi i propozycje rozwiązań dopasowane do Twojej inwestycji.
-            </p>
-
-            <div className="flex flex-wrap gap-3">
-              {["Bezpłatna konsultacja", "Dojazd do klienta", "Próbki materiałów"].map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-zinc-800 px-3 py-1.5 text-[9px] uppercase tracking-[0.28em] text-zinc-700"
+      {/* ── 3 CONTACT CARDS ─────────────────────────────────────────────────── */}
+      <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)", background: "#030303" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "56px 32px" }}>
+          <ScrollReveal>
+            <div className="contact-cards">
+              {contactCards.map((card, i) => (
+                <motion.div
+                  key={card.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
                 >
-                  {tag}
-                </span>
+                  <div className="beam-wrapper" style={{ height: "100%" }}>
+                    <div className="beam-inner" style={{ borderRadius: "calc(1rem - 1px)", padding: "32px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 48, height: 48, borderRadius: "50%", border: "1px solid rgba(212,175,55,0.3)", background: "rgba(0,0,0,0.6)" }}>
+                        <card.Icon size={20} style={{ color: "#D4AF37" }} />
+                      </div>
+                      <p style={{ fontSize: 9, letterSpacing: "0.45em", textTransform: "uppercase", color: "#52525b" }}>
+                        {card.label}
+                      </p>
+                      {card.href ? (
+                        <a href={card.href} style={{ fontSize: 17, fontWeight: 300, color: "#fff", textDecoration: "none", transition: "color 0.2s" }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#D4AF37"; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#fff"; }}
+                        >
+                          {card.value}
+                        </a>
+                      ) : (
+                        <p style={{ fontSize: 15, fontWeight: 300, color: "#fff" }}>{card.value}</p>
+                      )}
+                      <p style={{ fontSize: 12, lineHeight: 1.6, color: "#52525b", marginTop: "auto" }}>{card.sub}</p>
+                    </div>
+                  </div>
+                </motion.div>
               ))}
             </div>
           </ScrollReveal>
-
-          {/* Contact Form */}
-          <ScrollReveal delay={0.15}>
-            {sent ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex h-full flex-col items-center justify-center gap-6 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-10 text-center"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[#D4AF37]/30 bg-black">
-                  <CheckCircle className="h-7 w-7 text-[#D4AF37]" />
-                </div>
-                <div>
-                  <h3 className="font-display text-xl italic text-white">
-                    Wiadomość wysłana
-                  </h3>
-                  <p className="mt-2 text-sm text-zinc-500">
-                    Odpiszemy w ciągu 24 godzin. Dziękujemy za zainteresowanie.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSent(false)}
-                  className="text-[10px] uppercase tracking-[0.3em] text-zinc-600 hover:text-[#D4AF37]"
-                >
-                  Wyślij kolejną wiadomość
-                </button>
-              </motion.div>
-            ) : (
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-7 md:p-9">
-                <p className="mb-6 text-[9px] font-semibold uppercase tracking-[0.4em] text-zinc-500">
-                  Szybka wiadomość
-                </p>
-
-                <form
-                  className="space-y-4"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setSent(true);
-                  }}
-                >
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] uppercase tracking-[0.3em] text-zinc-600">
-                        Imię i nazwisko
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Jan Kowalski"
-                        required
-                        className="w-full rounded-xl border border-zinc-800 bg-black/80 px-4 py-3 text-sm text-zinc-300 placeholder-zinc-700 outline-none transition-colors focus:border-[#D4AF37]/60"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] uppercase tracking-[0.3em] text-zinc-600">
-                        Telefon
-                      </label>
-                      <input
-                        type="tel"
-                        placeholder="+48 000 000 000"
-                        className="w-full rounded-xl border border-zinc-800 bg-black/80 px-4 py-3 text-sm text-zinc-300 placeholder-zinc-700 outline-none transition-colors focus:border-[#D4AF37]/60"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[9px] uppercase tracking-[0.3em] text-zinc-600">
-                      Adres e-mail
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="jan@kowalski.pl"
-                      required
-                      className="w-full rounded-xl border border-zinc-800 bg-black/80 px-4 py-3 text-sm text-zinc-300 placeholder-zinc-700 outline-none transition-colors focus:border-[#D4AF37]/60"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[9px] uppercase tracking-[0.3em] text-zinc-600">
-                      Opis inwestycji
-                    </label>
-                    <textarea
-                      placeholder="Typ bramy, szerokość wjazdu, lokalizacja, budżet orientacyjny..."
-                      rows={4}
-                      className="w-full resize-none rounded-xl border border-zinc-800 bg-black/80 px-4 py-3 text-sm text-zinc-300 placeholder-zinc-700 outline-none transition-colors focus:border-[#D4AF37]/60"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="mt-2 w-full rounded-full bg-[#D4AF37] px-6 py-3.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-black shadow-gold-sm transition-all hover:bg-[#E8C97A]"
-                  >
-                    Wyślij wiadomość
-                  </button>
-
-                  <p className="text-center text-[9px] text-zinc-700">
-                    Lub zadzwoń:{" "}
-                    <a href="tel:+48602384821" className="text-zinc-500 hover:text-[#D4AF37]">
-                      +48 602 384 821
-                    </a>
-                  </p>
-                </form>
-              </div>
-            )}
-          </ScrollReveal>
         </div>
       </section>
 
-      {/* ── CTA BOTTOM ────────────────────────────────────────────────────────── */}
-      <section className="relative bg-black">
-        <div className="pointer-events-none absolute inset-0 gold-glow-center" />
-        <div className="relative mx-auto max-w-4xl px-5 py-24 text-center md:px-8 md:py-28">
+      {/* ── ADDRESS + FORM ──────────────────────────────────────────────────── */}
+      <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "64px 32px" }}>
+          <div className="contact-layout">
+
+            {/* Address */}
+            <ScrollReveal>
+              <p style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.45em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 16 }}>
+                Siedziba
+              </p>
+              <h2 className="font-display" style={{ fontSize: "clamp(1.8rem,3vw,2.4rem)", fontWeight: 400, fontStyle: "italic", lineHeight: 1.2, marginBottom: 32 }}>
+                Koziol Luxury Gates — showroom
+              </h2>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                {[
+                  { Icon: MapPin, label: "Adres", content: "ul. Adamówek 41\n95-035 Ozorków\nPolska" },
+                  { Icon: Clock, label: "Godziny", content: "Poniedziałek – Piątek\n9:00 – 18:00" },
+                ].map(({ Icon, label, content }) => (
+                  <div key={label} style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, flexShrink: 0, borderRadius: "50%", border: "1px solid rgba(39,39,42,0.9)", background: "rgba(9,9,11,0.8)" }}>
+                      <Icon size={15} style={{ color: "#D4AF37" }} />
+                    </div>
+                    <div>
+                      <p style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#52525b", marginBottom: 6 }}>{label}</p>
+                      <p style={{ fontSize: 14, lineHeight: 1.7, color: "#a1a1aa", whiteSpace: "pre-line" }}>{content}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ margin: "28px 0", height: 1, background: "linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)" }} />
+
+              <p style={{ fontSize: 13, lineHeight: 1.7, color: "#71717a", marginBottom: 24 }}>
+                Zapraszamy do kontaktu przed przyjazdem — przygotujemy próbki,
+                katalogi i propozycje rozwiązań dopasowane do Twojej inwestycji.
+              </p>
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {["Bezpłatna konsultacja", "Dojazd do klienta", "Próbki materiałów"].map((tag) => (
+                  <span key={tag} style={{ padding: "6px 14px", border: "1px solid rgba(39,39,42,0.9)", borderRadius: 999, fontSize: 10, color: "#71717a" }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </ScrollReveal>
+
+            {/* Form */}
+            <ScrollReveal delay={0.15}>
+              {sent ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="page-card" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, padding: "40px 36px", textAlign: "center" }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 56, height: 56, borderRadius: "50%", border: "1px solid rgba(212,175,55,0.3)", background: "#000" }}>
+                    <CheckCircle size={26} style={{ color: "#D4AF37" }} />
+                  </div>
+                  <div>
+                    <h3 className="font-display" style={{ fontSize: "1.4rem", fontStyle: "italic", color: "#fff", marginBottom: 8 }}>
+                      Wiadomość wysłana
+                    </h3>
+                    <p style={{ fontSize: 13, color: "#71717a" }}>Odpiszemy w ciągu 24 godzin. Dziękujemy za zainteresowanie.</p>
+                  </div>
+                  <button type="button" onClick={() => setSent(false)}
+                    style={{ fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase", color: "#71717a", background: "none", border: "none", cursor: "pointer", transition: "color 0.2s" }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#D4AF37"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#71717a"; }}
+                  >
+                    Wyślij kolejną wiadomość
+                  </button>
+                </motion.div>
+              ) : (
+                <div className="kcontact-form" style={{ border: "1px solid rgba(39,39,42,0.8)", borderRadius: 20, background: "rgba(9,9,11,0.6)", padding: "36px 32px" }}>
+                  <p style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.4em", textTransform: "uppercase", color: "#52525b", marginBottom: 28 }}>
+                    Szybka wiadomość
+                  </p>
+
+                  <form style={{ display: "flex", flexDirection: "column", gap: 16 }}
+                    onSubmit={(e) => { e.preventDefault(); setSent(true); }}
+                  >
+                    <div className="form-row">
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        <label style={{ fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: "#71717a" }}>Imię i nazwisko</label>
+                        <input type="text" placeholder="Jan Kowalski" required style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        <label style={{ fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: "#71717a" }}>Telefon</label>
+                        <input type="tel" placeholder="+48 000 000 000" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <label style={{ fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: "#71717a" }}>Adres e-mail</label>
+                      <input type="email" placeholder="jan@kowalski.pl" required style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <label style={{ fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: "#71717a" }}>Opis inwestycji</label>
+                      <textarea
+                        placeholder="Typ bramy, szerokość wjazdu, lokalizacja, budżet orientacyjny..."
+                        rows={4}
+                        style={{ ...inputStyle, resize: "none" }}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
+                      />
+                    </div>
+
+                    <button type="submit" style={{
+                      marginTop: 8, padding: "14px 24px", borderRadius: 999,
+                      background: "#D4AF37", color: "#000",
+                      fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase",
+                      border: "none", cursor: "pointer",
+                      boxShadow: "0 0 28px rgba(212,175,55,0.35)",
+                      transition: "all 0.2s",
+                    }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#C9A227"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#D4AF37"; }}
+                    >
+                      Wyślij wiadomość
+                    </button>
+
+                    <p style={{ textAlign: "center", fontSize: 11, color: "#52525b" }}>
+                      Lub zadzwoń:{" "}
+                      <a href="tel:+48602384821" style={{ color: "#71717a", textDecoration: "none", transition: "color 0.2s" }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#D4AF37"; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#71717a"; }}
+                      >
+                        +48 602 384 821
+                      </a>
+                    </p>
+                  </form>
+                </div>
+              )}
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ─────────────────────────────────────────────────────────────── */}
+      <section style={{ position: "relative", background: "#000" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(133,102,47,0.14) 0%, transparent 65%)", pointerEvents: "none" }} />
+        <div style={{ position: "relative", maxWidth: 900, margin: "0 auto", padding: "80px 32px", textAlign: "center" }}>
           <ScrollReveal>
-            <p className="mb-4 text-[9px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">
-              Zainspirowany?
-            </p>
-            <h2 className="font-display text-3xl font-normal italic leading-tight md:text-4xl">
+            <p style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.55em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 16 }}>Zainspirowany?</p>
+            <h2 className="font-display" style={{ fontSize: "clamp(1.8rem,4vw,3rem)", fontWeight: 400, fontStyle: "italic", lineHeight: 1.2, marginBottom: 32 }}>
               Sprawdź nasze realizacje w galerii.
             </h2>
-            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
               <LuxButton href="/galeria" variant="gold">
                 Zobacz realizacje
               </LuxButton>

@@ -4,14 +4,17 @@ import {
   ArrowLeft,
   ArrowRight,
   CircleDollarSign,
+  Fence,
+  LayoutGrid,
   Paintbrush,
   Package,
   Ruler,
   Shield,
-  Tag,
+  DoorOpen,
 } from "lucide-react";
 import { MainHeader } from "@/components/MainHeader";
 import { MainFooter } from "@/components/MainFooter";
+import { LuxButton } from "@/components/ui/LuxButton";
 
 type GalleryItem = {
   id: number;
@@ -136,11 +139,18 @@ export default async function GalleryDetailsPage({
   }
 
   const supabase = createClient(supabaseUrl, supabaseAnonKey);
-  const { data, error } = await supabase
-    .from("gallery")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+  const [{ data, error }, { data: pricesData }] = await Promise.all([
+    supabase.from("gallery").select("*").eq("id", id).maybeSingle(),
+    supabase.from("prices").select("id, name, category"),
+  ]);
+
+  const prices = (pricesData ?? []) as { id: number; name: string; category: string }[];
+  const gateModelName = (id: string | number | null) =>
+    prices.find((p) => p.category === "base" && p.id === Number(id))?.name ?? null;
+  const wicketModelName = (id: string | number | null) =>
+    prices.find((p) => p.category === "wicket_base" && p.id === Number(id))?.name ?? null;
+  const materialName = (id: string | number | null) =>
+    prices.find((p) => p.category === "material" && p.id === Number(id))?.name ?? null;
 
   if (error || !data || id === null) {
     return (
@@ -166,153 +176,156 @@ export default async function GalleryDetailsPage({
 
   const item = data as GalleryItem;
   const { hasGate, hasWicket } = getProductFlags(item.product);
+  const gateId = item.gate_model_id ?? (hasGate ? item.model_id : null);
+  const wicketId = item.wicket_model_id ?? (hasWicket ? item.model_id : null);
+  const gateName = gateModelName(gateId);
+  const wicketName = wicketModelName(wicketId);
+  const material = materialName(item.material_id);
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white">
+    <main className="min-h-screen bg-black text-white">
       <MainHeader />
 
-      <section className="border-b border-zinc-900 bg-gradient-to-b from-black via-[#050505] to-black">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-10 md:px-8 md:py-14">
+      {/* ── Header ───────────────────────────────────────────────────────────── */}
+      <section className="relative border-b border-zinc-800 bg-[#030303] grid-overlay overflow-hidden">
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(133,102,47,0.12) 0%, transparent 65%)" }} />
+        <div className="relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-12 md:px-8 md:py-16">
           <div>
-            <p className="text-xs uppercase tracking-[0.5em] text-[#D4AF37]">Realizacja</p>
-            <h1 className="mt-3 text-3xl font-light tracking-tight md:text-4xl">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">Realizacja</p>
+            <h1 className="font-display mt-4 text-3xl font-normal italic tracking-tight md:text-4xl lg:text-5xl">
               {item.description || "Realizacja Koziol Luxury Gates"}
             </h1>
           </div>
-          <Link
-            href="/galeria"
-            className="inline-flex items-center gap-3 rounded-full border border-zinc-800 bg-black/60 px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.25em] text-zinc-300 transition-all hover:border-[#D4AF37]/60 hover:text-[#D4AF37]"
-          >
+          <LuxButton href="/galeria" variant="outline">
             <ArrowLeft className="h-4 w-4" />
-            Wróć
-          </Link>
+            Wróć do galerii
+          </LuxButton>
         </div>
       </section>
 
-      <section className="bg-black/80">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-10 md:px-8 md:py-16 lg:grid-cols-2 lg:items-start">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-zinc-900 bg-black">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.image_url} alt={item.description || "Realizacja"} className="h-full w-full object-contain" />
+      {/* ── Content ──────────────────────────────────────────────────────────── */}
+      <section className="relative bg-black">
+        <div className="pointer-events-none absolute inset-0 grid-overlay opacity-40" />
+        <div className="relative mx-auto max-w-7xl px-5 pb-12 md:px-8 md:pb-16" style={{ paddingTop: 80 }}>
+          {/* Image - smaller, centered */}
+          <div className="mx-auto mb-12 w-full max-w-[1000px]">
+            <div className="beam-wrapper beam-wrapper-fast beam-wrapper-strong">
+              <div className="beam-inner relative aspect-[16/10] overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={item.image_url} alt={item.description || "Realizacja"} className="h-full w-full object-cover" />
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 gap-6 border-y border-zinc-800 py-6">
-              {item.description != null && String(item.description).trim() !== "" && (
-                <div className="flex items-center gap-4">
-                  <Tag className="h-5 w-5 text-[#D4AF37]" />
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-zinc-500">Opis</p>
-                    <p className="text-lg font-light">{item.description}</p>
-                  </div>
-                </div>
-              )}
+          {/* Opis - full width if present */}
+          {item.description != null && String(item.description).trim() !== "" && (
+            <div className="mb-10 max-w-2xl">
+              <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.4em] text-zinc-500">Opis</p>
+              <p className="text-[15px] leading-relaxed text-zinc-300">{item.description}</p>
+            </div>
+          )}
 
-              <div className="flex items-center gap-4">
-                <Ruler className="h-5 w-5 text-[#D4AF37]" />
-                <div>
-                  <p className="text-xs uppercase tracking-[0.25em] text-zinc-500">Wymiary</p>
-                  <p className="text-lg font-light">{item.dimensions || "Na życzenie klienta"}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <CircleDollarSign className="h-5 w-5 text-[#D4AF37]" />
-                <div>
-                  <p className="text-xs uppercase tracking-[0.25em] text-zinc-500">Orientacyjny koszt</p>
-                  <p className="text-2xl font-mono text-[#D4AF37]">
-                    {item.price != null && item.price > 0 ? formatPln(item.price) : "Na zapytanie"}
-                  </p>
-                </div>
-              </div>
-
-              {item.product != null && String(item.product).trim() !== "" && (
-                <div className="flex items-center gap-4">
-                  <Package className="h-5 w-5 text-[#D4AF37]" />
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-zinc-500">Rodzaj produktu</p>
-                    <p className="text-lg font-light">
-                      {item.product === "brama+furtka"
-                        ? "Brama i furtka"
-                        : item.product === "brama"
-                          ? "Brama"
-                          : item.product === "furtka"
-                            ? "Furtka"
-                            : item.product}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {item.steel_type != null && String(item.steel_type).trim() !== "" && (
-                <div className="flex items-center gap-4">
-                  <Shield className="h-5 w-5 text-[#D4AF37]" />
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-zinc-500">Stal</p>
-                    <p className="text-lg font-light">{item.steel_type}</p>
-                  </div>
-                </div>
-              )}
-
-              {item.ral_code != null && String(item.ral_code).trim() !== "" && (
-                <div className="flex items-center gap-4">
-                  <Paintbrush className="h-5 w-5 text-[#D4AF37]" />
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-zinc-500">Kolor RAL</p>
-                    <p className="text-lg font-light">{item.ral_code}</p>
-                  </div>
-                </div>
-              )}
-
-              {item.paint_type != null && String(item.paint_type).trim() !== "" && (
-                <div className="flex items-center gap-4">
-                  <Paintbrush className="h-5 w-5 text-[#D4AF37]" />
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-zinc-500">Typ malowania</p>
-                    <p className="text-lg font-light">{item.paint_type}</p>
-                  </div>
-                </div>
-              )}
+          {/* Specs grid - tiles side by side */}
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="gallery-spec-tile">
+              <div className="gallery-spec-tile-icon"><Ruler className="h-4 w-4" /></div>
+              <p className="gallery-spec-tile-label">Wymiary</p>
+              <p className="gallery-spec-tile-value">{item.dimensions || "Na życzenie"}</p>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="gallery-spec-tile">
+              <div className="gallery-spec-tile-icon"><CircleDollarSign className="h-4 w-4" /></div>
+              <p className="gallery-spec-tile-label">Koszt</p>
+              <p className="gallery-spec-tile-value font-medium text-[#D4AF37]">
+                {item.price != null && item.price > 0 ? formatPln(item.price) : "Na zapytanie"}
+              </p>
+            </div>
+
+            {item.product != null && String(item.product).trim() !== "" && (
+              <div className="gallery-spec-tile">
+                <div className="gallery-spec-tile-icon"><Package className="h-4 w-4" /></div>
+                <p className="gallery-spec-tile-label">Produkt</p>
+                <p className="gallery-spec-tile-value">
+                  {item.product === "brama+furtka" ? "Brama i furtka" : item.product === "brama" ? "Brama" : item.product === "furtka" ? "Furtka" : item.product}
+                </p>
+              </div>
+            )}
+
+            {gateName && (
+              <div className="gallery-spec-tile">
+                <div className="gallery-spec-tile-icon"><Fence className="h-4 w-4" /></div>
+                <p className="gallery-spec-tile-label">Model bramy</p>
+                <p className="gallery-spec-tile-value">{gateName}</p>
+              </div>
+            )}
+
+            {wicketName && (
+              <div className="gallery-spec-tile">
+                <div className="gallery-spec-tile-icon"><DoorOpen className="h-4 w-4" /></div>
+                <p className="gallery-spec-tile-label">Model furtki</p>
+                <p className="gallery-spec-tile-value">{wicketName}</p>
+              </div>
+            )}
+
+            {material && (
+              <div className="gallery-spec-tile">
+                <div className="gallery-spec-tile-icon"><LayoutGrid className="h-4 w-4" /></div>
+                <p className="gallery-spec-tile-label">Wypełnienie</p>
+                <p className="gallery-spec-tile-value">{material}</p>
+              </div>
+            )}
+
+            {item.steel_type != null && String(item.steel_type).trim() !== "" && (
+              <div className="gallery-spec-tile">
+                <div className="gallery-spec-tile-icon"><Shield className="h-4 w-4" /></div>
+                <p className="gallery-spec-tile-label">Stal</p>
+                <p className="gallery-spec-tile-value">{item.steel_type}</p>
+              </div>
+            )}
+
+            {item.ral_code != null && String(item.ral_code).trim() !== "" && (
+              <div className="gallery-spec-tile">
+                <div className="gallery-spec-tile-icon"><Paintbrush className="h-4 w-4" /></div>
+                <p className="gallery-spec-tile-label">RAL</p>
+                <p className="gallery-spec-tile-value">{item.ral_code}</p>
+              </div>
+            )}
+
+            {item.paint_type != null && String(item.paint_type).trim() !== "" && (
+              <div className="gallery-spec-tile">
+                <div className="gallery-spec-tile-icon"><Paintbrush className="h-4 w-4" /></div>
+                <p className="gallery-spec-tile-label">Malowanie</p>
+                <p className="gallery-spec-tile-value">{item.paint_type}</p>
+              </div>
+            )}
+          </div>
+
+          {/* CTAs */}
+          <div className="flex flex-wrap" style={{ marginTop: 48, marginBottom: 32, gap: 20 }}>
               {hasGate && (
-                <Link
-                  href={buildConfiguratorHref(item, "brama")}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#D4AF37] px-6 py-3 text-[10px] font-semibold uppercase tracking-[0.25em] text-black transition-all hover:bg-white"
-                >
+                <LuxButton href={buildConfiguratorHref(item, "brama")} variant="gold">
                   Podobna brama
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </LuxButton>
               )}
               {hasWicket && (
-                <Link
-                  href={buildConfiguratorHref(item, "furtka")}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#D4AF37] px-6 py-3 text-[10px] font-semibold uppercase tracking-[0.25em] text-black transition-all hover:bg-white"
-                >
+                <LuxButton href={buildConfiguratorHref(item, "furtka")} variant="gold">
                   Podobna furtka
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </LuxButton>
               )}
               {hasGate && hasWicket && (
-                <Link
-                  href={buildConfiguratorHref(item, "brama", true)}
-                  className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900 px-6 py-3 text-[10px] font-semibold uppercase tracking-[0.25em] text-zinc-200 transition-all hover:border-[#D4AF37] hover:text-[#D4AF37]"
-                >
+                <LuxButton href={buildConfiguratorHref(item, "brama", true)} variant="outline">
                   Podobna brama i furtka
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </LuxButton>
               )}
               {!hasGate && !hasWicket && (
-                <Link
-                  href={buildConfiguratorHref(item)}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#D4AF37] px-6 py-3 text-[10px] font-semibold uppercase tracking-[0.25em] text-black transition-all hover:bg-white"
-                >
+                <LuxButton href={buildConfiguratorHref(item)} variant="gold">
                   Podobna realizacja
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </LuxButton>
               )}
-            </div>
           </div>
         </div>
       </section>

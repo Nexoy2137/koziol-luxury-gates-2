@@ -1,11 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { getRalDisplayColor, ralCodeToNamePl } from "@/lib/ralColors";
+import { AnimatePresence } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { Box, ShieldCheck, Ruler, LayoutGrid, Settings, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { MainHeader } from "@/components/MainHeader";
 import { MainFooter } from "@/components/MainFooter";
+import { useToast } from "@/context/ToastContext";
+import { ConfigSuccessOverlay } from "@/components/ui/ConfigSuccessOverlay";
 
 type Price = {
   id: number;
@@ -26,7 +30,6 @@ type SteelTypeOption = {
 type RalColorOption = {
   code: string;
   name?: string;
-  hex?: string;
   price: number;
 };
 
@@ -80,7 +83,9 @@ export function KonfiguratorPageClient() {
   const [dailyCount, setDailyCount] = useState<number>(0);
   const [cooldownMs, setCooldownMs] = useState<number>(180_000);
   const [maxLeadsPerDay, setMaxLeadsPerDay] = useState<number>(5);
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
   const searchParams = useSearchParams();
+  const toast = useToast();
 
   const [config, setConfig] = useState<Config>({
     product: "brama",
@@ -110,13 +115,29 @@ export function KonfiguratorPageClient() {
   const [forcePairFromUrl, setForcePairFromUrl] = useState<boolean>(false);
   const [secondaryModelIdFromUrl, setSecondaryModelIdFromUrl] = useState<number | null>(null);
 
+  // Price flash animation — refs + effect declared here, before all other effects
+  const priceRef = useRef<HTMLDivElement>(null);
+  const prevPrice = useRef(0);
+  useEffect(() => {
+    if (totalPrice !== prevPrice.current && priceRef.current) {
+      priceRef.current.animate(
+        [
+          { color: "#D4AF37", transform: "scale(1)" },
+          { color: "#fff",    transform: "scale(1.06)" },
+          { color: "#D4AF37", transform: "scale(1)" },
+        ],
+        { duration: 500, easing: "ease-out" }
+      );
+      prevPrice.current = totalPrice;
+    }
+  }, [totalPrice]);
+
   const isPairMode = !!primaryConfig && !!secondaryConfig;
 
   useEffect(() => {
     if (!isPairMode) return;
     if (activePairPart === "primary") setPrimaryConfig(config);
     else setSecondaryConfig(config);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config, isPairMode, activePairPart]);
 
   const persistActivePairConfig = (next: Config) => {
@@ -168,8 +189,9 @@ export function KonfiguratorPageClient() {
         console.warn("Błąd pobierania ustawień anty-spam:", error.message);
         return;
       }
-      if (data && (data as any).value) {
-        const cfg = (data as any).value as { delaySec?: number; maxPerDay?: number };
+      const row = data as { value?: unknown } | null;
+      if (row?.value) {
+        const cfg = row.value as { delaySec?: number; maxPerDay?: number };
         if (typeof cfg.delaySec === "number" && cfg.delaySec > 0) {
           setCooldownMs(cfg.delaySec * 1000);
         }
@@ -194,7 +216,8 @@ export function KonfiguratorPageClient() {
         return;
       }
 
-      const value = (data as any)?.value as
+      const row = data as { value?: unknown } | null;
+      const value = row?.value as
         | {
             steelTypes?: (string | { label: string; price?: number })[];
             ralColors?: {
@@ -215,13 +238,13 @@ export function KonfiguratorPageClient() {
         { label: "Ocynk + malowanie proszkowe", price: 0 },
       ];
       const defaultRal: RalColorOption[] = [
-        { code: "RAL 9005", name: "Czarny głęboki", hex: "#0A0A0A", price: 0 },
-        { code: "RAL 7016", name: "Antracyt", hex: "#383E42", price: 0 },
-        { code: "RAL 7021", name: "Czarny szary", hex: "#1F2326", price: 0 },
-        { code: "RAL 7035", name: "Jasny szary", hex: "#CBD0D3", price: 0 },
-        { code: "RAL 8017", name: "Brąz czekoladowy", hex: "#4E3B31", price: 0 },
-        { code: "RAL 9006", name: "Aluminium białe", hex: "#A5A8A6", price: 0 },
-        { code: "RAL 9016", name: "Biały", hex: "#F6F6F6", price: 0 },
+        { code: "RAL 9005", name: "Czarny głęboki", price: 0 },
+        { code: "RAL 7016", name: "Antracyt", price: 0 },
+        { code: "RAL 7021", name: "Czarny szary", price: 0 },
+        { code: "RAL 7035", name: "Jasny szary", price: 0 },
+        { code: "RAL 8017", name: "Brąz czekoladowy", price: 0 },
+        { code: "RAL 9006", name: "Aluminium białe", price: 0 },
+        { code: "RAL 9016", name: "Biały", price: 0 },
       ];
       const defaultPaint: PaintTypeOption[] = [
         { label: "Standard (mat)", price: 0 },
@@ -249,7 +272,6 @@ export function KonfiguratorPageClient() {
               .map((x) => ({
                 code: String(x.code || "").trim(),
                 name: x.name ? String(x.name).trim() : undefined,
-                hex: x.hex ? String(x.hex).trim() : undefined,
                 price: Number(x.price) || 0,
               }))
               .filter((x) => x.code.length >= 4)
@@ -315,7 +337,7 @@ export function KonfiguratorPageClient() {
 
     let computed: Config | null = null;
     setConfig((prev) => {
-      let updated = { ...prev };
+      const updated = { ...prev };
 
       if (product === "furtka" || product === "brama") {
         updated.product = product;
@@ -379,7 +401,7 @@ export function KonfiguratorPageClient() {
     });
 
     const buildComputed = () => {
-      let updated = { ...config };
+      const updated = { ...config };
       if (product === "furtka" || product === "brama") {
         updated.product = product;
       }
@@ -469,28 +491,28 @@ export function KonfiguratorPageClient() {
     const postalTrimmed = postalCode.trim();
 
     if (!cityTrimmed || cityTrimmed.length < 2 || /\d/.test(cityTrimmed)) {
-      alert("Proszę podać poprawną miejscowość (bez cyfr).");
+      await toast.showAlert("Proszę podać poprawną miejscowość (bez cyfr).");
       return;
     }
     if (!postalTrimmed || !/^\d{2}-\d{3}$/.test(postalTrimmed)) {
-      alert("Proszę podać poprawny kod pocztowy w formacie 00-000.");
+      await toast.showAlert("Proszę podać poprawny kod pocztowy w formacie 00-000.");
       return;
     }
     const now = Date.now();
     const today = new Date().toISOString().slice(0, 10);
 
     if (dailyCount >= maxLeadsPerDay) {
-      alert("Przekroczono maksymalną liczbę zapytań z tego urządzenia na dziś.");
+      await toast.showAlert("Przekroczono maksymalną liczbę zapytań z tego urządzenia na dziś.");
       return;
     }
 
     if (lastSentAt && now - lastSentAt < cooldownMs) {
-      alert("Za często wysyłasz zapytania. Spróbuj ponownie za kilka minut.");
+      await toast.showAlert("Za często wysyłasz zapytania. Spróbuj ponownie za kilka minut.");
       return;
     }
     const normalizedPhone = normalizePolishPhone(phone);
     if (normalizedPhone.length !== 9) {
-      alert("Podaj poprawny numer telefonu (9 cyfr, może być z +48).");
+      await toast.showAlert("Podaj poprawny numer telefonu (9 cyfr, może być z +48).");
       return;
     }
 
@@ -520,11 +542,9 @@ export function KonfiguratorPageClient() {
     ]);
 
     if (error) {
-      alert("Błąd wysyłania: " + error.message);
+      await toast.showAlert("Błąd wysyłania: " + error.message);
     } else {
-      alert(
-        "Dziękujemy! Twoja wycena została zapisana. Oddzwonimy w ciągu 24h."
-      );
+      setShowSuccessOverlay(true);
       const ts = Date.now();
       setLastSentAt(ts);
       if (typeof window !== "undefined") {
@@ -575,35 +595,35 @@ export function KonfiguratorPageClient() {
   const maxHeight = activeModel?.max_height ?? 250;
   const minHeight = activeModel?.min_height ?? 100;
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (step === 1 && !config.type) {
-      alert(`Najpierw wybierz model ${config.product === "furtka" ? "furtki" : "bramy"}.`);
+      await toast.showAlert(`Najpierw wybierz model ${config.product === "furtka" ? "furtki" : "bramy"}.`);
       return;
     }
     if (step === 2 && !config.material) {
-      alert("Najpierw wybierz materiał / wypełnienie.");
+      await toast.showAlert("Najpierw wybierz materiał / wypełnienie.");
       return;
     }
     if (step === 3 && !config.steelType) {
-      alert("Najpierw wybierz typ stali / zabezpieczenia.");
+      await toast.showAlert("Najpierw wybierz typ stali / zabezpieczenia.");
       return;
     }
     if (step === 4) {
       if (!config.ral) {
-        alert("Najpierw wybierz kolor z palety RAL.");
+        await toast.showAlert("Najpierw wybierz kolor z palety RAL.");
         return;
       }
       if (config.ral === "INNY" && !config.ralCustomCode.trim()) {
-        alert("Podaj kod koloru RAL przy opcji „Inny kolor RAL”.");
+        await toast.showAlert("Podaj kod koloru RAL przy opcji „Inny kolor RAL”.");
         return;
       }
     }
     if (step === 5 && !config.paintType) {
-      alert("Najpierw wybierz typ malowania.");
+      await toast.showAlert("Najpierw wybierz typ malowania.");
       return;
     }
     if (step === 6 && (!config.width || !config.height)) {
-      alert(`Ustaw szerokość i wysokość ${config.product === "furtka" ? "furtki" : "bramy"}.`);
+      await toast.showAlert(`Ustaw szerokość i wysokość ${config.product === "furtka" ? "furtki" : "bramy"}.`);
       return;
     }
 
@@ -613,16 +633,14 @@ export function KonfiguratorPageClient() {
         const otherLabel = config.product === "furtka" ? "bramę" : "furtkę";
         const wants = forcePairFromUrl
           ? true
-          : window.confirm(
-              `Czy chcesz od razu skonfigurować także ${otherLabel}?`
-            );
+          : await toast.showConfirm(`Czy chcesz od razu skonfigurować także ${otherLabel}?`);
         if (wants) {
           setPrimaryConfig(config);
           const nextProduct = config.product === "brama" ? "furtka" : "brama";
 
           const copyDetails = forcePairFromUrl
             ? true
-            : window.confirm(
+            : await toast.showConfirm(
                 `Czy skopiować materiał, typ stali, kolor RAL i typ malowania z pierwszej konfiguracji do ${nextProduct === "furtka" ? "furtki" : "bramy"}?`
               );
 
@@ -707,57 +725,214 @@ export function KonfiguratorPageClient() {
   }
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white font-sans">
+    <main className="min-h-screen bg-[#050505] text-white font-sans" style={{ animation: "fadeInUp 0.65s ease both" }}>
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .konfig-step-enter { animation: slideDown 0.35s ease both; }
+        .konfig-main-layout { display:grid; grid-template-columns:1fr; gap:40px; }
+        @media(min-width:1024px){ .konfig-main-layout { grid-template-columns:1fr 340px; gap:48px; } }
+        .konfig-options-grid { display:grid; grid-template-columns:1fr; gap:10px; }
+        @media(min-width:640px){ .konfig-options-grid { grid-template-columns:1fr 1fr; } }
+        @media(min-width:900px){ .konfig-options-grid { grid-template-columns:repeat(3,1fr); } }
+        .konfig-input:focus { border-color: rgba(212,175,55,0.7) !important; }
+        .konfig-option-btn {
+          padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(63,63,70,0.8);
+          background: rgba(9,9,11,0.7); text-align:left; cursor:pointer;
+          transition: all 0.2s; color:#a1a1aa; width:100%;
+        }
+        .konfig-option-btn:hover { border-color: rgba(212,175,55,0.4); color:#fff; }
+        .konfig-option-btn.selected { border-color:#D4AF37; background:rgba(212,175,55,0.08); color:#fff; }
+        /* ── Option cards (model, material, steel, paint) ── */
+        .kopt {
+          display:block; width:100%; padding:20px 22px; border-radius:14px;
+          border:1px solid rgba(63,63,70,0.8); background:rgba(9,9,11,0.7);
+          text-align:left; cursor:pointer; transition:all 0.18s; color:#a1a1aa;
+        }
+        .kopt:hover { border-color:rgba(212,175,55,0.35); background:rgba(9,9,11,0.95); color:#fff; transform:translateY(-1px); }
+        .kopt.sel { border-color:#D4AF37; background:rgba(212,175,55,0.06); color:#fff; box-shadow:0 0 22px rgba(212,175,55,0.12); }
+        .kopt .ktitle { font-size:15px; font-weight:600; margin-bottom:4px; }
+        .kopt .klabel { font-size:9px; letter-spacing:0.4em; text-transform:uppercase; color:#52525b; margin-bottom:10px; }
+        .kopt .kprice { font-size:11px; color:#D4AF37; font-weight:600; }
+
+        /* ── RAL color swatches ── */
+        .kral {
+          padding:14px; border-radius:14px; border:1px solid rgba(63,63,70,0.8);
+          background:rgba(9,9,11,0.7); cursor:pointer; transition:all 0.18s;
+          display:flex; flex-direction:column; gap:10px; align-items:flex-start;
+        }
+        .kral:hover { border-color:rgba(212,175,55,0.4); transform:translateY(-1px); }
+        .kral.sel { border-color:#D4AF37; background:rgba(212,175,55,0.06); box-shadow:0 0 20px rgba(212,175,55,0.15); }
+        .kral .kswatch { border-radius:10px; border:1px solid rgba(255,255,255,0.1); transition:box-shadow 0.18s; }
+        .kral.sel .kswatch { box-shadow:0 0 0 2px #D4AF37; }
+        .kral .kcode { font-size:11px; font-weight:600; color:#fff; }
+        .kral .kname { font-size:9px; letter-spacing:0.3em; text-transform:uppercase; color:#52525b; }
+        .kral .kpick { font-size:9px; letter-spacing:0.35em; text-transform:uppercase; color:#52525b; margin-top:auto; }
+        .kral.sel .kpick { color:#D4AF37; }
+
+        /* ── Navigation buttons ── */
+        .knav-prev {
+          display:inline-flex; align-items:center; gap:8px;
+          padding:14px 26px; border-radius:999px;
+          border:1.5px solid rgba(63,63,70,0.8); background:transparent;
+          color:#a1a1aa; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+          cursor:pointer; transition:all 0.2s;
+        }
+        .knav-prev:hover { border-color:rgba(212,175,55,0.5); color:#fff; }
+        .knav-next {
+          display:inline-flex; align-items:center; gap:8px;
+          padding:14px 32px; border-radius:999px;
+          background:#D4AF37; color:#000; border:none;
+          font-size:12px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase;
+          cursor:pointer; box-shadow:0 0 28px rgba(212,175,55,0.35); transition:all 0.2s;
+        }
+        .knav-next:hover { background:#C9A227; box-shadow:0 0 52px rgba(212,175,55,0.6); }
+
+        /* ── Summary sidebar rows ── */
+        .ksum-row {
+          display:flex; justify-content:space-between; align-items:center;
+          gap:12px; padding:11px 14px; border-radius:10px;
+          background:rgba(0,0,0,0.4); transition:background 0.15s; cursor:pointer;
+        }
+        .ksum-row:hover { background:rgba(212,175,55,0.06); }
+        .ksum-key { font-size:9px; letter-spacing:0.4em; text-transform:uppercase; color:#52525b; flex-shrink:0; }
+        .ksum-val { font-size:13px; font-weight:500; color:#e4e4e7; text-align:right; }
+
+        /* ── Step heading ── */
+        .kstep-h { font-family:var(--font-playfair,Georgia,serif); font-size:clamp(1.6rem,3.5vw,2.2rem); font-weight:400; font-style:italic; display:flex; align-items:center; gap:14px; margin-bottom:28px; color:#fff; }
+
+        /* ── Dims slider ── */
+        .kdims { border:1px solid rgba(39,39,42,0.8); border-radius:18px; background:rgba(9,9,11,0.6); padding:32px; }
+
+        /* ── Product toggle (BRAMA / FURTKA) ── */
+        .kproduct-toggle {
+          display:inline-flex; gap:0; padding:6px; border-radius:999px;
+          border:1.5px solid rgba(63,63,70,0.9); background:rgba(0,0,0,0.5);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+        .kproduct-toggle button {
+          padding:12px 28px; border-radius:999px; border:none;
+          font-size:11px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase;
+          cursor:pointer; transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+          background:transparent; color:#71717a;
+        }
+        .kproduct-toggle button:hover { color:#a1a1aa; }
+        .kproduct-toggle button.sel {
+          background:linear-gradient(135deg,#D4AF37 0%,#C9A227 100%);
+          color:#000; box-shadow:0 2px 12px rgba(212,175,55,0.4), 0 0 24px rgba(212,175,55,0.15);
+        }
+        .kproduct-toggle button.sel:hover {
+          box-shadow:0 2px 16px rgba(212,175,55,0.5), 0 0 32px rgba(212,175,55,0.2);
+        }
+
+        /* ── Custom range sliders (satisfying feel) ── */
+        .kslider {
+          -webkit-appearance:none; appearance:none; width:100%; height:10px;
+          background:linear-gradient(to right, rgba(212,175,55,0.5) 0%, rgba(212,175,55,0.5) var(--fill, 0%), rgba(39,39,42,0.9) var(--fill, 0%) 100%);
+          border-radius:999px; outline:none;
+          cursor:grab; transition:box-shadow 0.2s;
+        }
+        .kslider:hover { box-shadow:0 0 0 2px rgba(212,175,55,0.2); }
+        .kslider:active { cursor:grabbing; }
+        .kslider::-webkit-slider-thumb {
+          -webkit-appearance:none; appearance:none; width:24px; height:24px;
+          border-radius:50%; background:linear-gradient(135deg,#D4AF37,#C9A227);
+          border:2px solid rgba(0,0,0,0.3); box-shadow:0 2px 12px rgba(212,175,55,0.5);
+          cursor:grab; transition:transform 0.15s, box-shadow 0.15s;
+        }
+        .kslider::-webkit-slider-thumb:hover {
+          transform:scale(1.12); box-shadow:0 2px 20px rgba(212,175,55,0.65);
+        }
+        .kslider::-webkit-slider-thumb:active {
+          transform:scale(1.05); box-shadow:0 0 0 4px rgba(212,175,55,0.3);
+        }
+        .kslider::-moz-range-thumb {
+          width:24px; height:24px; border-radius:50%; border:2px solid rgba(0,0,0,0.3);
+          background:linear-gradient(135deg,#D4AF37,#C9A227);
+          box-shadow:0 2px 12px rgba(212,175,55,0.5); cursor:grab;
+          transition:transform 0.15s, box-shadow 0.15s;
+        }
+        .kslider::-moz-range-thumb:hover {
+          transform:scale(1.12); box-shadow:0 2px 20px rgba(212,175,55,0.65);
+        }
+        .kslider::-moz-range-track { background:rgba(39,39,42,0.9); border-radius:999px; height:10px; }
+
+        /* ── Contact form inputs (soft, non-jarring) ── */
+        .kcontact-input {
+          width:100%; padding:14px 18px; border-radius:12px;
+          border:1px solid rgba(63,63,70,0.7); background:rgba(18,18,20,0.9);
+          color:#e4e4e7; font-size:14px; outline:none;
+          transition:border-color 0.2s, box-shadow 0.2s;
+        }
+        .kcontact-input::placeholder { color:#71717a; }
+        .kcontact-input:hover { border-color:rgba(63,63,70,0.95); }
+        .kcontact-input:focus {
+          border-color:rgba(212,175,55,0.6); box-shadow:0 0 0 2px rgba(212,175,55,0.12);
+        }
+        .kcontact-grid { display:grid; grid-template-columns:1fr; gap:20px; }
+        @media(min-width:640px){ .kcontact-grid { grid-template-columns:1fr 1fr; } }
+
+        /* ── Step number badge in progress bar ── */
+        .kstep-num { font-size:9px; font-weight:700; color:#52525b; letter-spacing:0.1em; margin-top:6px; text-align:center; }
+      `}</style>
       <MainHeader />
 
-      <section className="border-b border-zinc-900 bg-gradient-to-b from-black via-[#050505] to-black">
-        <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 pb-6 pt-10 md:px-8 md:pb-10 md:pt-16">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#D4AF37]">
+      {/* Hero */}
+      <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)", position: "relative" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(133,102,47,0.14) 0%, transparent 65%)", pointerEvents: "none" }} />
+        <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "64px 32px 48px" }}>
+          <p style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.5em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 16 }}>
             Konfigurator online
           </p>
-          <h1 className="max-w-2xl text-3xl font-light tracking-tight md:text-4xl">
-            Wycena Twojej bramy lub furtki w mniej niż 2 minuty
+          <h1 className="font-display" style={{ fontSize: "clamp(2rem,5vw,3.2rem)", fontWeight: 400, fontStyle: "italic", lineHeight: 1.1, marginBottom: 16 }}>
+            Wycena Twojej bramy lub furtki
           </h1>
-          <p className="max-w-2xl text-sm text-zinc-400 md:text-base">
-            Przejdź przez kilka krótkich kroków – wybierz model, wypełnienie,
-            typ stali, kolor RAL, wymiary i zostaw numer telefonu. Na tej
-            podstawie przygotujemy dla Ciebie wstępny projekt i ofertę.
+          <p style={{ fontSize: 15, fontWeight: 300, lineHeight: 1.7, color: "#a1a1aa", maxWidth: 560 }}>
+            Kilka kroków — wybierz model, wypełnienie, typ stali, kolor RAL i wymiary.
+            Przygotujemy dla Ciebie wstępny projekt i ofertę.
           </p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-4 py-10 md:px-8 md:py-14">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-12">
-          <div className="space-y-8 lg:col-span-2">
-            <div className="mb-10 flex items-center gap-4">
-              {[1, 2, 3, 4, 5, 6, 7].map((s) => (
-                <div
-                  key={s}
-                  className={`h-1 flex-1 rounded-full transition-all duration-500 ${
-                    step >= s ? "bg-[#D4AF37]" : "bg-zinc-800"
-                  }`}
-                />
-              ))}
+      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 32px 64px" }}>
+        <div className="konfig-main-layout">
+          <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+            {/* ── Progress bar with step numbers ── */}
+            <div style={{ marginBottom: 36 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {[1, 2, 3, 4, 5, 6, 7].map((s) => (
+                  <div key={s} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                    <div style={{ height: 3, width: "100%", borderRadius: 999, background: step >= s ? "#D4AF37" : "rgba(63,63,70,0.6)", transition: "background 0.4s", boxShadow: step >= s ? "0 0 8px rgba(212,175,55,0.5)" : "none" }} />
+                    <span className="kstep-num">{s}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {step === 1 && (
               <div className="animate-in fade-in duration-500">
-                <h2 className="mb-8 flex items-center gap-3 text-2xl font-light italic md:text-3xl">
+                <h2 className="kstep-h">
                   <Box className="text-[#D4AF37]" /> Wybierz bazę projektu
                 </h2>
-                <div className="mb-6 flex flex-wrap items-center gap-3">
-                  <span className="text-[10px] uppercase tracking-[0.25em] text-zinc-500">
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 16, marginBottom: 28 }}>
+                  <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.25em", textTransform: "uppercase", color: "#52525b" }}>
                     Konfigurujesz:
                   </span>
 
                   {isPairMode ? (
-                    <span className="rounded-full border border-zinc-800 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-[#D4AF37]">
+                    <span style={{ padding: "10px 20px", borderRadius: 999, border: "1px solid rgba(63,63,70,0.8)", background: "rgba(0,0,0,0.5)", fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "#D4AF37" }}>
                       {activePairPart === "primary"
                         ? `Pierwszy element — ${config.product}`
                         : `Drugi element — ${config.product}`}
                     </span>
                   ) : (
-                    <div className="flex rounded-full border border-zinc-800 bg-black/40 p-1">
+                    <div className="kproduct-toggle">
                       <button
                         type="button"
                         onClick={() =>
@@ -779,11 +954,7 @@ export function KonfiguratorPageClient() {
                             paintPrice: 0,
                           }))
                         }
-                        className={`px-4 py-2 text-[10px] uppercase tracking-[0.25em] transition-all ${
-                          config.product === "brama"
-                            ? "bg-[#D4AF37] text-black"
-                            : "text-zinc-400 hover:text-white"
-                        }`}
+                        className={config.product === "brama" ? "sel" : ""}
                       >
                         Brama
                       </button>
@@ -808,18 +979,14 @@ export function KonfiguratorPageClient() {
                             paintPrice: 0,
                           }))
                         }
-                        className={`px-4 py-2 text-[10px] uppercase tracking-[0.25em] transition-all ${
-                          config.product === "furtka"
-                            ? "bg-[#D4AF37] text-black"
-                            : "text-zinc-400 hover:text-white"
-                        }`}
+                        className={config.product === "furtka" ? "sel" : ""}
                       >
                         Furtka
                       </button>
                     </div>
                   )}
                 </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
                   {dbPrices
                     .filter((p) => p.category === baseCategory)
                     .map((item) => (
@@ -836,18 +1003,10 @@ export function KonfiguratorPageClient() {
                             height: minH,
                           });
                         }}
-                        className={`border p-6 text-left transition-all ${
-                          config.type === item.name
-                            ? "border-[#D4AF37] bg-zinc-900"
-                            : "border-zinc-800 hover:border-zinc-600"
-                        }`}
+                        className={`kopt${config.type === item.name ? " sel" : ""}`}
                       >
-                        <span className="mb-2 block text-[10px] uppercase text-zinc-500">
-                          Model Premium
-                        </span>
-                        <span className="text-xl font-medium tracking-tight">
-                          {item.name}
-                        </span>
+                        <div className="klabel">Model Premium</div>
+                        <div className="ktitle">{item.name}</div>
                       </button>
                     ))}
                 </div>
@@ -856,10 +1015,10 @@ export function KonfiguratorPageClient() {
 
             {step === 2 && (
               <div className="animate-in fade-in duration-500">
-                <h2 className="mb-8 flex items-center gap-3 text-2xl font-light italic md:text-3xl">
+                <h2 className="kstep-h">
                   <LayoutGrid className="text-[#D4AF37]" /> Wybierz wypełnienie
                 </h2>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
                   {dbPrices
                     .filter((p) => p.category === "material")
                     .map((item) => (
@@ -872,18 +1031,11 @@ export function KonfiguratorPageClient() {
                             materialPrice: item.value,
                           })
                         }
-                        className={`border p-6 text-left transition-all ${
-                          config.material === item.name
-                            ? "border-[#D4AF37] bg-zinc-900"
-                            : "border-zinc-800 hover:border-zinc-600"
-                        }`}
+                        className={`kopt${config.material === item.name ? " sel" : ""}`}
                       >
-                        <span className="mb-2 block text-[10px] uppercase text-zinc-500">
-                          Materiał
-                        </span>
-                        <span className="text-xl font-medium tracking-tight">
-                          {item.name}
-                        </span>
+                        <div className="klabel">Wypełnienie</div>
+                        <div className="ktitle">{item.name}</div>
+                        {item.value !== 0 && <div className="kprice">+ {item.value.toLocaleString()} PLN/m²</div>}
                       </button>
                     ))}
                 </div>
@@ -892,10 +1044,10 @@ export function KonfiguratorPageClient() {
 
             {step === 3 && (
               <div className="animate-in fade-in duration-500">
-                <h2 className="mb-8 flex items-center gap-3 text-2xl font-light italic md:text-3xl">
+                <h2 className="kstep-h">
                   <LayoutGrid className="text-[#D4AF37]" /> Wybierz typ stali
                 </h2>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
                   {(steelTypes.length ? steelTypes : [{ label: "Stal (opcja)", price: 0 }]).map(
                     (item) => (
                       <button
@@ -904,18 +1056,12 @@ export function KonfiguratorPageClient() {
                         onClick={() =>
                           setConfig((prev) => ({ ...prev, steelType: item.label }))
                         }
-                        className={`border p-6 text-left transition-all ${
-                          config.steelType === item.label
-                            ? "border-[#D4AF37] bg-zinc-900"
-                            : "border-zinc-800 hover:border-zinc-600"
-                        }`}
+                        className={`kopt${config.steelType === item.label ? " sel" : ""}`}
                       >
-                        <span className="mb-2 block text-[10px] uppercase text-zinc-500">
-                          Typ stali / zabezpieczenia
-                        </span>
-                        <span className="text-xl font-medium tracking-tight">
+                        <div className="klabel">Typ stali / zabezpieczenia</div>
+                        <div className="ktitle">
                           {item.label}
-                        </span>
+                        </div>
                       </button>
                     )
                   )}
@@ -925,11 +1071,11 @@ export function KonfiguratorPageClient() {
 
             {step === 4 && (
               <div className="animate-in fade-in duration-500">
-                <h2 className="mb-8 flex items-center gap-3 text-2xl font-light italic md:text-3xl">
+                <h2 className="kstep-h">
                   <LayoutGrid className="text-[#D4AF37]" /> Wybierz kolor RAL
                 </h2>
                 <p className="mb-5 text-xs text-zinc-400">
-                  Wszystkie kolory RAL znajdziesz na stronie{" "}
+                  Wszystkie kolory RAL Classic znajdziesz na stronie{" "}
                   <a
                     href="https://www.ral-farben.de/en/all-ral-colours"
                     target="_blank"
@@ -938,13 +1084,13 @@ export function KonfiguratorPageClient() {
                   >
                     oficjalnego wzornika RAL
                   </a>
-                  . Wybierz jeden z poniższych kolorów lub, jeśli potrzebujesz innego,
+                  {" "}(wybierz tylko kolory RAL Classic). Wybierz jeden z poniższych kolorów lub, jeśli potrzebujesz innego,
                   skorzystaj z opcji „Inny kolor RAL”.
                 </p>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 10 }}>
                   {(ralColors.length
                     ? ralColors
-                    : [{ code: "RAL 9005", name: "Czarny", hex: "#0A0A0A", price: 0 }]
+                    : [{ code: "RAL 9005", name: "Czarny głęboki", price: 0 }]
                   ).map((c) => (
                     <button
                       key={c.code}
@@ -957,34 +1103,35 @@ export function KonfiguratorPageClient() {
                           ralCustomCode: "",
                         }))
                       }
-                      className={`group relative overflow-hidden border p-4 text-left transition-all ${
-                        config.ral === c.code
-                          ? "border-[#D4AF37] bg-zinc-900"
-                          : "border-zinc-800 hover:border-zinc-600"
-                      }`}
+                      className={`kral${config.ral === c.code ? " sel" : ""}`}
                     >
-                      <div className="mb-3 flex items-center gap-3">
-                        <span
-                          className="h-8 w-8 rounded-full border border-zinc-700"
-                          style={{ background: c.hex || "#111" }}
-                        />
-                        <div className="min-w-0">
-                          <div className="truncate text-[11px] font-semibold tracking-wide text-white">
-                            {c.code}
-                          </div>
-                          <div className="truncate text-[10px] uppercase tracking-[0.2em] text-zinc-500">
-                            {c.name || "Kolor"}
-                          </div>
-                        </div>
+                      <span
+                        className="kswatch"
+                        style={{
+                          width: "100%", height: 56, display: "flex", alignItems: "center", justifyContent: "center",
+                          background: getRalDisplayColor(c.code) || "rgba(30,30,30,0.9)",
+                          color: getRalDisplayColor(c.code) ? "transparent" : "#71717a",
+                          fontSize: 11, fontWeight: 700,
+                        }}
+                        title={!getRalDisplayColor(c.code) && c.code.trim() ? "Nie znaleziono w bazie RAL Classic" : undefined}
+                      >
+                        {!getRalDisplayColor(c.code) && c.code.trim() ? "?" : ""}
+                      </span>
+                      <div>
+                        <div className="kcode">{c.code}</div>
+                        <div className="kname">{c.name || ralCodeToNamePl(c.code) || "Kolor"}{!getRalDisplayColor(c.code) && c.code.trim() ? " (nie w bazie)" : ""}</div>
                       </div>
-                      <div className="text-[10px] uppercase tracking-[0.25em] text-zinc-500 group-hover:text-zinc-300">
-                        Wybierz
-                      </div>
+                      {c.price !== 0 && (
+                        <span style={{ fontSize: 10, color: "#D4AF37", fontWeight: 600 }}>
+                          + {c.price.toLocaleString()} PLN
+                        </span>
+                      )}
+                      <div className="kpick">{config.ral === c.code ? "✓ Wybrano" : "Wybierz"}</div>
                     </button>
                   ))}
                 </div>
                 {allowOtherRal && (
-                  <div className="mt-6 border border-dashed border-zinc-800 bg-black/40 p-4 text-left">
+                  <div style={{ marginTop: 16, border: "1px dashed rgba(63,63,70,0.8)", borderRadius: 14, background: "rgba(9,9,11,0.6)", padding: "20px 22px" }}>
                     <button
                       type="button"
                       onClick={() =>
@@ -994,19 +1141,21 @@ export function KonfiguratorPageClient() {
                           ralPrice: otherRalPrice,
                         }))
                       }
-                      className={`mb-3 inline-flex items-center gap-2 rounded-full px-4 py-1 text-[10px] uppercase tracking-[0.25em] ${
-                        config.ral === "INNY"
-                          ? "bg-[#D4AF37] text-black"
-                          : "bg-zinc-900 text-zinc-300"
-                      }`}
+                      style={{
+                        display: "inline-flex", alignItems: "center", gap: 8,
+                        padding: "7px 16px", borderRadius: 999, marginBottom: 14,
+                        background: config.ral === "INNY" ? "#D4AF37" : "rgba(39,39,42,0.8)",
+                        color: config.ral === "INNY" ? "#000" : "#a1a1aa",
+                        fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase",
+                        border: "none", cursor: "pointer",
+                      }}
                     >
-                      Inny kolor RAL (do wpisania)
+                      {config.ral === "INNY" ? "✓ " : ""}Inny kolor RAL (do wpisania)
                     </button>
-                    <div className="space-y-2 text-xs text-zinc-400">
-                      <p>
-                        Wpisz dokładny kod koloru RAL (np. <span className="font-mono">RAL 7024</span>),
-                        który wybrałeś z wzornika.
-                      </p>
+                    <p style={{ fontSize: 12, color: "#71717a", lineHeight: 1.6, marginBottom: 12 }}>
+                      Wpisz dokładny kod koloru RAL Classic (np. <span style={{ fontFamily: "monospace", color: "#a1a1aa" }}>RAL 7024</span>), który wybrałeś z wzornika.
+                    </p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                       <input
                         type="text"
                         value={config.ralCustomCode}
@@ -1019,17 +1168,35 @@ export function KonfiguratorPageClient() {
                           }))
                         }
                         placeholder="Np. RAL 7024"
-                        className="mt-1 w-full border border-zinc-800 bg-black px-3 py-2 text-sm text-zinc-100 outline-none transition-all focus:border-[#D4AF37]"
+                        className="admin-input konfig-input"
+                        style={{ borderRadius: 10, padding: "12px 14px", fontSize: 14, color: "#e4e4e7", background: "#000", border: "1px solid rgba(63,63,70,0.8)", flex: "1 1 200px", minWidth: 180, outline: "none" }}
                       />
-                      {otherRalPrice !== 0 && (
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
-                          Dodatkowa dopłata za niestandardowy kolor:{" "}
-                          <span className="text-[#D4AF37]">
-                            {otherRalPrice.toLocaleString()} PLN
+                      {config.ralCustomCode.trim() && (
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <div
+                            style={{
+                              width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+                              background: getRalDisplayColor(config.ralCustomCode) || "rgba(30,30,30,0.9)",
+                              border: "1px solid rgba(63,63,70,0.6)",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              fontSize: 12, color: "#71717a", fontWeight: 700,
+                            }}
+                            title={!getRalDisplayColor(config.ralCustomCode) ? "Nie znaleziono w bazie RAL" : undefined}
+                          >
+                            {!getRalDisplayColor(config.ralCustomCode) ? "?" : null}
+                          </div>
+                          <span style={{ fontSize: 12, color: "#a1a1aa" }}>
+                            {config.ralCustomCode.trim()}
+                            {ralCodeToNamePl(config.ralCustomCode) && ` – ${ralCodeToNamePl(config.ralCustomCode)}`}
                           </span>
-                        </p>
+                        </div>
                       )}
                     </div>
+                    {otherRalPrice !== 0 && (
+                      <p style={{ marginTop: 8, fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase", color: "#71717a" }}>
+                        Dopłata: <span style={{ color: "#D4AF37" }}>{otherRalPrice.toLocaleString()} PLN</span>
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -1037,10 +1204,10 @@ export function KonfiguratorPageClient() {
 
             {step === 5 && (
               <div className="animate-in fade-in duration-500">
-                <h2 className="mb-8 flex items-center gap-3 text-2xl font-light italic md:text-3xl">
+                <h2 className="kstep-h">
                   <LayoutGrid className="text-[#D4AF37]" /> Wybierz typ malowania
                 </h2>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
                   {(paintTypes.length
                     ? paintTypes
                     : [{ label: "Standard (mat)", price: 0 }]
@@ -1055,25 +1222,13 @@ export function KonfiguratorPageClient() {
                           paintPrice: item.price,
                         }))
                       }
-                      className={`border p-6 text-left transition-all ${
-                        config.paintType === item.label
-                          ? "border-[#D4AF37] bg-zinc-900"
-                          : "border-zinc-800 hover:border-zinc-600"
-                      }`}
+                      className={`kopt${config.paintType === item.label ? " sel" : ""}`}
                     >
-                      <span className="mb-2 block text-[10px] uppercase text-zinc-500">
-                        Typ malowania
-                      </span>
-                      <div className="flex items-end justify-between gap-3">
-                        <span className="text-xl font-medium tracking-tight">
-                          {item.label}
-                        </span>
-                        {item.price !== 0 && (
-                          <span className="text-xs font-semibold text-[#D4AF37]">
-                            + {item.price.toLocaleString()} PLN
-                          </span>
-                        )}
-                      </div>
+                      <div className="klabel">Typ malowania</div>
+                      <div className="ktitle">{item.label}</div>
+                      {item.price !== 0 && (
+                        <div className="kprice">+ {item.price.toLocaleString()} PLN</div>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -1082,7 +1237,7 @@ export function KonfiguratorPageClient() {
 
             {step === 6 && (
               <div className="animate-in fade-in duration-500">
-                <h2 className="mb-3 flex items-center gap-3 text-2xl font-light italic md:text-3xl">
+                <h2 className="kstep-h" style={{ marginBottom: 12 }}>
                   <Ruler className="text-[#D4AF37]" />{" "}
                   {primaryConfig
                     ? `Dopasuj wymiary ${config.product === "furtka" ? "furtki" : "bramy"} (2/2)`
@@ -1094,11 +1249,11 @@ export function KonfiguratorPageClient() {
                     {config.product === "furtka" ? "furtki" : "bramy"}.
                   </p>
                 )}
-                <div className="space-y-10 border border-zinc-900 bg-zinc-900/20 p-8">
+                <div className="kdims" style={{ display: "flex", flexDirection: "column", gap: 40 }}>
                   <div>
-                    <label className="mb-4 flex justify-between text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+                    <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, fontSize: 10, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#52525b" }}>
                       Szerokość{" "}
-                      <span className="text-zinc-300">{config.width} cm</span>
+                      <span style={{ color: "#D4AF37", fontWeight: 700, fontSize: 15 }}>{config.width} cm</span>
                     </label>
                     <input
                       type="range"
@@ -1106,19 +1261,20 @@ export function KonfiguratorPageClient() {
                       max={maxWidth}
                       step="5"
                       value={config.width}
+                      style={{ "--fill": `${Math.min(100, Math.max(0, ((config.width - minWidth) / Math.max(maxWidth - minWidth, 1)) * 100))}%` } as React.CSSProperties}
                       onChange={(e) =>
                         setConfig({
                           ...config,
                           width: parseInt(e.target.value),
                         })
                       }
-                      className="h-1 w-full cursor-pointer appearance-none bg-zinc-800 accent-[#D4AF37]"
+                      className="kslider"
                     />
                   </div>
                   <div>
-                    <label className="mb-4 flex justify-between text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+                    <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, fontSize: 10, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#52525b" }}>
                       Wysokość{" "}
-                      <span className="text-zinc-300">{config.height} cm</span>
+                      <span style={{ color: "#D4AF37", fontWeight: 700, fontSize: 15 }}>{config.height} cm</span>
                     </label>
                     <input
                       type="range"
@@ -1126,13 +1282,14 @@ export function KonfiguratorPageClient() {
                       max={maxHeight}
                       step="5"
                       value={config.height}
+                      style={{ "--fill": `${Math.min(100, Math.max(0, ((config.height - minHeight) / Math.max(maxHeight - minHeight, 1)) * 100))}%` } as React.CSSProperties}
                       onChange={(e) =>
                         setConfig({
                           ...config,
                           height: parseInt(e.target.value),
                         })
                       }
-                      className="h-1 w-full cursor-pointer appearance-none bg-zinc-800 accent-[#D4AF37]"
+                      className="kslider"
                     />
                   </div>
                 </div>
@@ -1141,17 +1298,17 @@ export function KonfiguratorPageClient() {
 
             {step === 7 && (
               <div className="animate-in fade-in duration-500">
-                <h2 className="mb-8 flex items-center gap-3 text-2xl font-light italic md:text-3xl">
+                <h2 className="kstep-h">
                   <ShieldCheck className="text-[#D4AF37]" /> Ostatni krok
                 </h2>
-                <div className="border border-[#D4AF37]/30 bg-zinc-900/40 p-8 text-center space-y-4">
-                  <p className="mb-2 text-sm italic text-zinc-400">
+                <div style={{ border: "1px solid rgba(63,63,70,0.6)", borderRadius: 18, background: "rgba(9,9,11,0.6)", padding: "32px", textAlign: "center", display: "flex", flexDirection: "column", gap: 24 }}>
+                  <p style={{ fontSize: 14, fontStyle: "italic", color: "#71717a", lineHeight: 1.6, margin: 0 }}>
                     Podaj dane kontaktowe. Nasz doradca przygotuje finalny projekt,
                     sprawdzi warunki montażowe i oddzwoni z propozycją terminu.
                   </p>
-                  <div className="grid gap-3 md:grid-cols-2 text-left">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+                  <div className="kcontact-grid" style={{ textAlign: "left" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <label style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#52525b" }}>
                         Miejscowość
                       </label>
                       <input
@@ -1159,11 +1316,11 @@ export function KonfiguratorPageClient() {
                         placeholder="Np. Wrocław"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
-                        className="w-full border border-zinc-800 bg-black p-3 text-sm text-zinc-100 outline-none transition-all focus:border-[#D4AF37]"
+                        className="kcontact-input"
                       />
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <label style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#52525b" }}>
                         Kod pocztowy
                       </label>
                       <input
@@ -1171,12 +1328,12 @@ export function KonfiguratorPageClient() {
                         placeholder="00-000"
                         value={postalCode}
                         onChange={(e) => setPostalCode(e.target.value)}
-                        className="w-full border border-zinc-800 bg-black p-3 text-sm text-zinc-100 outline-none transition-all focus:border-[#D4AF37]"
+                        className="kcontact-input"
                       />
                     </div>
                   </div>
-                  <div className="pt-2">
-                    <label className="mb-2 block text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+                  <div style={{ paddingTop: 4 }}>
+                    <label style={{ display: "block", marginBottom: 8, fontSize: 10, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#52525b" }}>
                       Numer telefonu
                     </label>
                     <input
@@ -1184,40 +1341,31 @@ export function KonfiguratorPageClient() {
                       placeholder="Wpisz numer telefonu"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full max-w-xs border border-zinc-800 bg-black p-4 text-center text-xl text-[#D4AF37] outline-none transition-all focus:border-[#D4AF37]"
+                      className="kcontact-input"
+                      style={{ maxWidth: 280, margin: "0 auto", textAlign: "center", fontSize: 18, color: "#D4AF37" }}
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="flex gap-4 border-t border-zinc-900/50 pt-8">
+            <div style={{ display: "flex", gap: 12, alignItems: "center", borderTop: "1px solid rgba(39,39,42,0.6)", paddingTop: 28, marginTop: 8 }}>
               {step > 1 && (
-                <button
-                  onClick={handlePrevStep}
-                  className="px-8 py-3 text-xs uppercase tracking-widest text-zinc-400 transition-all border border-zinc-800 hover:bg-zinc-900"
-                >
-                  Wstecz
+                <button onClick={handlePrevStep} className="knav-prev">
+                  ← Wstecz
                 </button>
               )}
-
-              <button
-                onClick={handleNextStep}
-                className="ml-auto px-10 py-4 text-xs font-bold uppercase tracking-[0.2em] text-black bg-[#D4AF37] shadow-[0_0_20px_rgba(212,175,55,0.25)] transition-all hover:bg-white"
-              >
-                {step === 7 ? "Wyślij zapytanie" : "Następny krok"}
+              <button onClick={() => void handleNextStep()} className="knav-next" style={{ marginLeft: "auto" }}>
+                {step === 7 ? "Wyślij zapytanie →" : "Następny krok →"}
               </button>
             </div>
           </div>
 
-          <div className="lg:sticky lg:top-32 lg:h-fit">
-            <div className="relative border border-[#D4AF37]/25 bg-[#050505] p-8 shadow-2xl">
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(212,175,55,0.16),_transparent_55%)]" />
-              <div className="absolute right-0 top-0 p-4 opacity-[0.04]">
-                <ShieldCheck size={120} />
-              </div>
-              <div className="relative space-y-8">
-                <h4 className="border-b border-[#D4AF37]/25 pb-4 text-[10px] uppercase tracking-[0.4em] text-[#D4AF37]">
+          <div style={{ position: "sticky", top: 120 }}>
+            <div style={{ position: "relative", borderRadius: 20, border: "1px solid rgba(212,175,55,0.2)", background: "rgba(9,9,11,0.95)", padding: "28px 24px", boxShadow: "0 0 60px rgba(0,0,0,0.8), 0 0 30px rgba(133,102,47,0.08)" }}>
+              <div style={{ position: "absolute", inset: 0, borderRadius: 20, background: "radial-gradient(circle at 50% 0%, rgba(133,102,47,0.12) 0%, transparent 60%)", pointerEvents: "none" }} />
+              <div style={{ position: "relative" }}>
+                <h4 style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.45em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid rgba(212,175,55,0.18)" }}>
                   Twoja konfiguracja
                 </h4>
 
@@ -1234,67 +1382,80 @@ export function KonfiguratorPageClient() {
                               <button
                                 type="button"
                                 onClick={() => switchActivePairPart("primary", 1)}
-                                className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                className="ksum-row"
                               >
-                                <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                <span className="ksum-key">
                                   Baza
                                 </span>
-                                <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                                <span className="text-sm">{primaryConfig.type}</span>
+                                <span style={{ display: "none" }} />
+                                <span className="ksum-val">{primaryConfig.type}</span>
                               </button>
-                              <button
-                                type="button"
-                                onClick={() => switchActivePairPart("primary", 6)}
-                                className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
-                              >
-                                <span className="text-[10px] uppercase tracking-widest text-zinc-600">
-                                  Wymiar
-                                </span>
-                                <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                                <span className="text-sm">
-                                  {primaryConfig.width}×{primaryConfig.height} cm
-                                </span>
-                              </button>
+                              {(activePairPart === "secondary" || step >= 6) && primaryConfig.width > 0 && primaryConfig.height > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => switchActivePairPart("primary", 6)}
+                                  className="ksum-row"
+                                >
+                                  <span className="ksum-key">
+                                    Wymiar
+                                  </span>
+                                  <span style={{ display: "none" }} />
+                                  <span className="ksum-val">
+                                    {primaryConfig.width}×{primaryConfig.height} cm
+                                  </span>
+                                </button>
+                              )}
                               {primaryConfig.material && (
                                 <button
                                   type="button"
                                   onClick={() => switchActivePairPart("primary", 2)}
-                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                  className="ksum-row"
                                 >
-                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                  <span className="ksum-key">
                                     Wypełnienie
                                   </span>
-                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                                  <span className="text-sm">{primaryConfig.material}</span>
+                                  <span style={{ display: "none" }} />
+                                  <span className="ksum-val">{primaryConfig.material}</span>
                                 </button>
                               )}
                               {primaryConfig.steelType && (
                                 <button
                                   type="button"
                                   onClick={() => switchActivePairPart("primary", 3)}
-                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                  className="ksum-row"
                                 >
-                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                  <span className="ksum-key">
                                     Stal
                                   </span>
-                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                                  <span className="text-sm">{primaryConfig.steelType}</span>
+                                  <span style={{ display: "none" }} />
+                                  <span className="ksum-val">{primaryConfig.steelType}</span>
                                 </button>
                               )}
                               {primaryConfig.ral && (
                                 <button
                                   type="button"
                                   onClick={() => switchActivePairPart("primary", 4)}
-                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                  className="ksum-row"
                                 >
-                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                  <span className="ksum-key">
                                     Kolor
                                   </span>
-                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                                  <span className="text-sm">
-                                    {primaryConfig.ral === "INNY" && primaryConfig.ralCustomCode
-                                      ? primaryConfig.ralCustomCode
-                                      : primaryConfig.ral}
+                                  <span style={{ display: "none" }} />
+                                  <span className="ksum-val" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    {(primaryConfig.ral === "INNY" ? primaryConfig.ralCustomCode : primaryConfig.ral) && (
+                                      <>
+                                        <span
+                                          style={{
+                                            width: 20, height: 20, borderRadius: 4, flexShrink: 0,
+                                            background: getRalDisplayColor(primaryConfig.ral === "INNY" ? primaryConfig.ralCustomCode : primaryConfig.ral) || "rgba(30,30,30,0.9)",
+                                            border: "1px solid rgba(63,63,70,0.5)",
+                                          }}
+                                        />
+                                        {primaryConfig.ral === "INNY" && primaryConfig.ralCustomCode
+                                          ? primaryConfig.ralCustomCode + (ralCodeToNamePl(primaryConfig.ralCustomCode) ? ` – ${ralCodeToNamePl(primaryConfig.ralCustomCode)}` : "")
+                                          : primaryConfig.ral + (ralCodeToNamePl(primaryConfig.ral) ? ` – ${ralCodeToNamePl(primaryConfig.ral)}` : "")}
+                                      </>
+                                    )}
                                   </span>
                                 </button>
                               )}
@@ -1302,13 +1463,13 @@ export function KonfiguratorPageClient() {
                                 <button
                                   type="button"
                                   onClick={() => switchActivePairPart("primary", 5)}
-                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                  className="ksum-row"
                                 >
-                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                  <span className="ksum-key">
                                     Malowanie
                                   </span>
-                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                                  <span className="text-sm">{primaryConfig.paintType}</span>
+                                  <span style={{ display: "none" }} />
+                                  <span className="ksum-val">{primaryConfig.paintType}</span>
                                 </button>
                               )}
                             </div>
@@ -1323,26 +1484,26 @@ export function KonfiguratorPageClient() {
                                 <button
                                   type="button"
                                   onClick={() => switchActivePairPart("secondary", 1)}
-                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                  className="ksum-row"
                                 >
-                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                  <span className="ksum-key">
                                     Baza
                                   </span>
-                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                                  <span className="text-sm">{secondaryConfig.type}</span>
+                                  <span style={{ display: "none" }} />
+                                  <span className="ksum-val">{secondaryConfig.type}</span>
                                 </button>
                               )}
-                              {secondaryConfig.width > 0 && secondaryConfig.height > 0 && (
+                              {activePairPart === "secondary" && step >= 6 && secondaryConfig.width > 0 && secondaryConfig.height > 0 && (
                                 <button
                                   type="button"
                                   onClick={() => switchActivePairPart("secondary", 6)}
-                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                  className="ksum-row"
                                 >
-                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                  <span className="ksum-key">
                                     Wymiar
                                   </span>
-                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                                  <span className="text-sm">
+                                  <span style={{ display: "none" }} />
+                                  <span className="ksum-val">
                                     {secondaryConfig.width}×{secondaryConfig.height} cm
                                   </span>
                                 </button>
@@ -1351,42 +1512,53 @@ export function KonfiguratorPageClient() {
                                 <button
                                   type="button"
                                   onClick={() => switchActivePairPart("secondary", 2)}
-                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                  className="ksum-row"
                                 >
-                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                  <span className="ksum-key">
                                     Wypełnienie
                                   </span>
-                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                                  <span className="text-sm">{secondaryConfig.material}</span>
+                                  <span style={{ display: "none" }} />
+                                  <span className="ksum-val">{secondaryConfig.material}</span>
                                 </button>
                               )}
                               {secondaryConfig.steelType && (
                                 <button
                                   type="button"
                                   onClick={() => switchActivePairPart("secondary", 3)}
-                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                  className="ksum-row"
                                 >
-                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                  <span className="ksum-key">
                                     Stal
                                   </span>
-                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                                  <span className="text-sm">{secondaryConfig.steelType}</span>
+                                  <span style={{ display: "none" }} />
+                                  <span className="ksum-val">{secondaryConfig.steelType}</span>
                                 </button>
                               )}
                               {secondaryConfig.ral && (
                                 <button
                                   type="button"
                                   onClick={() => switchActivePairPart("secondary", 4)}
-                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                  className="ksum-row"
                                 >
-                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                  <span className="ksum-key">
                                     Kolor
                                   </span>
-                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                                  <span className="text-sm">
-                                    {secondaryConfig.ral === "INNY" && secondaryConfig.ralCustomCode
-                                      ? secondaryConfig.ralCustomCode
-                                      : secondaryConfig.ral}
+                                  <span style={{ display: "none" }} />
+                                  <span className="ksum-val" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    {(secondaryConfig.ral === "INNY" ? secondaryConfig.ralCustomCode : secondaryConfig.ral) && (
+                                      <>
+                                        <span
+                                          style={{
+                                            width: 20, height: 20, borderRadius: 4, flexShrink: 0,
+                                            background: getRalDisplayColor(secondaryConfig.ral === "INNY" ? secondaryConfig.ralCustomCode : secondaryConfig.ral) || "rgba(30,30,30,0.9)",
+                                            border: "1px solid rgba(63,63,70,0.5)",
+                                          }}
+                                        />
+                                        {secondaryConfig.ral === "INNY" && secondaryConfig.ralCustomCode
+                                          ? secondaryConfig.ralCustomCode + (ralCodeToNamePl(secondaryConfig.ralCustomCode) ? ` – ${ralCodeToNamePl(secondaryConfig.ralCustomCode)}` : "")
+                                          : secondaryConfig.ral + (ralCodeToNamePl(secondaryConfig.ral) ? ` – ${ralCodeToNamePl(secondaryConfig.ral)}` : "")}
+                                      </>
+                                    )}
                                   </span>
                                 </button>
                               )}
@@ -1394,13 +1566,13 @@ export function KonfiguratorPageClient() {
                                 <button
                                   type="button"
                                   onClick={() => switchActivePairPart("secondary", 5)}
-                                  className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                                  className="ksum-row"
                                 >
-                                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                                  <span className="ksum-key">
                                     Malowanie
                                   </span>
-                                  <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                                  <span className="text-sm">{secondaryConfig.paintType}</span>
+                                  <span style={{ display: "none" }} />
+                                  <span className="ksum-val">{secondaryConfig.paintType}</span>
                                 </button>
                               )}
                             </div>
@@ -1411,7 +1583,7 @@ export function KonfiguratorPageClient() {
                           <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
                             Szacowany koszt łącznie (brama + furtka)
                           </span>
-                          <div className="text-5xl font-light tracking-tighter text-[#D4AF37]">
+                          <div style={{ fontSize: "3rem", fontWeight: 300, letterSpacing: "-0.02em", color: "#D4AF37", lineHeight: 1.1 }}>
                             {(calculateConfigPrice(primaryConfig) + calculateConfigPrice(secondaryConfig || config)).toLocaleString()}{" "}
                             <span className="text-xs text-zinc-500">PLN</span>
                           </div>
@@ -1428,26 +1600,26 @@ export function KonfiguratorPageClient() {
                             <button
                               type="button"
                               onClick={() => setStep(1)}
-                              className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                              className="ksum-row"
                             >
-                              <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                              <span className="ksum-key">
                                 Baza ({config.product})
                               </span>
-                              <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                              <span className="text-sm">{config.type}</span>
+                              <span style={{ display: "none" }} />
+                              <span className="ksum-val">{config.type}</span>
                             </button>
                           )}
-                          {config.width > 0 && config.height > 0 && (
+                          {step >= 6 && config.width > 0 && config.height > 0 && (
                             <button
                               type="button"
                               onClick={() => setStep(6)}
-                              className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                              className="ksum-row"
                             >
-                              <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                              <span className="ksum-key">
                                 Wymiar
                               </span>
-                              <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                              <span className="text-sm">
+                              <span style={{ display: "none" }} />
+                              <span className="ksum-val">
                                 {config.width}×{config.height} cm
                               </span>
                             </button>
@@ -1456,42 +1628,53 @@ export function KonfiguratorPageClient() {
                             <button
                               type="button"
                               onClick={() => setStep(2)}
-                              className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                              className="ksum-row"
                             >
-                              <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                              <span className="ksum-key">
                                 Wypełnienie
                               </span>
-                              <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                              <span className="text-sm">{config.material}</span>
+                              <span style={{ display: "none" }} />
+                              <span className="ksum-val">{config.material}</span>
                             </button>
                           )}
                           {config.steelType && (
                             <button
                               type="button"
                               onClick={() => setStep(3)}
-                              className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                              className="ksum-row"
                             >
-                              <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                              <span className="ksum-key">
                                 Stal
                               </span>
-                              <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                              <span className="text-sm">{config.steelType}</span>
+                              <span style={{ display: "none" }} />
+                              <span className="ksum-val">{config.steelType}</span>
                             </button>
                           )}
                           {config.ral && (
                             <button
                               type="button"
                               onClick={() => setStep(4)}
-                              className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                              className="ksum-row"
                             >
-                              <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                              <span className="ksum-key">
                                 Kolor
                               </span>
-                              <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                              <span className="text-sm">
-                                {config.ral === "INNY" && config.ralCustomCode
-                                  ? config.ralCustomCode
-                                  : config.ral}
+                              <span style={{ display: "none" }} />
+                              <span className="ksum-val" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                {(config.ral === "INNY" ? config.ralCustomCode : config.ral) && (
+                                  <>
+                                    <span
+                                      style={{
+                                        width: 20, height: 20, borderRadius: 4, flexShrink: 0,
+                                        background: getRalDisplayColor(config.ral === "INNY" ? config.ralCustomCode : config.ral) || "rgba(30,30,30,0.9)",
+                                        border: "1px solid rgba(63,63,70,0.5)",
+                                      }}
+                                    />
+                                    {config.ral === "INNY" && config.ralCustomCode
+                                      ? config.ralCustomCode + (ralCodeToNamePl(config.ralCustomCode) ? ` – ${ralCodeToNamePl(config.ralCustomCode)}` : "")
+                                      : config.ral + (ralCodeToNamePl(config.ral) ? ` – ${ralCodeToNamePl(config.ral)}` : "")}
+                                  </>
+                                )}
                               </span>
                             </button>
                           )}
@@ -1499,13 +1682,13 @@ export function KonfiguratorPageClient() {
                             <button
                               type="button"
                               onClick={() => setStep(5)}
-                              className="flex w-full items-end justify-between text-left transition-colors hover:text-[#D4AF37]"
+                              className="ksum-row"
                             >
-                              <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                              <span className="ksum-key">
                                 Malowanie
                               </span>
-                              <span className="mx-4 mb-1 flex-1 border-b border-dotted border-zinc-800 text-sm font-light" />
-                              <span className="text-sm">{config.paintType}</span>
+                              <span style={{ display: "none" }} />
+                              <span className="ksum-val">{config.paintType}</span>
                             </button>
                           )}
                         </div>
@@ -1521,7 +1704,7 @@ export function KonfiguratorPageClient() {
                             <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
                               Szacowany koszt
                             </span>
-                            <div className="text-5xl font-light tracking-tighter text-[#D4AF37]">
+                            <div ref={priceRef} style={{ fontSize: "3rem", fontWeight: 300, letterSpacing: "-0.02em", color: "#D4AF37", lineHeight: 1.1, transition: "color 0.3s" }}>
                               {totalPrice.toLocaleString()}{" "}
                               <span className="text-xs text-zinc-500">PLN</span>
                             </div>
@@ -1551,21 +1734,29 @@ export function KonfiguratorPageClient() {
         </div>
       </section>
 
-      <section className="border-t border-zinc-900 bg-black/70">
-        <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10 text-sm text-zinc-400 md:px-8 md:py-12">
-          <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.25em] text-zinc-500">
-            <Settings className="h-4 w-4 text-[#D4AF37]" />
-            Jak działamy dalej?
+      <section style={{ borderTop: "1px solid rgba(39,39,42,0.8)", background: "rgba(0,0,0,0.7)" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 32px", display: "flex", alignItems: "flex-start", gap: 12 }}>
+          <Settings size={16} style={{ color: "#D4AF37", flexShrink: 0, marginTop: 2 }} />
+          <div>
+            <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.3em", textTransform: "uppercase", color: "#71717a", marginBottom: 8 }}>
+              Jak działamy dalej?
+            </p>
+            <p style={{ fontSize: 13, lineHeight: 1.7, color: "#71717a" }}>
+              Po otrzymaniu konfiguracji kontaktujemy się z Tobą telefonicznie,
+              doprecyzowujemy szczegóły techniczne, a następnie przygotowujemy
+              wizualizację i ofertę dopasowaną do Twojej inwestycji.
+            </p>
           </div>
-          <p>
-            Po otrzymaniu konfiguracji kontaktujemy się z Tobą telefonicznie,
-            doprecyzowujemy szczegóły techniczne, a następnie przygotowujemy
-            wizualizację i ofertę dopasowaną do Twojej inwestycji.
-          </p>
         </div>
       </section>
 
       <MainFooter />
+
+      <AnimatePresence mode="wait">
+        {showSuccessOverlay && (
+          <ConfigSuccessOverlay key="success" onClose={() => setShowSuccessOverlay(false)} />
+        )}
+      </AnimatePresence>
     </main>
   );
 }

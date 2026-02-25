@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 interface ScrollRevealProps {
   children: ReactNode;
@@ -10,6 +10,7 @@ interface ScrollRevealProps {
   y?: number;
   scale?: boolean;
   className?: string;
+  style?: CSSProperties;
 }
 
 export function ScrollReveal({
@@ -19,6 +20,7 @@ export function ScrollReveal({
   y = 28,
   scale = false,
   className,
+  style,
 }: ScrollRevealProps) {
   return (
     <motion.div
@@ -31,6 +33,7 @@ export function ScrollReveal({
         ease: [0.25, 0.46, 0.45, 0.94],
       }}
       className={className}
+      style={style}
     >
       {children}
     </motion.div>
@@ -40,12 +43,14 @@ export function ScrollReveal({
 interface StaggerContainerProps {
   children: ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   staggerDelay?: number;
 }
 
 export function StaggerContainer({
   children,
   className,
+  style,
   staggerDelay = 0.1,
 }: StaggerContainerProps) {
   return (
@@ -53,6 +58,7 @@ export function StaggerContainer({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
+      style={style}
       variants={{
         hidden: {},
         visible: {

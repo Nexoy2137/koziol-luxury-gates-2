@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { CursorGlow } from "@/components/ui/CursorGlow";
+import { ToastProvider } from "@/context/ToastContext";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -19,6 +20,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://koziol-gates.pl"),
   title: "Koziol Luxury Gates | Producent Ekskluzywnych Bram i Ogrodzeń",
   description:
     "Projektujemy i montujemy luksusowe bramy oraz systemy ogrodzeniowe. Skorzystaj z naszego konfiguratora online i otrzymaj wstępną wycenę w 2 minuty. Realizacje w całej Polsce.",
@@ -50,9 +52,11 @@ export default function RootLayout({
   return (
     <html lang="pl">
       <body className={`${playfair.variable} ${inter.variable} antialiased`}>
-        <div className="grain-overlay" aria-hidden="true" />
-        <CursorGlow />
-        {children}
+        <ToastProvider>
+          <div className="grain-overlay" aria-hidden="true" />
+          <CursorGlow />
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

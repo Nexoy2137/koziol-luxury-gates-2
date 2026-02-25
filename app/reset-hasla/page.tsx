@@ -1,73 +1,123 @@
- "use client";
+"use client";
 
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import { useToast } from "@/context/ToastContext";
+import { motion } from "framer-motion";
+import { ArrowLeft, CheckCircle, Mail } from "lucide-react";
 
 export default function ResetPasswordRequestPage() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail]   = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const toast = useToast();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email.trim()) return;
     try {
       setStatus("sending");
-      const origin =
-        typeof window !== "undefined" ? window.location.origin : "";
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${origin}/reset-hasla/zmien`,
       });
       if (error) throw error;
       setStatus("sent");
-    } catch (error: any) {
-      alert("Błąd wysyłania maila resetującego: " + error.message);
+    } catch (error: unknown) {
+      await toast.showAlert("Błąd wysyłania: " + (error instanceof Error ? error.message : ""));
       setStatus("idle");
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="max-w-md w-full border border-[#D4AF37]/30 p-10 bg-zinc-900/50"
+    <div style={{ minHeight: "100vh", background: "#000", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ position: "fixed", inset: 0, background: "radial-gradient(ellipse 60% 50% at 50% 40%, rgba(133,102,47,0.14) 0%, transparent 65%)", pointerEvents: "none" }} />
+
+      <motion.div
+        initial={{ opacity: 0, y: 28 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94] }}
+        style={{ position: "relative", width: "100%", maxWidth: 420 }}
       >
-        <h1 className="text-[#D4AF37] text-2xl uppercase tracking-[0.3em] mb-6 text-center">
-          Reset hasła
-        </h1>
-        <p className="text-xs text-zinc-400 mb-6 text-center">
-          Podaj email do panelu. Wyślemy link do ustawienia nowego hasła.
-        </p>
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full bg-black border border-zinc-800 p-3 mb-4 focus:border-[#D4AF37] outline-none"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <button
-          disabled={status === "sending"}
-          className="w-full bg-[#D4AF37] text-black font-bold py-3 uppercase tracking-widest hover:bg-[#b8962d] disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {status === "sending" ? "Wysyłanie..." : "Wyślij link resetujący"}
-        </button>
+        <div className="beam-wrapper">
+          <div className="beam-inner rounded-2xl" style={{ padding: 40 }}>
 
-        {status === "sent" && (
-          <p className="mt-4 text-[11px] text-center text-green-400">
-            Jeśli podany email jest poprawny, wysłaliśmy wiadomość z linkiem do
-            zmiany hasła.
-          </p>
-        )}
+            <div style={{ textAlign: "center", marginBottom: 32 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.svg" alt="Koziol" style={{ height: 102, width: 102, margin: "0 auto 16px", display: "block" }} />
+              <p style={{ fontSize: 10, letterSpacing: "0.45em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 8 }}>
+                Panel zarządzania
+              </p>
+              <h1 style={{ fontSize: 22, fontWeight: 600, color: "#fff", margin: 0 }}>
+                Reset hasła
+              </h1>
+              <p style={{ marginTop: 10, fontSize: 13, color: "#71717a", lineHeight: 1.6 }}>
+                Podaj swój adres e-mail. Wyślemy link do ustawienia nowego hasła.
+              </p>
+            </div>
 
-        <div className="mt-6 flex flex-col items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-zinc-500">
-          <Link href="/login" className="hover:text-[#D4AF37]">
-            ← Wróć do logowania
-          </Link>
+            {status === "sent" ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                style={{ textAlign: "center", padding: "24px 0" }}
+              >
+                <CheckCircle size={48} style={{ color: "#D4AF37", margin: "0 auto 16px", display: "block" }} />
+                <p style={{ fontSize: 14, color: "#e4e4e7", marginBottom: 8 }}>Link wysłany</p>
+                <p style={{ fontSize: 12, color: "#71717a", lineHeight: 1.6 }}>
+                  Jeśli podany e-mail jest poprawny, za chwilę otrzymasz wiadomość z linkiem do zmiany hasła.
+                </p>
+              </motion.div>
+            ) : (
+              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={{ fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase", color: "#71717a" }}>
+                    E-mail
+                  </label>
+                  <input
+                    type="email" required placeholder="twoj@email.pl"
+                    value={email} onChange={(e) => setEmail(e.target.value)}
+                    style={{
+                      width: "100%", background: "#000", border: "1px solid rgba(63,63,70,0.8)",
+                      borderRadius: 10, padding: "12px 16px", fontSize: 14, color: "#e4e4e7",
+                      outline: "none", transition: "border-color 0.2s", boxSizing: "border-box" as const,
+                    }}
+                    onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(212,175,55,0.7)"; }}
+                    onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(63,63,70,0.8)"; }}
+                  />
+                </div>
+
+                <button
+                  type="submit" disabled={status === "sending"}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    marginTop: 4, padding: "14px 24px", borderRadius: 999,
+                    background: "#D4AF37", color: "#000",
+                    fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase",
+                    border: "none", cursor: status === "sending" ? "not-allowed" : "pointer",
+                    opacity: status === "sending" ? 0.6 : 1,
+                    boxShadow: "0 0 28px rgba(212,175,55,0.35)",
+                  }}
+                >
+                  {status === "sending" ? "Wysyłanie..." : "Wyślij link resetujący"}
+                  {status !== "sending" && <Mail size={13} />}
+                </button>
+              </form>
+            )}
+
+            <div style={{ marginTop: 28, display: "flex", justifyContent: "center" }}>
+              <Link href="/login" style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "#52525b", textDecoration: "none", transition: "color 0.2s" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#a1a1aa"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#52525b"; }}
+              >
+                <ArrowLeft size={12} />
+                Wróć do logowania
+              </Link>
+            </div>
+          </div>
         </div>
-      </form>
+      </motion.div>
     </div>
   );
 }
-

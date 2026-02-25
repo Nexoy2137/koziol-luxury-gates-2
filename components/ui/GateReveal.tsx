@@ -11,10 +11,11 @@ export function GateReveal() {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    // Show only once per browser session
+    // Show only once per browser session (defer setState to avoid cascading renders)
     if (typeof sessionStorage !== "undefined" && !sessionStorage.getItem("kzl-gate-shown")) {
-      setVisible(true);
       sessionStorage.setItem("kzl-gate-shown", "1");
+      const id = setTimeout(() => setVisible(true), 0);
+      return () => clearTimeout(id);
     }
   }, []);
 
@@ -81,7 +82,7 @@ export function GateReveal() {
                 alt="Koziol Luxury Gates"
                 width={260}
                 height={80}
-                className="w-48 md:w-64 object-contain"
+                className="w-96 md:w-[30rem] object-contain"
                 priority
               />
               <p className="text-[9px] font-semibold uppercase tracking-[0.55em] text-[#D4AF37] opacity-80">
