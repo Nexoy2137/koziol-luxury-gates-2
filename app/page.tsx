@@ -104,6 +104,31 @@ export default function Home() {
           @media (min-width: 768px) { .cta-finale-buttons { gap: 24px; } }
           .cta-finale-eyebrow { margin-bottom: 6px !important; }
           .cta-finale-heading { font-size: clamp(2rem, 5.5vw, 4rem) !important; }
+          .tech-section-inner { padding: 48px 16px !important; }
+          .tech-section-header { gap: 12px !important; }
+          .tech-section-eyebrow { margin-bottom: 6px !important; }
+          .tech-section-grid { margin-top: 24px !important; }
+          .process-section-inner { padding: 48px 16px !important; }
+          .process-section-eyebrow { margin-bottom: 6px !important; }
+          .process-section-grid { margin-top: 24px !important; }
+          @media (min-width: 640px) {
+            .tech-section-inner { padding: 64px 24px !important; }
+            .tech-section-header { gap: 18px !important; }
+            .tech-section-eyebrow { margin-bottom: 12px !important; }
+            .tech-section-grid { margin-top: 36px !important; }
+            .process-section-inner { padding: 64px 24px !important; }
+            .process-section-eyebrow { margin-bottom: 12px !important; }
+            .process-section-grid { margin-top: 36px !important; }
+          }
+          @media (min-width: 768px) {
+            .tech-section-inner { padding: 96px 32px !important; }
+            .tech-section-header { gap: 24px !important; }
+            .tech-section-eyebrow { margin-bottom: 12px !important; }
+            .tech-section-grid { margin-top: 48px !important; }
+            .process-section-inner { padding: 96px 32px !important; }
+            .process-section-eyebrow { margin-bottom: 12px !important; }
+            .process-section-grid { margin-top: 48px !important; }
+          }
         `}</style>
         <MainHeader />
 
@@ -473,11 +498,11 @@ export default function Home() {
             style={{ background: "radial-gradient(ellipse 90% 70% at 50% 0%, rgba(133,102,47,0.16) 0%, transparent 60%)" }}
           />
 
-          <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "96px 32px" }}>
+          <div className="tech-section-inner" style={{ position: "relative", maxWidth: 1280, margin: "0 auto" }}>
             <ScrollReveal>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 24, justifyContent: "space-between", alignItems: "flex-end" }}>
+              <div className="tech-section-header" style={{ display: "flex", flexWrap: "wrap", gap: 24, justifyContent: "space-between", alignItems: "flex-end" }}>
                 <div>
-                  <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">Technologia</p>
+                  <p className="tech-section-eyebrow text-[10px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">Technologia</p>
                   <h2 className="font-display" style={{ fontSize: "clamp(2.2rem,4.5vw,3.2rem)", fontWeight: 400, fontStyle: "italic", lineHeight: 1.15 }}>
                     Wyróżnia nas każdy detal.
                   </h2>
@@ -488,7 +513,7 @@ export default function Home() {
               </div>
             </ScrollReveal>
 
-            <StaggerContainer className="features-grid" style={{ marginTop: 48 }} staggerDelay={0.09}>
+            <StaggerContainer className="features-grid tech-section-grid" style={{ marginTop: 48 }} staggerDelay={0.09}>
               {FEATURES.map(({ Icon, eyebrow, title, desc }) => (
                 <StaggerItem key={title}>
                   <TiltCard intensity={9} className="h-full">
@@ -511,15 +536,15 @@ export default function Home() {
 
         {/* ══ PROCES ═════════════════════════════════════════════════════════════ */}
         <section className="relative border-b border-zinc-800 bg-[#030303] grid-overlay">
-          <div style={{ maxWidth: 1280, margin: "0 auto", padding: "96px 32px" }}>
+          <div className="process-section-inner" style={{ maxWidth: 1280, margin: "0 auto" }}>
             <ScrollReveal>
-              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">Jak działamy</p>
+              <p className="process-section-eyebrow text-[10px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">Jak działamy</p>
               <h2 className="font-display max-w-xl text-[clamp(2.2rem,4.5vw,3.2rem)] font-normal italic leading-tight">
                 Od konfiguracji do montażu — bez kompromisów.
               </h2>
             </ScrollReveal>
 
-            <div className="process-grid" style={{ marginTop: 48 }}>
+            <div className="process-grid process-section-grid" style={{ marginTop: 48 }}>
               {PROCESS.map((step, i) => (
                 <ScrollReveal key={step.num} delay={i * 0.13}>
                   <TiltCard intensity={7} className="h-full">
