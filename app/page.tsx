@@ -65,7 +65,9 @@ export default function Home() {
           .features-grid { display:grid; grid-template-columns:1fr; gap:20px; }
           .process-grid { display:grid; grid-template-columns:1fr; gap:20px; }
           .portfolio-cols { display:flex; flex-direction:column; gap:48px; }
-          .portfolio-tiles { display:grid; grid-template-columns:1fr; gap:16px; }
+          .portfolio-tiles { display:grid; grid-template-columns:1fr; gap:16px; align-items:stretch; }
+          .portfolio-tiles .page-card-stat { height:100%; }
+          .portfolio-tile-label { min-height: 2.6em; display: flex; align-items: center; justify-content: center; }
           @media(min-width:640px){ .portfolio-tiles { grid-template-columns:repeat(2,1fr); gap:20px; } }
           @media(min-width:768px){
             .stats-grid { grid-template-columns:repeat(3,1fr); }
@@ -83,38 +85,25 @@ export default function Home() {
             .features-grid { grid-template-columns:repeat(4,1fr); }
             .portfolio-cols { flex-direction:row; align-items:center; justify-content:space-between; }
           }
-          .cta-finale-inner { max-width: min(48rem, 100%); padding: 0 20px 24px; box-sizing: border-box; }
-          .cta-finale-buttons { margin-top: 36px; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; width: 100%; padding: 0 4px; }
+          .cta-finale-inner { max-width: min(48rem, 100%); padding: 20px 20px 24px; box-sizing: border-box; }
+          .cta-finale-buttons { margin-top: 36px; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; padding: 0 4px; }
           .cta-finale-buttons a { min-width: 0; flex: 1 1 auto; max-width: 100%; }
+          @media (min-width: 768px) { .cta-finale-buttons a { flex: 0 0 auto; } }
           @media (max-width: 480px) {
             .cta-finale-buttons { flex-direction: column; width: 100%; }
             .cta-finale-buttons a { width: 100%; justify-content: center; }
           }
-          .cta-finale-tags { margin-top: 36px; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
-          .cta-finale-tag {
-            display: inline-block;
-            padding: 14px 24px;
-            border: 1px solid rgba(63,63,70,0.8);
-            border-radius: 999px;
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: 0.32em;
-            text-transform: uppercase;
-            color: #71717a;
-            transition: border-color 0.2s, color 0.2s;
-            text-align: center;
-          }
-          .cta-finale-tag:hover { border-color: #52525b; color: #d4d4d8; }
           .portfolio-section-inner { position: relative; max-width: 1280px; margin: 0 auto; padding: 48px 16px; box-sizing: border-box; }
           @media (min-width: 640px) { .portfolio-section-inner { padding: 64px 24px; } }
           @media (min-width: 768px) { .portfolio-section-inner { padding: 96px 32px; } }
           .about-section-inner { position: relative; max-width: 1280px; margin: 0 auto; padding: 48px 16px; box-sizing: border-box; }
           @media (min-width: 640px) { .about-section-inner { padding: 64px 24px; } }
           @media (min-width: 768px) { .about-section-inner { padding: 96px 32px; } }
-          @media (min-width: 640px) {
-            .cta-finale-tags { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 16px; }
-            .cta-finale-inner { padding: 0 24px; }
-          }
+          @media (min-width: 640px) { .cta-finale-inner { padding: 28px 24px 28px; } }
+          @media (min-width: 768px) { .cta-finale-inner { padding: 28px 24px 36px; } }
+          @media (min-width: 768px) { .cta-finale-buttons { gap: 24px; } }
+          .cta-finale-eyebrow { margin-bottom: 6px !important; }
+          .cta-finale-heading { font-size: clamp(2rem, 5.5vw, 4rem) !important; }
         `}</style>
         <MainHeader />
 
@@ -329,9 +318,10 @@ export default function Home() {
                         borderRadius: 14,
                         background: "rgba(0,0,0,0.6)",
                         display: "flex", justifyContent: "center", alignItems: "center",
+                        overflow: "hidden",
                       }}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/logo.svg" alt="Koziol Luxury Gates" style={{ height: 210, width: 210, display: "block" }} />
+                        <img src="/logo.svg" alt="Koziol Luxury Gates" style={{ height: 210, width: 210, display: "block", objectFit: "contain" }} />
                       </div>
 
                       {/* Gold divider */}
@@ -592,7 +582,7 @@ export default function Home() {
                     { num: "70+", label: "Bramy skrzydłowe" },
                     { num: "50+", label: "Bramy + furtki" },
                   ].map((item) => (
-                    <TiltCard key={item.label} intensity={8}>
+                    <TiltCard key={item.label} intensity={8} className="h-full">
                       <div className="page-card-stat" style={{
                         display: "flex", flexDirection: "column", gap: 12,
                         padding: "32px 28px", textAlign: "center",
@@ -605,7 +595,7 @@ export default function Home() {
                         }}>
                           {item.num}
                         </span>
-                        <span style={{ fontSize: 11, color: "#71717a", lineHeight: 1.4 }}>{item.label}</span>
+                        <span className="portfolio-tile-label" style={{ fontSize: 11, color: "#71717a", lineHeight: 1.4 }}>{item.label}</span>
                       </div>
                     </TiltCard>
                   ))}
@@ -625,15 +615,15 @@ export default function Home() {
             style={{ background: "radial-gradient(ellipse 100% 90% at 50% 50%, rgba(133,102,47,0.22) 0%, transparent 60%)" }}
           />
 
-          <div className="relative mx-auto flex flex-col items-center pt-20 pb-28 md:pt-28 md:pb-36 text-center w-full cta-finale-inner">
+          <div className="relative mx-auto flex flex-col items-center text-center w-full cta-finale-inner">
             <ScrollReveal>
-              <p className="mb-6 text-[10px] font-semibold uppercase tracking-[0.6em] text-[#D4AF37]">
+              <p className="cta-finale-eyebrow text-[10px] font-semibold uppercase tracking-[0.6em] text-[#D4AF37]">
                 Zacznij tutaj
               </p>
-              <h2 className="font-display text-[clamp(2.4rem,7vw,5rem)] font-normal italic leading-tight tracking-tight">
+              <h2 className="cta-finale-heading font-display font-normal italic leading-tight tracking-tight text-white">
                 Każda brama jest wyjątkowa.
                 <br />
-                <span className="text-zinc-500">Twoja też będzie.</span>
+                Twoja też będzie.
               </h2>
               <p className="mx-auto mt-7 max-w-lg text-[16px] font-light leading-relaxed text-zinc-400">
                 Skonfiguruj swoją bramę online i otrzymaj wstępną wycenę. Bezpłatna
@@ -653,13 +643,6 @@ export default function Home() {
               </div>
             </ScrollReveal>
 
-            <ScrollReveal delay={0.32} className="cta-finale-tags">
-              {["Bezpłatna wycena", "Realizacja w całej Polsce", "Gwarancja 20 lat"].map((tag) => (
-                <span key={tag} className="cta-finale-tag">
-                  {tag}
-                </span>
-              ))}
-            </ScrollReveal>
           </div>
         </section>
 

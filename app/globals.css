@@ -45,8 +45,8 @@ a {
 /* ─── Header responsive: większy logo i padding na desktop ─ */
 @media (min-width: 768px) {
   .header-row { padding: 10px 28px !important; gap: 16px !important; }
-  .header-logo { gap: 12px !important; }
-  .header-logo-img { height: 88px !important; width: 88px !important; }
+  .header-logo { gap: 12px !important; overflow: hidden !important; }
+  .header-logo-img { height: 88px !important; width: 88px !important; object-fit: contain !important; }
   .header-brand-name { font-size: 12px !important; }
   .header-brand-sub { font-size: 9px !important; letter-spacing: 0.35em !important; }
   .header-cta-panel { padding: 6px 14px !important; font-size: 11px !important; }

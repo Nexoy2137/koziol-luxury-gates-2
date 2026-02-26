@@ -47,16 +47,17 @@ export function MainHeader() {
           padding: "10px 16px",
           display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
           minWidth: 0, overflow: "hidden",
+          isolation: "isolate",
         }}
         className="header-row"
         >
           {/* Logo */}
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", minWidth: 0, flexShrink: 1 }} className="header-logo">
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", minWidth: 0, flexShrink: 1, overflow: "hidden" }} className="header-logo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo.svg"
               alt="Koziol Luxury Gates"
-              style={{ height: 56, width: 56, display: "block", borderRadius: 6, flexShrink: 0 }}
+              style={{ height: 56, width: 56, display: "block", borderRadius: 6, flexShrink: 0, objectFit: "contain" }}
               className="header-logo-img"
             />
             <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }} className="header-brand-text">

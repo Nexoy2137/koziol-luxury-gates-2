@@ -38,7 +38,8 @@ export function GateReveal() {
       {visible && (
         <motion.div
           key="gate"
-          className="fixed inset-0 z-[9999] flex pointer-events-none select-none"
+          className="fixed inset-0 z-[9999] flex pointer-events-none select-none overflow-hidden"
+          style={{ isolation: "isolate" }}
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4, delay: 2.8 }}
@@ -87,7 +88,8 @@ export function GateReveal() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.5 }}
-              className="flex flex-col items-center gap-3"
+              className="flex flex-col items-center gap-3 overflow-hidden"
+              style={{ maxWidth: "100%", maxHeight: "100%" }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -96,6 +98,7 @@ export function GateReveal() {
                 width={260}
                 height={80}
                 className="w-96 md:w-[30rem] object-contain"
+                style={{ maxWidth: "100%", height: "auto" }}
                 fetchPriority="high"
               />
               <p className="text-[9px] font-semibold uppercase tracking-[0.55em] text-[#D4AF37] opacity-80">
