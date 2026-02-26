@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import type { ReactNode, CSSProperties } from "react";
 
@@ -20,6 +21,9 @@ export function LuxButton({
   size = "md",
   style,
 }: LuxButtonProps) {
+  const [pressed, setPressed] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const active = hovered || pressed;
   const fontSize = size === "lg" ? 12 : 11;
   const padding  = size === "lg" ? "13px 28px" : "10px 22px";
 
@@ -35,11 +39,19 @@ export function LuxButton({
     textTransform: "uppercase" as const,
     textDecoration: "none",
     padding,
-    transition: "background 0.25s, box-shadow 0.25s, border-color 0.25s, color 0.25s",
+    transition: "background 0.25s, box-shadow 0.25s, border-color 0.25s, color 0.25s, transform 0.15s",
     whiteSpace: "nowrap" as const,
     cursor: "pointer",
     overflow: "hidden",
     ...style,
+  };
+
+  const pointerProps = {
+    onPointerDown: () => setPressed(true),
+    onPointerUp: () => setPressed(false),
+    onPointerLeave: () => setPressed(false),
+    onMouseEnter: () => setHovered(true),
+    onMouseLeave: () => setHovered(false),
   };
 
   if (variant === "gold") {
@@ -47,27 +59,23 @@ export function LuxButton({
       <Link
         href={href}
         className={className}
-        style={{ ...baseStyle, background: "#D4AF37", color: "#000", boxShadow: "0 0 28px rgba(212,175,55,0.32)" }}
-        onMouseEnter={(e) => {
-          const el = e.currentTarget as HTMLAnchorElement;
-          el.style.background = "#C9A227";
-          el.style.boxShadow = "0 0 52px rgba(212,175,55,0.62)";
+        style={{
+          ...baseStyle,
+          background: active ? "#C9A227" : "#D4AF37",
+          color: "#000",
+          boxShadow: active ? "0 0 52px rgba(212,175,55,0.62)" : "0 0 28px rgba(212,175,55,0.32)",
+          transform: pressed ? "scale(0.98)" : undefined,
         }}
-        onMouseLeave={(e) => {
-          const el = e.currentTarget as HTMLAnchorElement;
-          el.style.background = "#D4AF37";
-          el.style.boxShadow = "0 0 28px rgba(212,175,55,0.32)";
-        }}
+        {...pointerProps}
       >
         {/* Shimmer */}
         <span style={{
           position: "absolute", inset: 0,
           background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.28) 50%, transparent 60%)",
-          transform: "translateX(-100%)",
+          transform: hovered ? "translateX(100%)" : "translateX(-100%)",
           transition: "transform 0.65s ease",
           pointerEvents: "none",
         }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateX(100%)"; }}
         />
         {children}
       </Link>
@@ -81,23 +89,14 @@ export function LuxButton({
       className={className}
       style={{
         ...baseStyle,
-        background: "transparent",
+        background: active ? "rgba(212,175,55,0.12)" : "transparent",
         color: "#D4AF37",
-        border: "1.5px solid #D4AF37",
-        boxShadow: "none",
+        border: "1.5px solid",
+        borderColor: active ? "#E8C97A" : "#D4AF37",
+        boxShadow: active ? "0 0 24px rgba(212,175,55,0.22)" : "none",
+        transform: pressed ? "scale(0.98)" : undefined,
       }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget as HTMLAnchorElement;
-        el.style.background = "rgba(212,175,55,0.12)";
-        el.style.borderColor = "#E8C97A";
-        el.style.boxShadow = "0 0 24px rgba(212,175,55,0.22)";
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget as HTMLAnchorElement;
-        el.style.background = "transparent";
-        el.style.borderColor = "#D4AF37";
-        el.style.boxShadow = "none";
-      }}
+      {...pointerProps}
     >
       {children}
     </Link>

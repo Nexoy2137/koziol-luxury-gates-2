@@ -176,6 +176,26 @@ body {
   );
 }
 
+/* Na telefonie: wolniejsza animacja beam (mniej obciążenia) */
+@media (max-width: 768px) {
+  .beam-wrapper::before,
+  .beam-wrapper-fast::before,
+  .beam-wrapper-strong::before {
+    animation-duration: 8s;
+  }
+}
+
+/* Szanuj preferencję: mniej animacji */
+@media (prefers-reduced-motion: reduce) {
+  .beam-wrapper::before,
+  .beam-wrapper-fast::before,
+  .beam-wrapper-strong::before {
+    animation: none;
+  }
+  .gate-glow-line { animation: none; opacity: 0.8; }
+  .marquee-track { animation: none; }
+}
+
 /* ─── Grain overlay ──────────────────────────────────────────────────────────── */
 .grain-overlay {
   position: fixed;
@@ -399,6 +419,13 @@ body {
 .map-wrapper:hover .map-iframe {
   filter: grayscale(0) invert(0) brightness(1) contrast(1);
 }
+/* Na telefonie brak hover — mapa od razu czytelna */
+@media (max-width: 768px),
+       (hover: none) {
+  .map-wrapper .map-iframe {
+    filter: grayscale(0) invert(0) brightness(1) contrast(1);
+  }
+}
 
 /* ─── Gate reveal animation ──────────────────────────────────────────────────── */
 @keyframes gate-glow-pulse {
@@ -407,4 +434,17 @@ body {
 }
 .gate-glow-line {
   animation: gate-glow-pulse 1.5s ease-in-out infinite;
+}
+
+/* ─── Telefon / touch: lepsze wrażenia ───────────────────────────────────────── */
+@media (hover: none) {
+  /* Delikatna poświata przy tap (zamiast domyślnego szarego) */
+  a, button {
+    -webkit-tap-highlight-color: rgba(212, 175, 55, 0.18);
+    tap-highlight-color: rgba(212, 175, 55, 0.18);
+  }
+}
+/* Opcjonalnie: wyłącz will-change na urządzeniach bez hover (mniej obciążenia GPU) */
+@media (hover: none) {
+  .magnetic { will-change: auto; }
 }

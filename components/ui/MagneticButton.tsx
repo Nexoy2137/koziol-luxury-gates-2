@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 
 interface MagneticButtonProps {
@@ -21,8 +21,18 @@ export function MagneticButton({
   const ref = useRef<HTMLAnchorElement>(null);
   const [releasing, setReleasing] = useState(false);
   const [transform, setTransform] = useState("translate(0px, 0px)");
+  const [hasHover, setHasHover] = useState(true);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: none)");
+    setHasHover(!mq.matches);
+    const listener = () => setHasHover(!mq.matches);
+    mq.addEventListener("change", listener);
+    return () => mq.removeEventListener("change", listener);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (!hasHover) return;
     const el = ref.current;
     if (!el) return;
     setReleasing(false);
@@ -33,6 +43,7 @@ export function MagneticButton({
   };
 
   const handleMouseLeave = () => {
+    if (!hasHover) return;
     setReleasing(true);
     setTransform("translate(0px, 0px)");
   };
@@ -41,10 +52,10 @@ export function MagneticButton({
     "inline-flex items-center gap-3 rounded-full px-8 py-3.5 text-[11px] font-semibold uppercase tracking-[0.28em] transition-colors duration-200";
 
   const variants = {
-    gold: "bg-[#D4AF37] text-black hover:bg-[#E8C97A] shadow-gold-button",
+    gold: "bg-[#D4AF37] text-black hover:bg-[#E8C97A] shadow-gold-button active:scale-[0.98]",
     outline:
-      "border border-zinc-700 bg-transparent text-zinc-300 hover:border-[#D4AF37]/70 hover:text-[#D4AF37]",
-    ghost: "text-[#D4AF37] hover:text-white",
+      "border border-zinc-700 bg-transparent text-zinc-300 hover:border-[#D4AF37]/70 hover:text-[#D4AF37] active:scale-[0.98]",
+    ghost: "text-[#D4AF37] hover:text-white active:opacity-80",
   };
 
   return (
@@ -53,8 +64,8 @@ export function MagneticButton({
       href={href}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`magnetic ${releasing ? "magnetic-releasing" : ""} ${baseClass} ${variants[variant]} ${className}`}
-      style={{ transform }}
+      className={`${hasHover ? "magnetic " : ""}${releasing ? "magnetic-releasing " : ""}${baseClass} ${variants[variant]} ${className}`}
+      style={hasHover ? { transform } : undefined}
     >
       {children}
     </Link>

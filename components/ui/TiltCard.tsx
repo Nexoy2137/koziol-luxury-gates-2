@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import { useRef, useState, useEffect, type ReactNode } from "react";
 
 interface TiltCardProps {
   children: ReactNode;
@@ -10,8 +10,18 @@ interface TiltCardProps {
 
 export function TiltCard({ children, className = "", intensity = 10 }: TiltCardProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const [hasHover, setHasHover] = useState(true);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: none)");
+    setHasHover(!mq.matches);
+    const listener = () => setHasHover(!mq.matches);
+    mq.addEventListener("change", listener);
+    return () => mq.removeEventListener("change", listener);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!hasHover) return;
     const el = ref.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
@@ -22,6 +32,7 @@ export function TiltCard({ children, className = "", intensity = 10 }: TiltCardP
   };
 
   const handleMouseLeave = () => {
+    if (!hasHover) return;
     const el = ref.current;
     if (!el) return;
     el.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0px)";
@@ -34,7 +45,7 @@ export function TiltCard({ children, className = "", intensity = 10 }: TiltCardP
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={className}
-      style={{ transformStyle: "preserve-3d", willChange: "transform" }}
+      style={hasHover ? { transformStyle: "preserve-3d", willChange: "transform" } : undefined}
     >
       {children}
     </div>
