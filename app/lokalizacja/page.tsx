@@ -81,7 +81,7 @@ export default function LokalizacjaPage() {
             <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 20 }}>
               <MapPin size={16} style={{ color: "#D4AF37", flexShrink: 0, marginTop: 2 }} />
               <div style={{ fontSize: 15, color: "#a1a1aa", lineHeight: 1.8 }}>
-                Koziol Luxury Gates<br />
+                Kozioł Luxury Gates<br />
                 ul. Adamówek 41<br />
                 95-035 Ozorków, Polska
               </div>

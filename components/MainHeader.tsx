@@ -56,7 +56,7 @@ export function MainHeader() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo.svg"
-              alt="Koziol Luxury Gates"
+              alt="Kozioł Luxury Gates"
               style={{ height: 56, width: 56, display: "block", borderRadius: 6, flexShrink: 0, objectFit: "contain" }}
               className="header-logo-img"
             />
@@ -67,7 +67,7 @@ export function MainHeader() {
               }}
               className="header-brand-name"
               >
-                Koziol Luxury Gates
+                Kozioł Luxury Gates
               </span>
               <span style={{
                 fontSize: 8, letterSpacing: "0.25em", textTransform: "uppercase",

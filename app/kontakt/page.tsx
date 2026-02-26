@@ -152,7 +152,7 @@ export default function KontaktPage() {
                 Siedziba
               </p>
               <h2 className="font-display" style={{ fontSize: "clamp(1.8rem,3vw,2.4rem)", fontWeight: 400, fontStyle: "italic", lineHeight: 1.2, marginBottom: 32 }}>
-                Koziol Luxury Gates — showroom
+                Kozioł Luxury Gates — showroom
               </h2>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>

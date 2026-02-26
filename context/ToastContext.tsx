@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useState, useEffect } from "react";
 
 type ToastState =
   | { type: "idle" }
@@ -43,6 +43,17 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     },
     [state]
   );
+
+  const isOpen = state.type !== "idle";
+  useEffect(() => {
+    if (isOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [isOpen]);
 
   return (
     <ToastContext.Provider value={{ showAlert, showConfirm }}>
@@ -98,12 +109,18 @@ function ToastModal({
 }) {
   return (
     <div
+      className="toast-overlay"
       role="dialog"
       aria-modal="true"
       aria-labelledby="toast-title"
       style={{
         position: "fixed",
-        inset: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: "100%",
+        minHeight: "100dvh",
         zIndex: 99999,
         display: "flex",
         alignItems: "center",
@@ -111,10 +128,22 @@ function ToastModal({
         padding: 24,
         background: "rgba(0,0,0,0.75)",
         backdropFilter: "blur(8px)",
+        overflowY: "auto",
+        overflowX: "hidden",
+        WebkitOverflowScrolling: "touch",
+        overscrollBehavior: "contain",
       }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
+      <style>{`
+        .toast-overlay { box-sizing: border-box; }
+        @media (max-width: 640px) {
+          .toast-overlay { padding: 16px; align-items: center; justify-content: center; }
+          .toast-modal-card { margin: auto; max-height: calc(100dvh - 32px); overflow-y: auto; }
+        }
+      `}</style>
       <div
+        className="toast-modal-card"
         style={{
           maxWidth: 420,
           width: "100%",
@@ -124,6 +153,7 @@ function ToastModal({
           background: "rgba(9,9,11,0.98)",
           boxShadow: "0 0 80px rgba(0,0,0,0.8), 0 0 40px rgba(212,175,55,0.1)",
           textAlign: "center",
+          flexShrink: 0,
         }}
         onClick={(e) => e.stopPropagation()}
       >

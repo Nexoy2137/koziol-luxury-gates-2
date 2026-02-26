@@ -589,13 +589,13 @@ export default function AdminPanel() {
         <div className="admin-header-inner" style={{ maxWidth: 1320, margin: "0 auto", padding: "0 40px", height: 80, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="Koziol" style={{ height: 76, width: 76, borderRadius: 6 }} />
+            <img src="/logo.svg" alt="Kozioł" style={{ height: 76, width: 76, borderRadius: 6 }} />
             <div>
               <h1 style={{ fontSize: 14, fontWeight: 800, letterSpacing: "0.04em", textTransform: "uppercase", color: "#fff", margin: 0 }}>
                 System <span style={{ color: "#D4AF37" }}>Zarządzania</span>
               </h1>
               <p style={{ fontSize: 9, letterSpacing: "0.4em", textTransform: "uppercase", color: "#52525b", margin: 0 }}>
-                Koziol Luxury Gates — Internal Access
+                Kozioł Luxury Gates — Internal Access
               </p>
             </div>
           </div>

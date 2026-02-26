@@ -67,7 +67,7 @@ export default function ResetPasswordChangePage() {
           <div className="beam-inner rounded-2xl" style={{ padding: 40 }}>
             <div style={{ textAlign: "center", marginBottom: 32 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.svg" alt="Koziol" style={{ height: 102, width: 102, margin: "0 auto 16px", display: "block" }} />
+              <img src="/logo.svg" alt="Kozioł" style={{ height: 102, width: 102, margin: "0 auto 16px", display: "block" }} />
               <p style={{ fontSize: 10, letterSpacing: "0.45em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 8 }}>Panel zarządzania</p>
               <h1 style={{ fontSize: 22, fontWeight: 600, color: "#fff", margin: 0 }}>Ustaw nowe hasło</h1>
             </div>

@@ -193,7 +193,7 @@ export default async function GalleryDetailsPage({
           <div>
             <p className="text-[9px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">Realizacja</p>
             <h1 className="font-display mt-4 text-3xl font-normal italic tracking-tight md:text-4xl lg:text-5xl">
-              {item.description || "Realizacja Koziol Luxury Gates"}
+              {item.description || "Realizacja Kozioł Luxury Gates"}
             </h1>
           </div>
           <LuxButton href="/galeria" variant="outline">

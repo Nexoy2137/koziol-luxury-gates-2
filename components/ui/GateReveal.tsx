@@ -94,7 +94,7 @@ export function GateReveal() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo.svg"
-                alt="Koziol Luxury Gates"
+                alt="Kozioł Luxury Gates"
                 width={260}
                 height={80}
                 className="w-96 md:w-[30rem] object-contain"

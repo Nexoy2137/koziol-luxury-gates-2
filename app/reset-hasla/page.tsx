@@ -45,7 +45,7 @@ export default function ResetPasswordRequestPage() {
 
             <div style={{ textAlign: "center", marginBottom: 32 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.svg" alt="Koziol" style={{ height: 102, width: 102, margin: "0 auto 16px", display: "block" }} />
+              <img src="/logo.svg" alt="Kozioł" style={{ height: 102, width: 102, margin: "0 auto 16px", display: "block" }} />
               <p style={{ fontSize: 10, letterSpacing: "0.45em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 8 }}>
                 Panel zarządzania
               </p>

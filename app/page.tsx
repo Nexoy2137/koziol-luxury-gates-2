@@ -346,7 +346,7 @@ export default function Home() {
                         overflow: "hidden",
                       }}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/logo.svg" alt="Koziol Luxury Gates" style={{ height: 210, width: 210, display: "block", objectFit: "contain" }} />
+                        <img src="/logo.svg" alt="Kozioł Luxury Gates" style={{ height: 210, width: 210, display: "block", objectFit: "contain" }} />
                       </div>
 
                       {/* Gold divider */}
@@ -446,7 +446,7 @@ export default function Home() {
                   <div className="page-card page-card-accent" style={{ padding: "36px 32px" }}>
                     <p className="mb-4 text-[9px] font-semibold uppercase tracking-[0.4em] text-[#D4AF37]/80">Nasza filozofia</p>
                     <p className="text-[17px] font-light leading-relaxed text-zinc-200">
-                      Koziol Luxury Gates to pracownia, gdzie każdy projekt startuje od zrozumienia architektury
+                      Kozioł Luxury Gates to pracownia, gdzie każdy projekt startuje od zrozumienia architektury
                       budynku i oczekiwań inwestora. Dobieramy wypełnienie, podział przęseł, kolorystykę i
                       automatykę tak, aby brama przez lata była wizytówką nieruchomości.
                     </p>
