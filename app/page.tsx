@@ -108,6 +108,9 @@ export default function Home() {
           .portfolio-section-inner { position: relative; max-width: 1280px; margin: 0 auto; padding: 48px 16px; box-sizing: border-box; }
           @media (min-width: 640px) { .portfolio-section-inner { padding: 64px 24px; } }
           @media (min-width: 768px) { .portfolio-section-inner { padding: 96px 32px; } }
+          .about-section-inner { position: relative; max-width: 1280px; margin: 0 auto; padding: 48px 16px; box-sizing: border-box; }
+          @media (min-width: 640px) { .about-section-inner { padding: 64px 24px; } }
+          @media (min-width: 768px) { .about-section-inner { padding: 96px 32px; } }
           @media (min-width: 640px) {
             .cta-finale-tags { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 16px; }
             .cta-finale-inner { padding: 0 24px; }
@@ -247,7 +250,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 18 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.75, delay: 0.7 }}
-                  className="max-w-lg text-[16px] font-light leading-relaxed text-zinc-400"
+                  className="hero-paragraph max-w-lg text-[16px] font-light leading-relaxed text-zinc-400"
                 >
                   Projektujemy i realizujemy ekskluzywne bramy, furtki i ogrodzenia dla wymagających
                   inwestorów. Precyzja, trwała stal, minimalistyczny design — od projektu do montażu.
@@ -373,12 +376,23 @@ export default function Home() {
         </section>
 
         {/* ══ TICKER ═════════════════════════════════════════════════════════════ */}
-        <div style={{ overflow: "hidden", borderBottom: "1px solid #27272a", background: "rgba(9,9,11,0.8)", padding: "14px 0" }}>
-          <div className="marquee-track" style={{ display: "flex", gap: 48, whiteSpace: "nowrap" }}>
+        <div className="ticker-section" style={{ overflow: "hidden", borderBottom: "1px solid #27272a", background: "rgba(9,9,11,0.8)", padding: "14px 0" }}>
+          {/* Desktop: marquee | Mobile: flex-wrap grid */}
+          <div className="ticker-desktop marquee-track" style={{ display: "flex", gap: 48, whiteSpace: "nowrap" }}>
             {[...TICKER, ...TICKER].map((item, i) => (
-              <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+              <span key={`d-${i}`} style={{ display: "inline-flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#D4AF37", flexShrink: 0, display: "block" }} />
                 <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "#a1a1aa" }}>
+                  {item}
+                </span>
+              </span>
+            ))}
+          </div>
+          <div className="ticker-mobile" style={{ display: "none", flexWrap: "wrap", gap: "12px 20px", justifyContent: "center", padding: "0 16px" }}>
+            {TICKER.map((item, i) => (
+              <span key={`m-${i}`} style={{ display: "inline-flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#D4AF37", flexShrink: 0, display: "block" }} />
+                <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "#a1a1aa" }}>
                   {item}
                 </span>
               </span>
@@ -390,7 +404,7 @@ export default function Home() {
         <section className="relative border-b border-zinc-800 bg-[#030303] grid-overlay">
           <div className="pointer-events-none absolute inset-0 gold-glow-left" />
 
-          <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "96px 32px" }}>
+          <div className="about-section-inner">
             <div className="about-cols">
 
               {/* Sticky label */}

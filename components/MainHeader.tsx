@@ -59,10 +59,10 @@ export function MainHeader() {
               style={{ height: 56, width: 56, display: "block", borderRadius: 6, flexShrink: 0 }}
               className="header-logo-img"
             />
-            <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }} className="header-brand-text">
               <span style={{
                 fontSize: 11, fontWeight: 700, letterSpacing: "0.04em",
-                color: "#D4AF37", display: "block", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                color: "#D4AF37", display: "block", lineHeight: 1.2,
               }}
               className="header-brand-name"
               >
@@ -80,7 +80,7 @@ export function MainHeader() {
           </Link>
 
           {/* Right CTAs */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }} className="header-cta-panel-wrap">
             <Link href="/login" style={{
               display: "flex", alignItems: "center", gap: 5,
               padding: "6px 10px", borderRadius: 999,
@@ -110,7 +110,8 @@ export function MainHeader() {
               onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#C9A227"; (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 42px rgba(212,175,55,0.65)"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#D4AF37"; (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 22px rgba(212,175,55,0.38)"; }}
             >
-              <span className="header-konfig-text">Konfiguruj bramę</span>
+              <span className="header-konfig-text-long">Konfiguruj bramę</span>
+              <span className="header-konfig-text-short" style={{ display: "none" }}>Konfiguruj</span>
               <ChevronRight size={12} />
             </Link>
           </div>

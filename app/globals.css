@@ -23,6 +23,25 @@ a {
   input, textarea, select { font-size: 16px !important; }
 }
 
+/* ─── Header responsive: mobile — więcej miejsca na logo, krótsze przyciski ─ */
+@media (max-width: 480px) {
+  .header-row { padding: 10px 12px !important; gap: 8px !important; }
+  .header-brand-sub { display: none !important; }
+  .header-cta-panel-wrap .header-cta-panel { display: none !important; }
+  .header-konfig-text-long { display: none !important; }
+  .header-konfig-text-short { display: inline !important; }
+}
+@media (min-width: 481px) {
+  .header-konfig-text-long { display: inline !important; }
+  .header-konfig-text-short { display: none !important; }
+}
+/* Hero paragraph: większa czcionka na mobile dla czytelności */
+@media (max-width: 640px) {
+  .hero-paragraph { font-size: 17px !important; line-height: 1.65 !important; }
+}
+@media (min-width: 481px) and (max-width: 767px) {
+  .header-brand-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
 /* ─── Header responsive: większy logo i padding na desktop ─ */
 @media (min-width: 768px) {
   .header-row { padding: 10px 28px !important; gap: 16px !important; }
@@ -353,6 +372,15 @@ body {
 }
 .marquee-track:hover {
   animation-play-state: paused;
+}
+/* Ticker: na mobile pokazuj siatkę zamiast marquee (czytelność) */
+@media (max-width: 768px) {
+  .ticker-section .ticker-desktop { display: none !important; }
+  .ticker-section .ticker-mobile { display: flex !important; }
+}
+@media (min-width: 769px) {
+  .ticker-section .ticker-desktop { display: flex !important; }
+  .ticker-section .ticker-mobile { display: none !important; }
 }
 
 /* ─── Metallic grid overlay on sections ──────────────────────────────────────── */
