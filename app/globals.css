@@ -35,6 +35,24 @@ a {
   .header-konfig-text-long { display: inline !important; }
   .header-konfig-text-short { display: none !important; }
 }
+
+/* Nav strip: na mobile zawijanie w 2 wiersze zamiast przewijania w lewo */
+.header-nav-container { overflow-x: auto; scrollbar-width: none; }
+.header-nav { flex-wrap: nowrap; }
+@media (max-width: 768px) {
+  .header-nav-container { overflow-x: visible; -ms-overflow-style: none; }
+  .header-nav-container::-webkit-scrollbar { display: none; }
+  .header-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 6px;
+    padding: 10px 0;
+  }
+  .header-nav a { padding: 10px 14px !important; font-size: 12px !important; }
+}
+@media (min-width: 769px) {
+  .header-nav a { padding: 12px 18px; }
+}
 /* Hero paragraph: większa czcionka na mobile dla czytelności */
 @media (max-width: 640px) {
   .hero-paragraph { font-size: 17px !important; line-height: 1.65 !important; }
@@ -412,18 +430,29 @@ body {
 }
 
 /* ─── Lokalizacja map (dark default, bright on hover) ─────────────────────────── */
-.map-wrapper .map-iframe {
-  filter: grayscale(1) invert(1) brightness(0.18) contrast(1.1);
+.map-wrapper {
   transition: filter 0.8s ease;
 }
-.map-wrapper:hover .map-iframe {
-  filter: grayscale(0) invert(0) brightness(1) contrast(1);
+.map-wrapper .map-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
 }
-/* Na telefonie brak hover — mapa od razu czytelna */
+/* Desktop: szara mapa, po najechaniu kolor */
+@media (min-width: 769px) and (hover: hover) {
+  .map-wrapper {
+    filter: grayscale(1) invert(1) brightness(0.28) contrast(1.1);
+  }
+  .map-wrapper:hover {
+    filter: grayscale(0) invert(0) brightness(1) contrast(1);
+  }
+}
+/* Na telefonie i przy (hover: none) — od razu normalny kolor */
 @media (max-width: 768px),
        (hover: none) {
-  .map-wrapper .map-iframe {
-    filter: grayscale(0) invert(0) brightness(1) contrast(1);
+  .map-wrapper {
+    filter: none;
   }
 }
 

@@ -119,17 +119,16 @@ export function MainHeader() {
         </div>
       </div>
 
-      {/* ── ROW 2: Nav strip — always visible, scrollable on small screens ────── */}
+      {/* ── ROW 2: Nav strip — na desktop w jednej linii, na mobile zawijanie w 2 wiersze ─ */}
       <div style={{
         background: "rgba(9,9,11,0.55)",
         borderBottom: "1px solid rgba(39,39,42,0.5)",
       }}>
-        <div style={{
+        <div className="header-nav-container" style={{
           maxWidth: 1280, margin: "0 auto",
           padding: "0 16px",
-          overflowX: "auto", scrollbarWidth: "none",
         }}>
-          <nav style={{ display: "flex", alignItems: "center" }}>
+          <nav className="header-nav" style={{ display: "flex", alignItems: "center" }}>
             {navItems.map((item) => {
               const active = isActive(item.href);
               return (

@@ -52,13 +52,10 @@ export default function LokalizacjaPage() {
                 overflow: "hidden",
                 borderRadius: 16,
                 border: "1px solid rgba(39,39,42,0.8)",
-                filter: "grayscale(1) invert(1) brightness(0.28) contrast(1.1)",
-                transition: "filter 0.8s ease",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.filter = "grayscale(0) invert(0) brightness(1) contrast(1)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.filter = "grayscale(1) invert(1) brightness(0.28) contrast(1.1)"; }}
             >
               <iframe
+                className="map-iframe"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3045.2311407336433!2d19.274154776998984!3d51.94780947843452!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x471bb03dc2947b47%3A0x697cd38344b01a89!2sAdam%C3%B3wek%2041%2C%2095-035%20Ozork%C3%B3w!5e1!3m2!1spl!2spl!4v1772035763217!5m2!1spl!2spl"
                 width="100%" height="100%"
                 style={{ border: 0, display: "block" }}
