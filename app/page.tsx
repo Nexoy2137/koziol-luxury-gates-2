@@ -65,11 +65,13 @@ export default function Home() {
           .features-grid { display:grid; grid-template-columns:1fr; gap:20px; }
           .process-grid { display:grid; grid-template-columns:1fr; gap:20px; }
           .portfolio-cols { display:flex; flex-direction:column; gap:48px; }
-          .portfolio-tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+          .portfolio-tiles { display:grid; grid-template-columns:1fr; gap:16px; }
+          @media(min-width:640px){ .portfolio-tiles { grid-template-columns:repeat(2,1fr); gap:20px; } }
           @media(min-width:768px){
             .stats-grid { grid-template-columns:repeat(3,1fr); }
             .features-grid { grid-template-columns:repeat(2,1fr); }
             .process-grid { grid-template-columns:repeat(3,1fr); }
+            .portfolio-tiles { grid-template-columns:repeat(3,1fr); }
           }
           @media(min-width:768px){ .hero-padding { padding: 72px 32px 80px; } }
           @media(min-width:1024px){
@@ -81,14 +83,14 @@ export default function Home() {
             .features-grid { grid-template-columns:repeat(4,1fr); }
             .portfolio-cols { flex-direction:row; align-items:center; justify-content:space-between; }
           }
-          .cta-finale-inner { max-width: min(48rem, 100%); padding: 0 20px; box-sizing: border-box; }
+          .cta-finale-inner { max-width: min(48rem, 100%); padding: 0 20px 24px; box-sizing: border-box; }
           .cta-finale-buttons { margin-top: 36px; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; width: 100%; padding: 0 4px; }
           .cta-finale-buttons a { min-width: 0; flex: 1 1 auto; max-width: 100%; }
           @media (max-width: 480px) {
             .cta-finale-buttons { flex-direction: column; width: 100%; }
             .cta-finale-buttons a { width: 100%; justify-content: center; }
           }
-          .cta-finale-tags { margin-top: 32px; display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+          .cta-finale-tags { margin-top: 36px; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
           .cta-finale-tag {
             display: inline-block;
             padding: 14px 24px;
@@ -103,6 +105,9 @@ export default function Home() {
             text-align: center;
           }
           .cta-finale-tag:hover { border-color: #52525b; color: #d4d4d8; }
+          .portfolio-section-inner { position: relative; max-width: 1280px; margin: 0 auto; padding: 48px 16px; box-sizing: border-box; }
+          @media (min-width: 640px) { .portfolio-section-inner { padding: 64px 24px; } }
+          @media (min-width: 768px) { .portfolio-section-inner { padding: 96px 32px; } }
           @media (min-width: 640px) {
             .cta-finale-tags { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 16px; }
             .cta-finale-inner { padding: 0 24px; }
@@ -537,12 +542,12 @@ export default function Home() {
         </section>
 
         {/* ══ PORTFOLIO ══════════════════════════════════════════════════════════ */}
-        <section className="relative border-b border-zinc-800">
+        <section className="relative border-b border-zinc-800 overflow-x-hidden">
           <div className="pointer-events-none absolute inset-0"
             style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(133,102,47,0.12) 0%, transparent 65%)" }}
           />
 
-          <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "96px 32px" }}>
+          <div className="portfolio-section-inner">
             <div className="portfolio-cols">
               {/* Left: heading + text + buttons */}
               <ScrollReveal style={{ maxWidth: 560 }}>
@@ -606,7 +611,7 @@ export default function Home() {
             style={{ background: "radial-gradient(ellipse 100% 90% at 50% 50%, rgba(133,102,47,0.22) 0%, transparent 60%)" }}
           />
 
-          <div className="relative mx-auto flex flex-col items-center py-24 md:py-36 text-center w-full cta-finale-inner">
+          <div className="relative mx-auto flex flex-col items-center pt-20 pb-28 md:pt-28 md:pb-36 text-center w-full cta-finale-inner">
             <ScrollReveal>
               <p className="mb-6 text-[10px] font-semibold uppercase tracking-[0.6em] text-[#D4AF37]">
                 Zacznij tutaj

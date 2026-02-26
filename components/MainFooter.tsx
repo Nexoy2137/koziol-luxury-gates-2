@@ -35,11 +35,11 @@ export function MainFooter() {
         }
       `}</style>
 
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 20px", width: "100%", boxSizing: "border-box" }} className="footer-inner">
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 20px 56px", paddingBottom: "calc(56px + env(safe-area-inset-bottom, 0px))", width: "100%", boxSizing: "border-box" }} className="footer-inner">
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 40 }} className="footer-grid">
 
           {/* Brand */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 12, textDecoration: "none" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.svg" alt="Koziol Luxury Gates" style={{ height: 90, width: 90, borderRadius: 6, display: "block" }} />
@@ -47,7 +47,7 @@ export function MainFooter() {
                 Koziol Luxury Gates
               </span>
             </Link>
-            <p style={{ fontSize: 13, lineHeight: 1.7, color: "#71717a", maxWidth: 320 }}>
+            <p style={{ fontSize: 13, lineHeight: 1.8, color: "#71717a", maxWidth: 320 }}>
               Projektujemy i realizujemy ekskluzywne bramy, furtki i ogrodzenia
               dla wymagających inwestorów. Od projektu do montażu pod klucz.
             </p>
@@ -98,8 +98,8 @@ export function MainFooter() {
         </div>
 
         {/* Bottom */}
-        <div style={{ marginTop: 40, height: 1, background: "linear-gradient(to right, transparent, rgba(63,63,70,0.7), transparent)" }} />
-        <div style={{ marginTop: 18, display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 8, fontSize: 11, color: "#3f3f46", wordBreak: "break-word" }}>
+        <div style={{ marginTop: 48, height: 1, background: "linear-gradient(to right, transparent, rgba(63,63,70,0.7), transparent)" }} />
+        <div style={{ marginTop: 24, paddingBottom: 8, display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 8, fontSize: 11, color: "#3f3f46", wordBreak: "break-word" }}>
           <span>© 2026 Koziol Luxury Gates. Wszelkie prawa zastrzeżone.</span>
           <span>ul. Adamówek 41, 95-035 Ozorków</span>
         </div>
