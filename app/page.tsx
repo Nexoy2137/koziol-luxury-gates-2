@@ -81,6 +81,32 @@ export default function Home() {
             .features-grid { grid-template-columns:repeat(4,1fr); }
             .portfolio-cols { flex-direction:row; align-items:center; justify-content:space-between; }
           }
+          .cta-finale-inner { max-width: min(48rem, 100%); padding: 0 20px; box-sizing: border-box; }
+          .cta-finale-buttons { margin-top: 36px; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; width: 100%; padding: 0 4px; }
+          .cta-finale-buttons a { min-width: 0; flex: 1 1 auto; max-width: 100%; }
+          @media (max-width: 480px) {
+            .cta-finale-buttons { flex-direction: column; width: 100%; }
+            .cta-finale-buttons a { width: 100%; justify-content: center; }
+          }
+          .cta-finale-tags { margin-top: 32px; display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+          .cta-finale-tag {
+            display: inline-block;
+            padding: 14px 24px;
+            border: 1px solid rgba(63,63,70,0.8);
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            color: #71717a;
+            transition: border-color 0.2s, color 0.2s;
+            text-align: center;
+          }
+          .cta-finale-tag:hover { border-color: #52525b; color: #d4d4d8; }
+          @media (min-width: 640px) {
+            .cta-finale-tags { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 16px; }
+            .cta-finale-inner { padding: 0 24px; }
+          }
         `}</style>
         <MainHeader />
 
@@ -574,13 +600,13 @@ export default function Home() {
         </section>
 
         {/* ══ CTA FINALE ═════════════════════════════════════════════════════════ */}
-        <section className="relative overflow-hidden border-b border-zinc-800 bg-[#030303] grid-overlay">
+        <section className="relative overflow-x-hidden border-b border-zinc-800 bg-[#030303] grid-overlay">
           {/* Big central burst */}
           <div className="pointer-events-none absolute inset-0"
             style={{ background: "radial-gradient(ellipse 100% 90% at 50% 50%, rgba(133,102,47,0.22) 0%, transparent 60%)" }}
           />
 
-          <div className="relative mx-auto flex flex-col items-center py-36 text-center w-full" style={{ maxWidth: "min(48rem, calc(100vw - 32px))", paddingLeft: 16, paddingRight: 16, boxSizing: "border-box" }}>
+          <div className="relative mx-auto flex flex-col items-center py-24 md:py-36 text-center w-full cta-finale-inner">
             <ScrollReveal>
               <p className="mb-6 text-[10px] font-semibold uppercase tracking-[0.6em] text-[#D4AF37]">
                 Zacznij tutaj
@@ -597,7 +623,7 @@ export default function Home() {
             </ScrollReveal>
 
             <ScrollReveal delay={0.18}>
-              <div style={{ marginTop: 36, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 14 }}>
+              <div className="cta-finale-buttons">
                 <LuxButton href="/konfigurator" variant="gold" size="lg">
                   Otwórz konfigurator
                   <ArrowRight className="h-4 w-4" />
@@ -608,11 +634,9 @@ export default function Home() {
               </div>
             </ScrollReveal>
 
-            <ScrollReveal delay={0.32} className="mt-12 flex flex-wrap justify-center gap-3">
+            <ScrollReveal delay={0.32} className="cta-finale-tags">
               {["Bezpłatna wycena", "Realizacja w całej Polsce", "Gwarancja 20 lat"].map((tag) => (
-                <span key={tag}
-                  className="rounded-full border border-zinc-800 px-5 py-2.5 text-[10px] uppercase tracking-[0.32em] text-zinc-600 transition-all hover:border-zinc-700 hover:text-zinc-300"
-                >
+                <span key={tag} className="cta-finale-tag">
                   {tag}
                 </span>
               ))}
