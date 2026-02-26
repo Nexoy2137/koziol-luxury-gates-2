@@ -23,6 +23,33 @@ a {
   input, textarea, select { font-size: 16px !important; }
 }
 
+/* ─── Header responsive: większy logo i padding na desktop ─ */
+@media (min-width: 768px) {
+  .header-row { padding: 10px 28px !important; gap: 16px !important; }
+  .header-logo { gap: 12px !important; }
+  .header-logo-img { height: 88px !important; width: 88px !important; }
+  .header-brand-name { font-size: 12px !important; }
+  .header-brand-sub { font-size: 9px !important; letter-spacing: 0.35em !important; }
+  .header-cta-panel { padding: 6px 14px !important; font-size: 11px !important; }
+  .header-cta-konfig { padding: 8px 18px !important; font-size: 11px !important; }
+}
+
+/* ─── Page containers: mniejszy padding na mobile ─ */
+.page-container {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
+}
+@media (min-width: 640px) {
+  .page-container { padding-left: 24px; padding-right: 24px; }
+}
+@media (min-width: 768px) {
+  .page-container { padding-left: 32px; padding-right: 32px; }
+}
+
 /* ─── Base ───────────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -30,16 +57,19 @@ a {
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 body {
   background: #000;
   color: #fff;
-  /* Use the Next.js-loaded Inter font via the CSS variable it sets */
   font-family: var(--font-inter, "Inter", system-ui, sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  max-width: 100vw;
+  min-width: 0;
 }
 
 /* ─── Display / Serif font ───────────────────────────────────────────────────── */

@@ -53,12 +53,12 @@ export default function Home() {
     <>
       <GateReveal />
 
-      <main className="min-h-screen bg-black text-white">
+      <main className="min-h-screen bg-black text-white overflow-x-hidden" style={{ maxWidth: "100vw" }}>
         {/* ─ Real CSS responsive rules (Tailwind responsive broken in this project) ─ */}
         <style>{`
-          .hero-cols { display:flex; flex-direction:column; gap:48px; }
-          .hero-brand { width:100%; max-width:460px; margin:0 auto; }
-          .hero-padding { padding: 48px 20px 56px; }
+          .hero-cols { display:flex; flex-direction:column; gap:48px; min-width:0; }
+          .hero-brand { width:100%; max-width:460px; margin:0 auto; min-width:0; }
+          .hero-padding { padding: 48px 16px 56px; max-width:100%; box-sizing:border-box; }
           .about-cols { display:flex; flex-direction:column; gap:48px; }
           .about-side { flex-shrink:0; }
           .stats-grid { display:grid; grid-template-columns:1fr; gap:16px; }
@@ -580,7 +580,7 @@ export default function Home() {
             style={{ background: "radial-gradient(ellipse 100% 90% at 50% 50%, rgba(133,102,47,0.22) 0%, transparent 60%)" }}
           />
 
-          <div className="relative mx-auto flex max-w-3xl flex-col items-center px-5 py-36 text-center md:px-8 md:py-44">
+          <div className="relative mx-auto flex flex-col items-center py-36 text-center w-full" style={{ maxWidth: "min(48rem, calc(100vw - 32px))", paddingLeft: 16, paddingRight: 16, boxSizing: "border-box" }}>
             <ScrollReveal>
               <p className="mb-6 text-[10px] font-semibold uppercase tracking-[0.6em] text-[#D4AF37]">
                 Zacznij tutaj

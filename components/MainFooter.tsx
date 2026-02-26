@@ -15,20 +15,28 @@ const contacts = [
 
 export function MainFooter() {
   return (
-    <footer style={{ position: "relative", background: "#09090b", borderTop: "1px solid rgba(39,39,42,0.8)", overflow: "hidden" }}>
+    <footer style={{ position: "relative", background: "#09090b", borderTop: "1px solid rgba(39,39,42,0.8)", overflow: "hidden", maxWidth: "100vw" }}>
       {/* Top gold shimmer */}
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(to right, transparent, rgba(212,175,55,0.5), transparent)" }} />
 
-      {/* CSS hover helpers */}
+      {/* CSS hover helpers + responsive */}
       <style>{`
         .footer-link { color: #a1a1aa; text-decoration: none; transition: color 0.2s; font-size: 13px; }
         .footer-link:hover { color: #D4AF37; }
-        .footer-contact-link { display: flex; align-items: center; gap: 10; color: #a1a1aa; text-decoration: none; transition: color 0.2s; font-size: 13px; }
+        .footer-contact-link { display: flex; align-items: center; gap: 10px; color: #a1a1aa; text-decoration: none; transition: color 0.2s; font-size: 13px; word-break: break-all; }
         .footer-contact-link:hover { color: #D4AF37; }
+        @media (min-width: 640px) {
+          .footer-grid { grid-template-columns: 2fr 1fr !important; gap: 40px !important; }
+          .footer-inner { padding: 48px 28px !important; }
+        }
+        @media (min-width: 1024px) {
+          .footer-grid { grid-template-columns: 2fr 1fr 1fr !important; gap: 48px !important; }
+          .footer-inner { padding: 52px 32px !important; }
+        }
       `}</style>
 
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "52px 32px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 48 }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 20px", width: "100%", boxSizing: "border-box" }} className="footer-inner">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 40 }} className="footer-grid">
 
           {/* Brand */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -90,8 +98,8 @@ export function MainFooter() {
         </div>
 
         {/* Bottom */}
-        <div style={{ marginTop: 48, height: 1, background: "linear-gradient(to right, transparent, rgba(63,63,70,0.7), transparent)" }} />
-        <div style={{ marginTop: 18, display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 8, fontSize: 11, color: "#3f3f46" }}>
+        <div style={{ marginTop: 40, height: 1, background: "linear-gradient(to right, transparent, rgba(63,63,70,0.7), transparent)" }} />
+        <div style={{ marginTop: 18, display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 8, fontSize: 11, color: "#3f3f46", wordBreak: "break-word" }}>
           <span>© 2026 Koziol Luxury Gates. Wszelkie prawa zastrzeżone.</span>
           <span>ul. Adamówek 41, 95-035 Ozorków</span>
         </div>

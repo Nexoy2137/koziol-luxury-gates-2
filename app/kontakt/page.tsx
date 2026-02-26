@@ -78,7 +78,7 @@ export default function KontaktPage() {
       <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)", position: "relative" }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(133,102,47,0.16) 0%, transparent 65%)", pointerEvents: "none" }} />
 
-        <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "80px 32px 64px" }}>
+        <div className="page-container" style={{ position: "relative", paddingTop: 56, paddingBottom: 48 }}>
           <ScrollReveal>
             <p style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.5em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 16 }}>
               Kontakt
@@ -102,7 +102,7 @@ export default function KontaktPage() {
 
       {/* ── 3 CONTACT CARDS ─────────────────────────────────────────────────── */}
       <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)", background: "#030303" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "56px 32px" }}>
+        <div className="page-container" style={{ paddingTop: 40, paddingBottom: 40 }}>
           <ScrollReveal>
             <div className="contact-cards">
               {contactCards.map((card, i) => (
@@ -143,7 +143,7 @@ export default function KontaktPage() {
 
       {/* ── ADDRESS + FORM ──────────────────────────────────────────────────── */}
       <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "64px 32px" }}>
+        <div className="page-container" style={{ paddingTop: 48, paddingBottom: 48 }}>
           <div className="contact-layout">
 
             {/* Address */}
@@ -283,7 +283,7 @@ export default function KontaktPage() {
       {/* ── CTA ─────────────────────────────────────────────────────────────── */}
       <section style={{ position: "relative", background: "#000" }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(133,102,47,0.14) 0%, transparent 65%)", pointerEvents: "none" }} />
-        <div style={{ position: "relative", maxWidth: 900, margin: "0 auto", padding: "80px 32px", textAlign: "center" }}>
+        <div className="page-container" style={{ position: "relative", maxWidth: 900, paddingTop: 56, paddingBottom: 56, textAlign: "center" }}>
           <ScrollReveal>
             <p style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.55em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 16 }}>Zainspirowany?</p>
             <h2 className="font-display" style={{ fontSize: "clamp(1.8rem,4vw,3rem)", fontWeight: 400, fontStyle: "italic", lineHeight: 1.2, marginBottom: 32 }}>
