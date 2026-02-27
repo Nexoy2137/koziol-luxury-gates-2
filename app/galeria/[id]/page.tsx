@@ -15,6 +15,7 @@ import {
 import { MainHeader } from "@/components/MainHeader";
 import { MainFooter } from "@/components/MainFooter";
 import { LuxButton } from "@/components/ui/LuxButton";
+import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/ui/ScrollReveal";
 
 type GalleryItem = {
   id: number;
@@ -190,16 +191,20 @@ export default async function GalleryDetailsPage({
       <section className="relative border-b border-zinc-800 bg-[#030303] grid-overlay overflow-hidden">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(133,102,47,0.12) 0%, transparent 65%)" }} />
         <div className="relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-12 md:px-8 md:py-16">
-          <div>
-            <p className="text-[9px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">Realizacja</p>
-            <h1 className="font-display mt-4 text-3xl font-normal italic tracking-tight md:text-4xl lg:text-5xl">
-              {item.description || "Realizacja Kozioł Luxury Gates"}
-            </h1>
-          </div>
-          <LuxButton href="/galeria" variant="outline">
-            <ArrowLeft className="h-4 w-4" />
-            Wróć do galerii
-          </LuxButton>
+          <ScrollReveal>
+            <div>
+              <p className="text-[9px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">Realizacja</p>
+              <h1 className="font-display mt-4 text-3xl font-normal italic tracking-tight md:text-4xl lg:text-5xl">
+                {item.description || "Realizacja Kozioł Luxury Gates"}
+              </h1>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal delay={0.7}>
+            <LuxButton href="/galeria" variant="outline">
+              <ArrowLeft className="h-4 w-4" />
+              Wróć do galerii
+            </LuxButton>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -208,100 +213,125 @@ export default async function GalleryDetailsPage({
         <div className="pointer-events-none absolute inset-0 grid-overlay opacity-40" />
         <div className="relative mx-auto max-w-7xl px-5 pb-12 md:px-8 md:pb-16" style={{ paddingTop: 80 }}>
           {/* Image - smaller, centered */}
-          <div className="mx-auto mb-12 w-full max-w-[1000px]">
-            <div className="beam-wrapper beam-wrapper-fast beam-wrapper-strong">
-              <div className="beam-inner relative aspect-[16/10] overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.image_url} alt={item.description || "Realizacja"} className="h-full w-full object-cover" />
+          <ScrollReveal delay={1.0} scale>
+            <div className="mx-auto mb-12 w-full max-w-[1000px]">
+              <div className="beam-wrapper beam-wrapper-fast beam-wrapper-strong">
+                <div className="beam-inner relative aspect-[16/10] overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={item.image_url} alt={item.description || "Realizacja"} className="h-full w-full object-cover" />
+                </div>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
 
           {/* Opis - full width if present */}
           {item.description != null && String(item.description).trim() !== "" && (
-            <div className="mb-10 max-w-2xl">
-              <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.4em] text-zinc-500">Opis</p>
-              <p className="text-[15px] leading-relaxed text-zinc-300">{item.description}</p>
-            </div>
+            <ScrollReveal delay={1.4}>
+              <div className="mb-10 max-w-2xl">
+                <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.4em] text-zinc-500">Opis</p>
+                <p className="text-[15px] leading-relaxed text-zinc-300">{item.description}</p>
+              </div>
+            </ScrollReveal>
           )}
 
-          {/* Specs grid - tiles side by side */}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            <div className="gallery-spec-tile">
-              <div className="gallery-spec-tile-icon"><Ruler className="h-4 w-4" /></div>
-              <p className="gallery-spec-tile-label">Wymiary</p>
-              <p className="gallery-spec-tile-value">{item.dimensions || "Na życzenie"}</p>
-            </div>
+          {/* Specs grid - tiles side by side, animowane od lewej do prawej */}
+          <ScrollReveal>
+            <StaggerContainer className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              <StaggerItem>
+                <div className="gallery-spec-tile">
+                  <div className="gallery-spec-tile-icon"><Ruler className="h-4 w-4" /></div>
+                  <p className="gallery-spec-tile-label">Wymiary</p>
+                  <p className="gallery-spec-tile-value">{item.dimensions || "Na życzenie"}</p>
+                </div>
+              </StaggerItem>
 
-            <div className="gallery-spec-tile">
-              <div className="gallery-spec-tile-icon"><CircleDollarSign className="h-4 w-4" /></div>
-              <p className="gallery-spec-tile-label">Koszt</p>
-              <p className="gallery-spec-tile-value font-medium text-[#D4AF37]">
-                {item.price != null && item.price > 0 ? formatPln(item.price) : "Na zapytanie"}
-              </p>
-            </div>
+              <StaggerItem>
+                <div className="gallery-spec-tile">
+                  <div className="gallery-spec-tile-icon"><CircleDollarSign className="h-4 w-4" /></div>
+                  <p className="gallery-spec-tile-label">Koszt</p>
+                  <p className="gallery-spec-tile-value font-medium text-[#D4AF37]">
+                    {item.price != null && item.price > 0 ? formatPln(item.price) : "Na zapytanie"}
+                  </p>
+                </div>
+              </StaggerItem>
 
-            {item.product != null && String(item.product).trim() !== "" && (
-              <div className="gallery-spec-tile">
-                <div className="gallery-spec-tile-icon"><Package className="h-4 w-4" /></div>
-                <p className="gallery-spec-tile-label">Produkt</p>
-                <p className="gallery-spec-tile-value">
-                  {item.product === "brama+furtka" ? "Brama i furtka" : item.product === "brama" ? "Brama" : item.product === "furtka" ? "Furtka" : item.product}
-                </p>
-              </div>
-            )}
+              {item.product != null && String(item.product).trim() !== "" && (
+                <StaggerItem>
+                  <div className="gallery-spec-tile">
+                    <div className="gallery-spec-tile-icon"><Package className="h-4 w-4" /></div>
+                    <p className="gallery-spec-tile-label">Produkt</p>
+                    <p className="gallery-spec-tile-value">
+                      {item.product === "brama+furtka" ? "Brama i furtka" : item.product === "brama" ? "Brama" : item.product === "furtka" ? "Furtka" : item.product}
+                    </p>
+                  </div>
+                </StaggerItem>
+              )}
 
-            {gateName && (
-              <div className="gallery-spec-tile">
-                <div className="gallery-spec-tile-icon"><Fence className="h-4 w-4" /></div>
-                <p className="gallery-spec-tile-label">Model bramy</p>
-                <p className="gallery-spec-tile-value">{gateName}</p>
-              </div>
-            )}
+              {gateName && (
+                <StaggerItem>
+                  <div className="gallery-spec-tile">
+                    <div className="gallery-spec-tile-icon"><Fence className="h-4 w-4" /></div>
+                    <p className="gallery-spec-tile-label">Model bramy</p>
+                    <p className="gallery-spec-tile-value">{gateName}</p>
+                  </div>
+                </StaggerItem>
+              )}
 
-            {wicketName && (
-              <div className="gallery-spec-tile">
-                <div className="gallery-spec-tile-icon"><DoorOpen className="h-4 w-4" /></div>
-                <p className="gallery-spec-tile-label">Model furtki</p>
-                <p className="gallery-spec-tile-value">{wicketName}</p>
-              </div>
-            )}
+              {wicketName && (
+                <StaggerItem>
+                  <div className="gallery-spec-tile">
+                    <div className="gallery-spec-tile-icon"><DoorOpen className="h-4 w-4" /></div>
+                    <p className="gallery-spec-tile-label">Model furtki</p>
+                    <p className="gallery-spec-tile-value">{wicketName}</p>
+                  </div>
+                </StaggerItem>
+              )}
 
-            {material && (
-              <div className="gallery-spec-tile">
-                <div className="gallery-spec-tile-icon"><LayoutGrid className="h-4 w-4" /></div>
-                <p className="gallery-spec-tile-label">Wypełnienie</p>
-                <p className="gallery-spec-tile-value">{material}</p>
-              </div>
-            )}
+              {material && (
+                <StaggerItem>
+                  <div className="gallery-spec-tile">
+                    <div className="gallery-spec-tile-icon"><LayoutGrid className="h-4 w-4" /></div>
+                    <p className="gallery-spec-tile-label">Wypełnienie</p>
+                    <p className="gallery-spec-tile-value">{material}</p>
+                  </div>
+                </StaggerItem>
+              )}
 
-            {item.steel_type != null && String(item.steel_type).trim() !== "" && (
-              <div className="gallery-spec-tile">
-                <div className="gallery-spec-tile-icon"><Shield className="h-4 w-4" /></div>
-                <p className="gallery-spec-tile-label">Stal</p>
-                <p className="gallery-spec-tile-value">{item.steel_type}</p>
-              </div>
-            )}
+              {item.steel_type != null && String(item.steel_type).trim() !== "" && (
+                <StaggerItem>
+                  <div className="gallery-spec-tile">
+                    <div className="gallery-spec-tile-icon"><Shield className="h-4 w-4" /></div>
+                    <p className="gallery-spec-tile-label">Stal</p>
+                    <p className="gallery-spec-tile-value">{item.steel_type}</p>
+                  </div>
+                </StaggerItem>
+              )}
 
-            {item.ral_code != null && String(item.ral_code).trim() !== "" && (
-              <div className="gallery-spec-tile">
-                <div className="gallery-spec-tile-icon"><Paintbrush className="h-4 w-4" /></div>
-                <p className="gallery-spec-tile-label">RAL</p>
-                <p className="gallery-spec-tile-value">{item.ral_code}</p>
-              </div>
-            )}
+              {item.ral_code != null && String(item.ral_code).trim() !== "" && (
+                <StaggerItem>
+                  <div className="gallery-spec-tile">
+                    <div className="gallery-spec-tile-icon"><Paintbrush className="h-4 w-4" /></div>
+                    <p className="gallery-spec-tile-label">RAL</p>
+                    <p className="gallery-spec-tile-value">{item.ral_code}</p>
+                  </div>
+                </StaggerItem>
+              )}
 
-            {item.paint_type != null && String(item.paint_type).trim() !== "" && (
-              <div className="gallery-spec-tile">
-                <div className="gallery-spec-tile-icon"><Paintbrush className="h-4 w-4" /></div>
-                <p className="gallery-spec-tile-label">Malowanie</p>
-                <p className="gallery-spec-tile-value">{item.paint_type}</p>
-              </div>
-            )}
-          </div>
+              {item.paint_type != null && String(item.paint_type).trim() !== "" && (
+                <StaggerItem>
+                  <div className="gallery-spec-tile">
+                    <div className="gallery-spec-tile-icon"><Paintbrush className="h-4 w-4" /></div>
+                    <p className="gallery-spec-tile-label">Malowanie</p>
+                    <p className="gallery-spec-tile-value">{item.paint_type}</p>
+                  </div>
+                </StaggerItem>
+              )}
+            </StaggerContainer>
+          </ScrollReveal>
 
           {/* CTAs */}
-          <div className="flex flex-wrap" style={{ marginTop: 48, marginBottom: 32, gap: 20 }}>
+          <ScrollReveal>
+            <div className="flex flex-wrap" style={{ marginTop: 48, marginBottom: 32, gap: 20 }}>
               {hasGate && (
                 <LuxButton href={buildConfiguratorHref(item, "brama")} variant="gold">
                   Podobna brama
@@ -326,7 +356,8 @@ export default async function GalleryDetailsPage({
                   <ArrowRight className="h-4 w-4" />
                 </LuxButton>
               )}
-          </div>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 

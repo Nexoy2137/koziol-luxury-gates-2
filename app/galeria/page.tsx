@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { ArrowRight, Filter, X, SlidersHorizontal } from "lucide-react";
 import { MainHeader } from "@/components/MainHeader";
 import { MainFooter } from "@/components/MainFooter";
-import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/ui/ScrollReveal";
 import { LuxButton } from "@/components/ui/LuxButton";
 
 type GalleryItem = {
@@ -170,7 +170,7 @@ export default function PublicGallery() {
             </p>
           </ScrollReveal>
 
-          <ScrollReveal delay={0.2} style={{ marginTop: 32 }}>
+          <ScrollReveal style={{ marginTop: 32 }}>
             <LuxButton href="/konfigurator" variant="outline">
               Skonfiguruj podobną bramę
               <ArrowRight className="h-4 w-4" />
@@ -315,16 +315,11 @@ export default function PublicGallery() {
               </button>
             </motion.div>
           ) : (
-            <div className="masonry-grid">
-              {filteredItems.map((item, i) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: Math.min(i * 0.04, 0.6), ease: [0.25, 0.46, 0.45, 0.94] }}
-                  className="masonry-item"
-                >
-                  <Link href={`/galeria/${item.id}`} className="group block">
+            <ScrollReveal viewportAmount={0.45}>
+              <StaggerContainer className="masonry-grid">
+                {filteredItems.map((item) => (
+                  <StaggerItem key={item.id} className="masonry-item">
+                    <Link href={`/galeria/${item.id}`} className="group block">
                       <div className="gallery-card">
                         {/* Image w ramce */}
                         <div className="gallery-img-wrap">
@@ -332,7 +327,7 @@ export default function PublicGallery() {
                             src={item.image_url}
                             alt={item.description || "Realizacja bramy"}
                             className="w-full object-cover"
-                            style={{ aspectRatio: i % 3 === 1 ? "4/5" : "16/10" }}
+                            style={{ aspectRatio: item.id % 3 === 1 ? "4/5" : "16/10" }}
                           />
                         </div>
 
@@ -343,12 +338,12 @@ export default function PublicGallery() {
                             <ArrowRight className="h-3.5 w-3.5" />
                           </span>
                         </div>
-
                       </div>
                     </Link>
-                </motion.div>
-              ))}
-            </div>
+                  </StaggerItem>
+                ))}
+              </StaggerContainer>
+            </ScrollReveal>
           )}
         </div>
       </section>

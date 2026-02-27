@@ -27,7 +27,7 @@ export default function LokalizacjaPage() {
               z Łodzi, Poznania i Warszawy. Zapraszamy po wcześniejszym umówieniu.
             </p>
           </ScrollReveal>
-          <ScrollReveal delay={0.15}>
+          <ScrollReveal>
             <LuxButton href="/kontakt" variant="outline">
               Umów wizytę
               <ArrowRight size={15} />
@@ -44,7 +44,7 @@ export default function LokalizacjaPage() {
               Mapa dojazdu
             </p>
           </ScrollReveal>
-          <ScrollReveal delay={0.1} scale>
+          <ScrollReveal delay={0.6} scale>
             <div
               className="map-wrapper"
               style={{
@@ -89,6 +89,7 @@ export default function LokalizacjaPage() {
             </p>
           </ScrollReveal>
 
+          <ScrollReveal>
           <StaggerContainer className="flex flex-col" style={{ gap: 24 }}>
             {[
               {
@@ -125,6 +126,7 @@ export default function LokalizacjaPage() {
               </StaggerItem>
             ))}
           </StaggerContainer>
+          </ScrollReveal>
         </div>
       </section>
 

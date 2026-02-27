@@ -10,6 +10,7 @@ import { MainHeader } from "@/components/MainHeader";
 import { MainFooter } from "@/components/MainFooter";
 import { useToast } from "@/context/ToastContext";
 import { ConfigSuccessOverlay } from "@/components/ui/ConfigSuccessOverlay";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 type Price = {
   id: number;
@@ -1196,22 +1197,25 @@ export function KonfiguratorPageClient() {
       {/* Hero */}
       <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)", position: "relative" }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(133,102,47,0.14) 0%, transparent 65%)", pointerEvents: "none" }} />
-        <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "64px 32px 48px" }}>
-          <p style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.5em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 16 }}>
-            Konfigurator online
-          </p>
-          <h1 className="font-display" style={{ fontSize: "clamp(2rem,5vw,3.2rem)", fontWeight: 400, fontStyle: "italic", lineHeight: 1.1, marginBottom: 16 }}>
-            Wycena Twojej bramy lub furtki
-          </h1>
-          <p style={{ fontSize: 15, fontWeight: 300, lineHeight: 1.7, color: "#a1a1aa", maxWidth: 560 }}>
-            Kilka kroków — wybierz model, wypełnienie, typ stali, kolor RAL i wymiary.
-            Przygotujemy dla Ciebie wstępny projekt i ofertę.
-          </p>
-        </div>
+        <ScrollReveal>
+          <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "64px 32px 48px" }}>
+            <p style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.5em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 16 }}>
+              Konfigurator online
+            </p>
+            <h1 className="font-display" style={{ fontSize: "clamp(2rem,5vw,3.2rem)", fontWeight: 400, fontStyle: "italic", lineHeight: 1.1, marginBottom: 16 }}>
+              Wycena Twojej bramy lub furtki
+            </h1>
+            <p style={{ fontSize: 15, fontWeight: 300, lineHeight: 1.7, color: "#a1a1aa", maxWidth: 560 }}>
+              Kilka kroków — wybierz model, wypełnienie, typ stali, kolor RAL i wymiary.
+              Przygotujemy dla Ciebie wstępny projekt i ofertę.
+            </p>
+          </div>
+        </ScrollReveal>
       </section>
 
       <section style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 32px 64px" }}>
         <div className="konfig-main-layout">
+          <ScrollReveal>
           <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
             {/* ── Progress bar with step numbers ── */}
             <div style={{ marginBottom: 36 }}>
@@ -1670,7 +1674,9 @@ export function KonfiguratorPageClient() {
               </button>
             </div>
           </div>
+          </ScrollReveal>
 
+          <ScrollReveal delay={0.4}>
           <div style={{ position: "sticky", top: 120 }}>
             <div style={{ position: "relative", borderRadius: 20, border: "1px solid rgba(212,175,55,0.2)", background: "rgba(9,9,11,0.95)", padding: "28px 24px", boxShadow: "0 0 60px rgba(0,0,0,0.8), 0 0 30px rgba(133,102,47,0.08)" }}>
               <div style={{ position: "absolute", inset: 0, borderRadius: 20, background: "radial-gradient(circle at 50% 0%, rgba(133,102,47,0.12) 0%, transparent 60%)", pointerEvents: "none" }} />
@@ -2083,6 +2089,7 @@ export function KonfiguratorPageClient() {
               </div>
             </div>
           </div>
+          </ScrollReveal>
         </div>
       </section>
 

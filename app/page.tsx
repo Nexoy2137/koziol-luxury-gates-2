@@ -442,7 +442,7 @@ export default function Home() {
 
               {/* Cards */}
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
-                <ScrollReveal delay={0.1}>
+                <ScrollReveal>
                   <div className="page-card page-card-accent" style={{ padding: "36px 32px" }}>
                     <p className="mb-4 text-[9px] font-semibold uppercase tracking-[0.4em] text-[#D4AF37]/80">Nasza filozofia</p>
                     <p className="text-[17px] font-light leading-relaxed text-zinc-200">
@@ -453,30 +453,34 @@ export default function Home() {
                   </div>
                 </ScrollReveal>
 
-                <div className="stats-grid">
-                  {STATS.map((s) => (
-                    <TiltCard key={s.label} intensity={9}>
-                      <div className="page-card-stat" style={{
-                        display: "flex", flexDirection: "column", gap: 14,
-                        padding: "32px 28px",
-                      }}>
-                        <span style={{
-                          fontFamily: "var(--font-playfair, Georgia, serif)",
-                          fontSize: "3.5rem", fontWeight: 700, lineHeight: 1,
-                          background: "linear-gradient(135deg,#C9A227,#E8C97A,#D4AF37,#B8961F)",
-                          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
-                        }}>
-                          {s.value}{s.suffix}
-                        </span>
-                        <span style={{ fontSize: 10, letterSpacing: "0.38em", textTransform: "uppercase", color: "#71717a" }}>
-                          {s.label}
-                        </span>
-                      </div>
-                    </TiltCard>
-                  ))}
-                </div>
+                <ScrollReveal>
+                  <StaggerContainer className="stats-grid">
+                    {STATS.map((s) => (
+                      <StaggerItem key={s.label}>
+                        <TiltCard intensity={9}>
+                          <div className="page-card-stat" style={{
+                            display: "flex", flexDirection: "column", gap: 14,
+                            padding: "32px 28px",
+                          }}>
+                            <span style={{
+                              fontFamily: "var(--font-playfair, Georgia, serif)",
+                              fontSize: "3.5rem", fontWeight: 700, lineHeight: 1,
+                              background: "linear-gradient(135deg,#C9A227,#E8C97A,#D4AF37,#B8961F)",
+                              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+                            }}>
+                              {s.value}{s.suffix}
+                            </span>
+                            <span style={{ fontSize: 10, letterSpacing: "0.38em", textTransform: "uppercase", color: "#71717a" }}>
+                              {s.label}
+                            </span>
+                          </div>
+                        </TiltCard>
+                      </StaggerItem>
+                    ))}
+                  </StaggerContainer>
+                </ScrollReveal>
 
-                <ScrollReveal delay={0.2}>
+                <ScrollReveal>
                   <div className="page-card page-card-accent" style={{ padding: "36px 32px" }}>
                     <p className="mb-4 text-[9px] font-semibold uppercase tracking-[0.4em] text-[#D4AF37]/80">Materiały i technologia</p>
                     <p className="text-[15px] leading-relaxed text-zinc-400">
@@ -513,7 +517,7 @@ export default function Home() {
               </div>
             </ScrollReveal>
 
-            <StaggerContainer className="features-grid tech-section-grid" style={{ marginTop: 48 }} staggerDelay={0.09}>
+            <StaggerContainer className="features-grid tech-section-grid" style={{ marginTop: 48 }}>
               {FEATURES.map(({ Icon, eyebrow, title, desc }) => (
                 <StaggerItem key={title}>
                   <TiltCard intensity={9} className="h-full">
@@ -599,32 +603,35 @@ export default function Home() {
                 </div>
               </ScrollReveal>
 
-              {/* Right: 3 stat tiles */}
-              <ScrollReveal delay={0.15} style={{ width: "100%", maxWidth: 480 }}>
-                <div className="portfolio-tiles">
+              {/* Right: 3 stat tiles — sekwencyjnie od lewej do prawej */}
+              {/* Jeszcze krótszy delay, żeby kafelki startowały szybko po tekście */}
+              <ScrollReveal delay={0.4} style={{ width: "100%", maxWidth: 480 }}>
+                <StaggerContainer className="portfolio-tiles">
                   {[
                     { num: "80+", label: "Bramy przesuwne" },
                     { num: "70+", label: "Bramy skrzydłowe" },
                     { num: "50+", label: "Bramy + furtki" },
                   ].map((item) => (
-                    <TiltCard key={item.label} intensity={8} className="h-full">
-                      <div className="page-card-stat" style={{
-                        display: "flex", flexDirection: "column", gap: 12,
-                        padding: "32px 28px", textAlign: "center",
-                      }}>
-                        <span style={{
-                          fontFamily: "var(--font-playfair, Georgia, serif)",
-                          fontSize: "2.6rem", fontWeight: 700, lineHeight: 1,
-                          background: "linear-gradient(135deg,#C9A227,#E8C97A,#D4AF37)",
-                          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+                    <StaggerItem key={item.label}>
+                      <TiltCard intensity={8} className="h-full">
+                        <div className="page-card-stat" style={{
+                          display: "flex", flexDirection: "column", gap: 12,
+                          padding: "32px 28px", textAlign: "center",
                         }}>
-                          {item.num}
-                        </span>
-                        <span className="portfolio-tile-label" style={{ fontSize: 11, color: "#71717a", lineHeight: 1.4 }}>{item.label}</span>
-                      </div>
-                    </TiltCard>
+                          <span style={{
+                            fontFamily: "var(--font-playfair, Georgia, serif)",
+                            fontSize: "2.6rem", fontWeight: 700, lineHeight: 1,
+                            background: "linear-gradient(135deg,#C9A227,#E8C97A,#D4AF37)",
+                            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+                          }}>
+                            {item.num}
+                          </span>
+                          <span className="portfolio-tile-label" style={{ fontSize: 11, color: "#71717a", lineHeight: 1.4 }}>{item.label}</span>
+                        </div>
+                      </TiltCard>
+                    </StaggerItem>
                   ))}
-                </div>
+                </StaggerContainer>
                 <p style={{ marginTop: 16, fontSize: 9, letterSpacing: "0.4em", textTransform: "uppercase", color: "#52525b", textAlign: "center" }}>
                   Realizacje w całej Polsce
                 </p>
@@ -656,7 +663,7 @@ export default function Home() {
               </p>
             </ScrollReveal>
 
-            <ScrollReveal delay={0.18}>
+            <ScrollReveal>
               <div className="cta-finale-buttons">
                 <LuxButton href="/konfigurator" variant="gold" size="lg">
                   Otwórz konfigurator

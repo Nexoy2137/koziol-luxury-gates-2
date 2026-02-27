@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { MainHeader } from "@/components/MainHeader";
 import { MainFooter } from "@/components/MainFooter";
 import { LuxButton } from "@/components/ui/LuxButton";
-import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/ui/ScrollReveal";
 
 const contactCards = [
   {
@@ -91,7 +91,7 @@ export default function KontaktPage() {
               rozwiązanie dopasowane do architektury budynku i charakteru posesji.
             </p>
           </ScrollReveal>
-          <ScrollReveal delay={0.15}>
+          <ScrollReveal>
             <LuxButton href="/konfigurator" variant="outline">
               Otwórz konfigurator
               <ArrowRight className="h-4 w-4" />
@@ -104,15 +104,9 @@ export default function KontaktPage() {
       <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)", background: "#030303" }}>
         <div className="page-container" style={{ paddingTop: 40, paddingBottom: 40 }}>
           <ScrollReveal>
-            <div className="contact-cards">
-              {contactCards.map((card, i) => (
-                <motion.div
-                  key={card.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                >
+            <StaggerContainer className="contact-cards">
+              {contactCards.map((card) => (
+                <StaggerItem key={card.label}>
                   <div className="beam-wrapper" style={{ height: "100%" }}>
                     <div className="beam-inner" style={{ borderRadius: "calc(1rem - 1px)", padding: "32px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 48, height: 48, borderRadius: "50%", border: "1px solid rgba(212,175,55,0.3)", background: "rgba(0,0,0,0.6)" }}>
@@ -134,9 +128,9 @@ export default function KontaktPage() {
                       <p style={{ fontSize: 12, lineHeight: 1.6, color: "#52525b", marginTop: "auto" }}>{card.sub}</p>
                     </div>
                   </div>
-                </motion.div>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerContainer>
           </ScrollReveal>
         </div>
       </section>
@@ -189,7 +183,7 @@ export default function KontaktPage() {
             </ScrollReveal>
 
             {/* Form */}
-            <ScrollReveal delay={0.15}>
+            <ScrollReveal>
               {sent ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
