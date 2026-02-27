@@ -2088,6 +2088,8 @@ export function KonfiguratorPageClient() {
             background: "rgba(0,0,0,0.80)",
             backdropFilter: "blur(10px)",
             WebkitBackdropFilter: "blur(10px)",
+            overflowY: "auto",
+            WebkitOverflowScrolling: "touch",
           }}
         >
           <div
@@ -2095,6 +2097,8 @@ export function KonfiguratorPageClient() {
             style={{
               boxShadow: "0 40px 120px rgba(0,0,0,0.9)",
               padding: "22px 20px 18px",
+              maxHeight: "calc(100vh - 140px)",
+              overflowY: "auto",
             }}
           >
             <div style={{ marginBottom: 14 }}>
