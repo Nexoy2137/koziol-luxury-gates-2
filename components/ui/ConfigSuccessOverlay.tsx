@@ -24,6 +24,7 @@ export function ConfigSuccessOverlay({ onClose }: Props) {
         padding: "96px 24px 32px",
         background: "rgba(0,0,0,0.9)",
         backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
       }}
     >
       {/* Ambient gold glow */}
