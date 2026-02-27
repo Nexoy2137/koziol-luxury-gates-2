@@ -19,9 +19,9 @@ export function ConfigSuccessOverlay({ onClose }: Props) {
         inset: 0,
         zIndex: 99998,
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "center",
-        padding: 24,
+        padding: "96px 24px 32px",
         background: "rgba(0,0,0,0.9)",
         backdropFilter: "blur(12px)",
       }}

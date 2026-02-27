@@ -499,9 +499,33 @@ export function KonfiguratorPageClient() {
       await toast.showAlert("Proszę podać poprawny kod pocztowy w formacie 00-000.");
       return;
     }
+
+    const normalizedPhone = normalizePolishPhone(phone);
+    if (normalizedPhone.length !== 9) {
+      await toast.showAlert("Podaj poprawny numer telefonu (9 cyfr, może być z +48).");
+      return;
+    }
+
     const now = Date.now();
     const today = new Date().toISOString().slice(0, 10);
 
+    // ── Opcjonalne IP urządzenia (do backendowego limitu per IP) ──────────
+    let clientIp: string | null = null;
+    try {
+      if (typeof window !== "undefined" && "fetch" in window) {
+        const res = await fetch("https://api.ipify.org?format=json");
+        if (res.ok) {
+          const data = (await res.json()) as { ip?: string };
+          if (data.ip && typeof data.ip === "string") {
+            clientIp = data.ip;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Nie udało się pobrać adresu IP użytkownika:", e);
+    }
+
+    // ── Limit per urządzenie / przeglądarka (localStorage) ────────────────
     if (dailyCount >= maxLeadsPerDay) {
       await toast.showAlert("Przekroczono maksymalną liczbę zapytań z tego urządzenia na dziś.");
       return;
@@ -511,10 +535,61 @@ export function KonfiguratorPageClient() {
       await toast.showAlert("Za często wysyłasz zapytania. Spróbuj ponownie za kilka minut.");
       return;
     }
-    const normalizedPhone = normalizePolishPhone(phone);
-    if (normalizedPhone.length !== 9) {
-      await toast.showAlert("Podaj poprawny numer telefonu (9 cyfr, może być z +48).");
-      return;
+
+    // ── Limit per numer telefonu + (jeśli dostępne) per IP (backend) ─────
+    try {
+      const { data: phoneLeads, error: phoneErr } = await supabase
+        .from("leads")
+        .select("created_at")
+        .eq("customer_phone", normalizedPhone)
+        .gte("created_at", `${today}T00:00:00.000Z`)
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (!phoneErr && phoneLeads) {
+        const phoneDailyCount = phoneLeads.length;
+        if (phoneDailyCount >= maxLeadsPerDay) {
+          await toast.showAlert("Przekroczono maksymalną liczbę zapytań z tego numeru telefonu na dziś.");
+          return;
+        }
+        const lastLead = phoneLeads[0] as { created_at?: string } | undefined;
+        if (lastLead?.created_at) {
+          const lastPhoneTs = new Date(lastLead.created_at).getTime();
+          if (Number.isFinite(lastPhoneTs) && now - lastPhoneTs < cooldownMs) {
+            await toast.showAlert("Za często wysyłasz zapytania z tego numeru. Spróbuj ponownie za kilka minut.");
+            return;
+          }
+        }
+      }
+
+      if (clientIp) {
+        const { data: ipLeads, error: ipErr } = await supabase
+          .from("leads")
+          .select("created_at")
+          .eq("client_ip", clientIp)
+          .gte("created_at", `${today}T00:00:00.000Z`)
+          .order("created_at", { ascending: false })
+          .limit(20);
+
+        if (!ipErr && ipLeads) {
+          const ipDailyCount = ipLeads.length;
+          if (ipDailyCount >= maxLeadsPerDay) {
+            await toast.showAlert("Przekroczono maksymalną liczbę zapytań z tego urządzenia na dziś (adres IP).");
+            return;
+          }
+          const lastIpLead = ipLeads[0] as { created_at?: string } | undefined;
+          if (lastIpLead?.created_at) {
+            const lastIpTs = new Date(lastIpLead.created_at).getTime();
+            if (Number.isFinite(lastIpTs) && now - lastIpTs < cooldownMs) {
+              await toast.showAlert("Za często wysyłasz zapytania z tego urządzenia. Spróbuj ponownie za kilka minut.");
+              return;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Błąd sprawdzania limitów anty-spam (telefon/IP):", e);
+      // W razie błędu nie blokujemy wysyłki, żeby nie psuć UX
     }
 
     if (primaryConfig && secondaryConfig) {
@@ -537,6 +612,7 @@ export function KonfiguratorPageClient() {
         customer_city: cityTrimmed,
         customer_postal_code: postalTrimmed,
         customer_phone: normalizedPhone,
+        client_ip: clientIp,
         total_price: combinedTotal,
         details: detailsPayload,
       },
@@ -643,6 +719,20 @@ export function KonfiguratorPageClient() {
         : null;
     return { config: c, baseUrl, materialUrl };
   };
+
+  useEffect(() => {
+    if (!showReviewOverlay) return;
+    if (typeof window === "undefined") return;
+
+    // Przewiń stronę do góry, żeby modal był idealnie wycentrowany względem widoku
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showReviewOverlay]);
 
   const handleNextStep = async () => {
     if (step === 1 && !config.type) {
@@ -897,21 +987,50 @@ export function KonfiguratorPageClient() {
           border-radius:12px;
           overflow:hidden;
           background:#050505;
-        }
-        .kpreview-main {
-          min-height:180px;
-          max-height:260px;
-        }
-        .kpreview-material {
-          min-height:100px;
+          height:180px;
         }
         @media(min-width:1024px){
-          .kpreview-main {
-            min-height:230px;
-            max-height:320px;
-          }
+          .kpreview-main,
           .kpreview-material {
-            min-height:130px;
+            height:200px;
+          }
+        }
+
+        /* Podsumowanie końcowe: dwa kwadratowe podglądy tej samej wielkości,
+           idealnie wyśrodkowane w kartach */
+        .kpreview-review .kpreview-main,
+        .kpreview-review .kpreview-material {
+          height:auto;
+          aspect-ratio:1 / 1;
+          width:100%;
+          max-width:200px;
+          max-height:200px;
+          margin:0 auto;
+        }
+        @media(min-width:1024px){
+          .kpreview-review .kpreview-main,
+          .kpreview-review .kpreview-material {
+            max-width:220px;
+            max-height:220px;
+          }
+        }
+        .kpreview-review-grid {
+          display:grid;
+          grid-template-columns:1fr;
+          gap:12px;
+        }
+        @media(min-width:900px){
+          .kpreview-review-grid {
+            grid-template-columns:1fr 1fr;
+          }
+        }
+        /* W podsumowaniu końcowym w jednej karcie model i materiał mają takie same kolumny
+           i są wyśrodkowane względem siebie i krawędzi karty */
+        @media(min-width:640px){
+          .kpreview-review .kpreview-grid {
+            grid-template-columns:auto auto;
+            justify-content:center;
+            column-gap:100px;
           }
         }
         .kpreview-main img,
@@ -1951,9 +2070,18 @@ export function KonfiguratorPageClient() {
 
       {showReviewOverlay && (
         <div
-          className="fixed inset-0 flex items-center justify-center px-4"
+          className="fixed inset-0 flex px-4"
           style={{
+            position: "fixed",
+            inset: 0,
             zIndex: 10050,
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            paddingLeft: 16,
+            paddingRight: 16,
+            paddingTop: 96,
+            paddingBottom: 32,
             background: "rgba(0,0,0,0.80)",
             backdropFilter: "blur(10px)",
             WebkitBackdropFilter: "blur(10px)",
@@ -2016,7 +2144,7 @@ export function KonfiguratorPageClient() {
               }}
             >
               {primaryConfig && secondaryConfig ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div className="kpreview-review-grid">
                   {[primaryConfig, secondaryConfig].map((cfg, idx) => {
                     const preview = getPreviewForConfig(cfg);
                     if (!preview) return null;
@@ -2025,7 +2153,7 @@ export function KonfiguratorPageClient() {
                         ? "Pierwszy element"
                         : "Drugi element";
                     return (
-                      <div key={idx} className="kpreview">
+                      <div key={idx} className="kpreview kpreview-review">
                         <div className="kpreview-header">
                           <span className="kpreview-label">
                             {labelPrefix}
@@ -2140,7 +2268,7 @@ export function KonfiguratorPageClient() {
                 </div>
               ) : (
                 <>
-                  <div className="kpreview">
+                  <div className="kpreview kpreview-review">
                     <div className="kpreview-header">
                       <span className="kpreview-label">Podgląd</span>
                       <span className="kpreview-tag">
