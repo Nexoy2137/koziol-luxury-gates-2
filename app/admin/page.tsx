@@ -559,8 +559,8 @@ export default function AdminPanel() {
       <input type="file" ref={fileInputRef} className="hidden" onChange={handleConfigImageUpload} />
 
       <style>{`
-        .admin-btn { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; min-height:44px; border:1px solid rgba(63,63,70,0.6); border-radius:10px; background:linear-gradient(160deg,rgba(9,9,11,0.9) 0%,rgba(4,4,6,0.95) 100%); color:#a1a1aa; font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; }
-        .admin-btn:hover { border-color:rgba(212,175,55,0.5); color:#D4AF37; background:rgba(212,175,55,0.08); }
+        .admin-btn { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; min-height:44px; border:1.5px solid rgba(212,175,55,0.45); border-radius:10px; background:linear-gradient(160deg,rgba(9,9,11,0.95) 0%,rgba(4,4,6,0.98) 100%); color:#d4d4d8; font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; box-shadow:0 1px 3px rgba(0,0,0,0.2); }
+        .admin-btn:hover { border-color:rgba(212,175,55,0.7); color:#D4AF37; background:rgba(212,175,55,0.1); box-shadow:0 2px 8px rgba(212,175,55,0.15); }
         .admin-tab { flex:1; min-width:0; padding:18px 16px; display:flex; align-items:center; justify-content:center; gap:10px; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; border:none; border-radius:12px; }
         .admin-tab.active { background:#D4AF37; color:#000; box-shadow:0 0 24px rgba(212,175,55,0.35); }
         .admin-tab:not(.active) { background:transparent; color:#71717a; }
@@ -633,7 +633,7 @@ export default function AdminPanel() {
               onClick={() => supabase.auth.signOut().then(() => router.push('/login'))}
               className="admin-btn"
               onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,68,68,0.5)"; (e.currentTarget as HTMLButtonElement).style.color = "#ef4444"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(63,63,70,0.6)"; (e.currentTarget as HTMLButtonElement).style.color = "#a1a1aa"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(212,175,55,0.45)"; (e.currentTarget as HTMLButtonElement).style.color = "#d4d4d8"; }}
             >
               <LogOut size={14} />
               Wyloguj
