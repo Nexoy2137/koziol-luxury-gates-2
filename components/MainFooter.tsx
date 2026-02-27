@@ -33,6 +33,20 @@ export function MainFooter() {
           .footer-grid { grid-template-columns: 2fr 1fr 1fr !important; gap: 48px !important; }
           .footer-inner { padding: 52px 32px !important; }
         }
+        /* Delikatny link do panelu admina – tylko na telefonie, w stopce */
+        .footer-admin-link {
+          font-size: 10px;
+          color: #27272a;
+          text-decoration: none;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+        }
+        .footer-admin-link:hover {
+          color: #52525b;
+        }
+        @media (min-width: 640px) {
+          .footer-admin-link { display: none !important; }
+        }
       `}</style>
 
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 20px 56px", paddingBottom: "calc(56px + env(safe-area-inset-bottom, 0px))", width: "100%", boxSizing: "border-box" }} className="footer-inner">
@@ -99,9 +113,12 @@ export function MainFooter() {
 
         {/* Bottom */}
         <div style={{ marginTop: 48, height: 1, background: "linear-gradient(to right, transparent, rgba(63,63,70,0.7), transparent)" }} />
-        <div style={{ marginTop: 24, paddingBottom: 8, display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 8, fontSize: 11, color: "#3f3f46", wordBreak: "break-word" }}>
+        <div style={{ marginTop: 24, paddingBottom: 8, display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 8, fontSize: 11, color: "#3f3f46", wordBreak: "break-word" }}>
           <span>© 2026 Kozioł Luxury Gates. Wszelkie prawa zastrzeżone.</span>
           <span>ul. Adamówek 41, 95-035 Ozorków</span>
+          <Link href="/admin" className="footer-admin-link">
+            Panel
+          </Link>
         </div>
       </div>
     </footer>

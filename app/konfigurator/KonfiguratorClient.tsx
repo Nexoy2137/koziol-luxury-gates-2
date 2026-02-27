@@ -1051,7 +1051,7 @@ export function KonfiguratorPageClient() {
           display:flex;
           align-items:flex-start;
           justify-content:center;
-          padding:56px 16px 20px;
+          padding:32px 16px 20px;
           background:
             radial-gradient(circle at 50% 0%, rgba(212,175,55,0.16) 0%, rgba(0,0,0,0.92) 55%, rgba(0,0,0,0.96) 100%);
           backdrop-filter:blur(10px);
@@ -1061,7 +1061,7 @@ export function KonfiguratorPageClient() {
         }
         @media(min-width:1024px){
           .konfig-review-overlay {
-            align-items:center;
+            align-items:flex-start;
             padding-top:32px;
             padding-bottom:32px;
           }
@@ -1076,6 +1076,11 @@ export function KonfiguratorPageClient() {
           padding:22px 20px 20px;
           max-height:calc(100vh - 140px);
           overflow-y:auto;
+        }
+        @media(min-width:1200px){
+          .konfig-review-card {
+            max-width:1180px;
+          }
         }
         .kpreview-placeholder {
           position:absolute;
