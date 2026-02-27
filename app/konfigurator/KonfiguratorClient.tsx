@@ -595,6 +595,36 @@ export function KonfiguratorPageClient() {
   const maxHeight = activeModel?.max_height ?? 250;
   const minHeight = activeModel?.min_height ?? 100;
 
+  const previewConfig =
+    primaryConfig && secondaryConfig
+      ? activePairPart === "primary"
+        ? primaryConfig
+        : secondaryConfig
+      : config;
+
+  const previewBaseCategory =
+    previewConfig.product === "furtka" ? "wicket_base" : "base";
+
+  const previewBase = dbPrices.find(
+    (p) => p.category === previewBaseCategory && p.name === previewConfig.type
+  );
+
+  const previewMaterial = dbPrices.find(
+    (p) => p.category === "material" && p.name === previewConfig.material
+  );
+
+  const previewBaseImageUrl =
+    (previewBase as any)?.image_url &&
+    typeof (previewBase as any).image_url === "string"
+      ? (previewBase as any).image_url
+      : null;
+
+  const previewMaterialImageUrl =
+    (previewMaterial as any)?.image_url &&
+    typeof (previewMaterial as any).image_url === "string"
+      ? (previewMaterial as any).image_url
+      : null;
+
   const handleNextStep = async () => {
     if (step === 1 && !config.type) {
       await toast.showAlert(`Najpierw wybierz model ${config.product === "furtka" ? "furtki" : "bramy"}.`);
@@ -737,7 +767,9 @@ export function KonfiguratorPageClient() {
         }
         .konfig-step-enter { animation: slideDown 0.35s ease both; }
         .konfig-main-layout { display:grid; grid-template-columns:1fr; gap:40px; }
-        @media(min-width:1024px){ .konfig-main-layout { grid-template-columns:1fr 340px; gap:48px; } }
+        @media(min-width:1024px){
+          .konfig-main-layout { grid-template-columns:minmax(0,1fr) minmax(400px,460px); gap:56px; }
+        }
         .konfig-options-grid { display:grid; grid-template-columns:1fr; gap:10px; }
         @media(min-width:640px){ .konfig-options-grid { grid-template-columns:1fr 1fr; } }
         @media(min-width:900px){ .konfig-options-grid { grid-template-columns:repeat(3,1fr); } }
@@ -775,6 +807,92 @@ export function KonfiguratorPageClient() {
         .kral .kname { font-size:9px; letter-spacing:0.3em; text-transform:uppercase; color:#52525b; }
         .kral .kpick { font-size:9px; letter-spacing:0.35em; text-transform:uppercase; color:#52525b; margin-top:auto; }
         .kral.sel .kpick { color:#D4AF37; }
+
+        /* ── Preview card (model + materiał) ── */
+        .kpreview {
+          border-radius:16px;
+          border:1px solid rgba(63,63,70,0.85);
+          background:radial-gradient(circle at 0 0, rgba(212,175,55,0.08) 0%, rgba(9,9,11,0.98) 40%, rgba(9,9,11,1) 100%);
+          padding:12px 12px 10px;
+          display:flex;
+          flex-direction:column;
+          gap:8px;
+          margin-bottom:18px;
+        }
+        .kpreview-header {
+          display:flex;
+          justify-content:space-between;
+          align-items:baseline;
+          gap:8px;
+        }
+        .kpreview-label {
+          font-size:9px;
+          letter-spacing:0.35em;
+          text-transform:uppercase;
+          color:#52525b;
+        }
+        .kpreview-tag {
+          font-size:9px;
+          text-transform:uppercase;
+          letter-spacing:0.18em;
+          color:#a1a1aa;
+          white-space:nowrap;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          max-width:180px;
+        }
+        @media(min-width:1024px){
+          .kpreview-tag { max-width:220px; }
+        }
+        .kpreview-grid {
+          display:grid;
+          grid-template-columns:3fr 2fr;
+          gap:6px;
+        }
+        @media(max-width:1023px){
+          .kpreview-grid { grid-template-columns:1fr; }
+        }
+        .kpreview-main,
+        .kpreview-material {
+          position:relative;
+          border-radius:12px;
+          overflow:hidden;
+          background:#050505;
+        }
+        .kpreview-main {
+          min-height:180px;
+          max-height:260px;
+        }
+        .kpreview-material {
+          min-height:100px;
+        }
+        @media(min-width:1024px){
+          .kpreview-main {
+            min-height:230px;
+            max-height:320px;
+          }
+          .kpreview-material {
+            min-height:130px;
+          }
+        }
+        .kpreview-main img,
+        .kpreview-material img {
+          width:100%;
+          height:100%;
+          object-fit:cover;
+          display:block;
+        }
+        .kpreview-placeholder {
+          position:absolute;
+          inset:0;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          padding:10px;
+          font-size:10px;
+          color:#71717a;
+          text-align:center;
+        }
 
         /* ── Navigation buttons ── */
         .knav-prev {
@@ -1368,6 +1486,48 @@ export function KonfiguratorPageClient() {
                 <h4 style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.45em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid rgba(212,175,55,0.18)" }}>
                   Twoja konfiguracja
                 </h4>
+
+                <div className="kpreview">
+                  <div className="kpreview-header">
+                    <span className="kpreview-label">Podgląd</span>
+                    <span className="kpreview-tag">
+                      {previewConfig.product === "furtka" ? "Furtka" : "Brama"}
+                      {previewConfig.type ? ` · ${previewConfig.type}` : ""}
+                    </span>
+                  </div>
+                  <div className="kpreview-grid">
+                    <div className="kpreview-main">
+                      {previewBaseImageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={previewBaseImageUrl}
+                          alt={previewConfig.type || "Model bramy"}
+                        />
+                      ) : (
+                        <div className="kpreview-placeholder">
+                          {previewConfig.type
+                            ? "Brak zdjęcia dla wybranego modelu."
+                            : "Wybierz model, aby zobaczyć podgląd."}
+                        </div>
+                      )}
+                    </div>
+                    <div className="kpreview-material">
+                      {previewMaterialImageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={previewMaterialImageUrl}
+                          alt={previewConfig.material || "Materiał wypełnienia"}
+                        />
+                      ) : (
+                        <div className="kpreview-placeholder">
+                          {previewConfig.material
+                            ? "Dodaj zdjęcie materiału w zakładce Cennik."
+                            : "Wybierz materiał, aby zobaczyć jego strukturę."}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
                 {config.type || config.material || (config.width && config.height) ? (
                   <>
