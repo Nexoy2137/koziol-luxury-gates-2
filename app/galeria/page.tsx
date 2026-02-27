@@ -315,7 +315,7 @@ export default function PublicGallery() {
               </button>
             </motion.div>
           ) : (
-            <ScrollReveal viewportAmount={0.45}>
+            <ScrollReveal>
               <StaggerContainer className="masonry-grid">
                 {filteredItems.map((item) => (
                   <StaggerItem key={item.id} className="masonry-item">

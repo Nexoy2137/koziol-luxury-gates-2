@@ -34,7 +34,9 @@ export function ScrollReveal({
         delay,
         ease: [0.25, 0.46, 0.45, 0.94],
       }}
-      viewport={{ once: true, amount: viewportAmount ?? 0.55 }}
+      // Domyślnie startujemy animację bardzo wcześnie (ok. 10% wysokości elementu),
+      // dzięki czemu na telefonie elementy pojawiają się wyżej przy scrollowaniu.
+      viewport={{ once: true, amount: viewportAmount ?? 0.1 }}
       className={className}
       style={style}
     >

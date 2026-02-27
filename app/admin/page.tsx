@@ -44,7 +44,9 @@ export default function AdminPanel() {
   } | null>(null);
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryFileInputRef = useRef<HTMLInputElement>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedGalleryId, setSelectedGalleryId] = useState<number | null>(null);
   const activeTabRef = useRef<'leads' | 'prices' | 'gallery' | 'options'>(activeTab);
   const toast = useToast();
   const seenUnreadLeadIdsRef = useRef<number[]>([]);
@@ -377,7 +379,20 @@ export default function AdminPanel() {
       const { error: uploadError } = await supabase.storage.from('gallery').upload(fileName, file);
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(fileName);
-      setPendingImageUrl(publicUrl);
+
+      if (selectedGalleryId != null) {
+        // Podmiana zdjęcia istniejącej realizacji
+        const { error } = await supabase
+          .from('gallery')
+          .update({ image_url: publicUrl })
+          .eq('id', selectedGalleryId);
+        if (error) throw error;
+        setSelectedGalleryId(null);
+        await fetchData();
+      } else {
+        // Nowe zdjęcie do dodania
+        setPendingImageUrl(publicUrl);
+      }
     } catch (error: any) {
       await toast.showAlert("Błąd wgrywania: " + error.message);
     } finally {
@@ -1481,7 +1496,14 @@ export default function AdminPanel() {
                     >
                       <Upload size={16} />
                       {uploading ? 'Wgrywanie...' : 'Dodaj zdjęcie'}
-                      <input type="file" className="hidden" accept="image/*" onChange={handleGalleryImageSelect} disabled={uploading} />
+                      <input
+                        type="file"
+                        ref={galleryFileInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleGalleryImageSelect}
+                        disabled={uploading}
+                      />
                     </label>
                     <button
                       onClick={handleAddGalleryItem}
@@ -1499,9 +1521,14 @@ export default function AdminPanel() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6" style={{ gap: 12 }}>
               {gallery.map((item) => (
                 <div key={item.id} className="admin-card flex flex-col group overflow-hidden" style={{ padding: 0 }}>
-                  <div className="aspect-[4/5] overflow-hidden bg-black relative">
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedGalleryId(item.id); galleryFileInputRef.current?.click(); }}
+                    className="aspect-[4/5] overflow-hidden bg-black relative group"
+                    style={{ cursor: "pointer", border: "none", padding: 0 }}
+                  >
                     <img src={item.image_url} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-700" />
-                  </div>
+                  </button>
                   
                   <div className="flex-1 flex flex-col" style={{ padding: 12, gap: 8 }}>
                     <h4 className="font-black uppercase text-white truncate" style={{ fontSize: 12 }}>{item.description || 'Realizacja'}</h4>
@@ -1603,7 +1630,7 @@ export default function AdminPanel() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {steelTypes.map((t, idx) => (
-                  <div key={`${t.label}-${idx}`} className="admin-card flex items-center" style={{ padding: 20, gap: 16 }}>
+                  <div key={idx} className="admin-card flex items-center" style={{ padding: 20, gap: 16 }}>
                     <input
                       value={t.label}
                       onChange={(e) => setSteelTypes((prev) => prev.map((x, i) => i === idx ? { ...x, label: e.target.value } : x))}
