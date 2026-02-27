@@ -4,6 +4,7 @@ import "./globals.css";
 import { CursorGlow } from "../components/ui/CursorGlow";
 import { ToastProvider } from "../context/ToastContext";
 import { ScrollToTop } from "../components/ScrollToTop";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -66,6 +67,7 @@ export default function RootLayout({
           <CursorGlow />
           <ScrollToTop />
           {children}
+          <SpeedInsights />
         </ToastProvider>
       </body>
     </html>
