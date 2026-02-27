@@ -626,6 +626,24 @@ export function KonfiguratorPageClient() {
       ? (previewMaterial as any).image_url
       : null;
 
+  const getPreviewForConfig = (c: Config | null) => {
+    if (!c) return null;
+    const cat = c.product === "furtka" ? "wicket_base" : "base";
+    const base = dbPrices.find(
+      (p) => p.category === cat && p.name === c.type
+    ) as any | undefined;
+    const material = dbPrices.find(
+      (p) => p.category === "material" && p.name === c.material
+    ) as any | undefined;
+    const baseUrl =
+      base && typeof base.image_url === "string" ? base.image_url : null;
+    const materialUrl =
+      material && typeof material.image_url === "string"
+        ? material.image_url
+        : null;
+    return { config: c, baseUrl, materialUrl };
+  };
+
   const handleNextStep = async () => {
     if (step === 1 && !config.type) {
       await toast.showAlert(`Najpierw wybierz model ${config.product === "furtka" ? "furtki" : "bramy"}.`);
@@ -734,6 +752,25 @@ export function KonfiguratorPageClient() {
     if (step < 7) {
       setStep(step + 1);
       return;
+    }
+
+    if (step === 7) {
+      const cityTrimmed = city.trim();
+      const postalTrimmed = postalCode.trim();
+
+      if (!cityTrimmed || cityTrimmed.length < 2 || /\d/.test(cityTrimmed)) {
+        await toast.showAlert("Proszę podać poprawną miejscowość (bez cyfr).");
+        return;
+      }
+      if (!postalTrimmed || !/^\d{2}-\d{3}$/.test(postalTrimmed)) {
+        await toast.showAlert("Proszę podać poprawny kod pocztowy w formacie 00-000.");
+        return;
+      }
+      const normalizedPhone = normalizePolishPhone(phone);
+      if (normalizedPhone.length !== 9) {
+        await toast.showAlert("Podaj poprawny numer telefonu (9 cyfr, może być z +48).");
+        return;
+      }
     }
 
     setShowReviewOverlay(true);
@@ -1914,8 +1951,9 @@ export function KonfiguratorPageClient() {
 
       {showReviewOverlay && (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center px-4"
+          className="fixed inset-0 flex items-center justify-center px-4"
           style={{
+            zIndex: 10050,
             background: "rgba(0,0,0,0.80)",
             backdropFilter: "blur(10px)",
             WebkitBackdropFilter: "blur(10px)",
@@ -1977,101 +2015,231 @@ export function KonfiguratorPageClient() {
                   "radial-gradient(circle at 0 0, rgba(212,175,55,0.08) 0%, rgba(9,9,11,1) 50%)",
               }}
             >
-              <div className="kpreview">
-                <div className="kpreview-header">
-                  <span className="kpreview-label">Podgląd</span>
-                  <span className="kpreview-tag">
-                    {previewConfig.product === "furtka" ? "Furtka" : "Brama"}
-                    {previewConfig.type ? ` · ${previewConfig.type}` : ""}
-                  </span>
-                </div>
-                <div className="kpreview-grid">
-                  <div className="kpreview-main">
-                    {previewBaseImageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={previewBaseImageUrl}
-                        alt={previewConfig.type || "Model bramy"}
-                      />
-                    ) : (
-                      <div className="kpreview-placeholder">
-                        {previewConfig.type
-                          ? "Brak zdjęcia dla wybranego modelu."
-                          : "Wybierz model, aby zobaczyć podgląd."}
+              {primaryConfig && secondaryConfig ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {[primaryConfig, secondaryConfig].map((cfg, idx) => {
+                    const preview = getPreviewForConfig(cfg);
+                    if (!preview) return null;
+                    const labelPrefix =
+                      idx === 0
+                        ? "Pierwszy element"
+                        : "Drugi element";
+                    return (
+                      <div key={idx} className="kpreview">
+                        <div className="kpreview-header">
+                          <span className="kpreview-label">
+                            {labelPrefix}
+                          </span>
+                          <span className="kpreview-tag">
+                            {preview.config.product === "furtka" ? "Furtka" : "Brama"}
+                            {preview.config.type
+                              ? ` · ${preview.config.type}`
+                              : ""}
+                          </span>
+                        </div>
+                        <div className="kpreview-grid">
+                          <div className="kpreview-main">
+                            {preview.baseUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={preview.baseUrl}
+                                alt={preview.config.type || "Model bramy"}
+                              />
+                            ) : (
+                              <div className="kpreview-placeholder">
+                                {preview.config.type
+                                  ? "Brak zdjęcia dla wybranego modelu."
+                                  : "Wybierz model, aby zobaczyć podgląd."}
+                              </div>
+                            )}
+                          </div>
+                          <div className="kpreview-material">
+                            {preview.materialUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={preview.materialUrl}
+                                alt={
+                                  preview.config.material ||
+                                  "Materiał wypełnienia"
+                                }
+                              />
+                            ) : (
+                              <div className="kpreview-placeholder">
+                                {preview.config.material
+                                  ? "Brak zdjęcia dla wybranego materiału."
+                                  : "Wybierz materiał, aby zobaczyć jego strukturę."}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div style={{ marginTop: 10 }}>
+                          <p
+                            style={{
+                              fontSize: 10,
+                              fontWeight: 600,
+                              letterSpacing: "0.28em",
+                              textTransform: "uppercase",
+                              color: "#52525b",
+                              marginBottom: 6,
+                            }}
+                          >
+                            Kluczowe parametry
+                          </p>
+                          <ul
+                            style={{
+                              listStyle: "none",
+                              padding: 0,
+                              margin: 0,
+                              fontSize: 12,
+                              color: "#e4e4e7",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 4,
+                            }}
+                          >
+                            {preview.config.type && (
+                              <li>
+                                <span style={{ color: "#71717a" }}>Model: </span>
+                                {preview.config.type}
+                              </li>
+                            )}
+                            {preview.config.material && (
+                              <li>
+                                <span style={{ color: "#71717a" }}>
+                                  Wypełnienie:{" "}
+                                </span>
+                                {preview.config.material}
+                              </li>
+                            )}
+                            {preview.config.width > 0 &&
+                              preview.config.height > 0 && (
+                                <li>
+                                  <span style={{ color: "#71717a" }}>
+                                    Wymiary:{" "}
+                                  </span>
+                                  {preview.config.width}×
+                                  {preview.config.height} cm
+                                </li>
+                              )}
+                            {preview.config.ral && (
+                              <li>
+                                <span style={{ color: "#71717a" }}>
+                                  Kolor:{" "}
+                                </span>
+                                {preview.config.ral === "INNY" &&
+                                preview.config.ralCustomCode
+                                  ? preview.config.ralCustomCode
+                                  : preview.config.ral}
+                              </li>
+                            )}
+                          </ul>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                  <div className="kpreview-material">
-                    {previewMaterialImageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={previewMaterialImageUrl}
-                        alt={previewConfig.material || "Materiał wypełnienia"}
-                      />
-                    ) : (
-                      <div className="kpreview-placeholder">
-                        {previewConfig.material
-                          ? "Brak zdjęcia dla wybranego materiału."
-                          : "Wybierz materiał, aby zobaczyć jego strukturę."}
-                      </div>
-                    )}
-                  </div>
+                    );
+                  })}
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className="kpreview">
+                    <div className="kpreview-header">
+                      <span className="kpreview-label">Podgląd</span>
+                      <span className="kpreview-tag">
+                        {previewConfig.product === "furtka" ? "Furtka" : "Brama"}
+                        {previewConfig.type ? ` · ${previewConfig.type}` : ""}
+                      </span>
+                    </div>
+                    <div className="kpreview-grid">
+                      <div className="kpreview-main">
+                        {previewBaseImageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={previewBaseImageUrl}
+                            alt={previewConfig.type || "Model bramy"}
+                          />
+                        ) : (
+                          <div className="kpreview-placeholder">
+                            {previewConfig.type
+                              ? "Brak zdjęcia dla wybranego modelu."
+                              : "Wybierz model, aby zobaczyć podgląd."}
+                          </div>
+                        )}
+                      </div>
+                      <div className="kpreview-material">
+                        {previewMaterialImageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={previewMaterialImageUrl}
+                            alt={
+                              previewConfig.material || "Materiał wypełnienia"
+                            }
+                          />
+                        ) : (
+                          <div className="kpreview-placeholder">
+                            {previewConfig.material
+                              ? "Brak zdjęcia dla wybranego materiału."
+                              : "Wybierz materiał, aby zobaczyć jego strukturę."}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
 
-              <div style={{ marginTop: 10 }}>
-                <p
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 600,
-                    letterSpacing: "0.28em",
-                    textTransform: "uppercase",
-                    color: "#52525b",
-                    marginBottom: 6,
-                  }}
-                >
-                  Kluczowe parametry
-                </p>
-                <ul
-                  style={{
-                    listStyle: "none",
-                    padding: 0,
-                    margin: 0,
-                    fontSize: 12,
-                    color: "#e4e4e7",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 4,
-                  }}
-                >
-                  {previewConfig.type && (
-                    <li>
-                      <span style={{ color: "#71717a" }}>Model: </span>
-                      {previewConfig.type}
-                    </li>
-                  )}
-                  {previewConfig.material && (
-                    <li>
-                      <span style={{ color: "#71717a" }}>Wypełnienie: </span>
-                      {previewConfig.material}
-                    </li>
-                  )}
-                  {previewConfig.width > 0 && previewConfig.height > 0 && (
-                    <li>
-                      <span style={{ color: "#71717a" }}>Wymiary: </span>
-                      {previewConfig.width}×{previewConfig.height} cm
-                    </li>
-                  )}
-                  {previewConfig.ral && (
-                    <li>
-                      <span style={{ color: "#71717a" }}>Kolor: </span>
-                      {previewConfig.ral === "INNY" && previewConfig.ralCustomCode
-                        ? previewConfig.ralCustomCode
-                        : previewConfig.ral}
-                    </li>
-                  )}
-                </ul>
-              </div>
+                  <div style={{ marginTop: 10 }}>
+                    <p
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 600,
+                        letterSpacing: "0.28em",
+                        textTransform: "uppercase",
+                        color: "#52525b",
+                        marginBottom: 6,
+                      }}
+                    >
+                      Kluczowe parametry
+                    </p>
+                    <ul
+                      style={{
+                        listStyle: "none",
+                        padding: 0,
+                        margin: 0,
+                        fontSize: 12,
+                        color: "#e4e4e7",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 4,
+                      }}
+                    >
+                      {previewConfig.type && (
+                        <li>
+                          <span style={{ color: "#71717a" }}>Model: </span>
+                          {previewConfig.type}
+                        </li>
+                      )}
+                      {previewConfig.material && (
+                        <li>
+                          <span style={{ color: "#71717a" }}>Wypełnienie: </span>
+                          {previewConfig.material}
+                        </li>
+                      )}
+                      {previewConfig.width > 0 && previewConfig.height > 0 && (
+                        <li>
+                          <span style={{ color: "#71717a" }}>Wymiary: </span>
+                          {previewConfig.width}×{previewConfig.height} cm
+                        </li>
+                      )}
+                      {previewConfig.ral && (
+                        <li>
+                          <span style={{ color: "#71717a" }}>Kolor: </span>
+                          {previewConfig.ral === "INNY" &&
+                          previewConfig.ralCustomCode
+                            ? previewConfig.ralCustomCode
+                            : previewConfig.ral}
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </>
+              )}
             </div>
 
             <div
