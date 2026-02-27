@@ -2084,9 +2084,9 @@ export function KonfiguratorPageClient() {
             paddingLeft: 16,
             paddingRight: 16,
             paddingTop: 32,
-            paddingBottom: 24,
+            paddingBottom: 20,
             background:
-              "radial-gradient(circle at 50% 0%, rgba(212,175,55,0.22) 0%, rgba(0,0,0,0.90) 55%, rgba(0,0,0,0.94) 100%)",
+              "radial-gradient(circle at 50% 0%, rgba(212,175,55,0.16) 0%, rgba(0,0,0,0.92) 55%, rgba(0,0,0,0.96) 100%)",
             backdropFilter: "blur(10px)",
             WebkitBackdropFilter: "blur(10px)",
             overflowY: "auto",
@@ -2094,12 +2094,13 @@ export function KonfiguratorPageClient() {
           }}
         >
           <div
-            className="max-w-lg w-full rounded-2xl border border-zinc-800 bg-[#050505]"
+            className="w-full rounded-3xl border border-zinc-800/80 bg-[#050505]"
             style={{
+              maxWidth: 640,
               boxShadow:
-                "0 32px 90px rgba(0,0,0,0.9), 0 0 40px rgba(212,175,55,0.22)",
-              padding: "20px 20px 18px",
-              maxHeight: "calc(100vh - 140px)",
+                "0 28px 80px rgba(0,0,0,0.9), 0 0 26px rgba(212,175,55,0.18)",
+              padding: "22px 22px 20px",
+              maxHeight: "calc(100vh - 130px)",
               overflowY: "auto",
             }}
           >
