@@ -84,6 +84,7 @@ export function KonfiguratorPageClient() {
   const [cooldownMs, setCooldownMs] = useState<number>(180_000);
   const [maxLeadsPerDay, setMaxLeadsPerDay] = useState<number>(5);
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
+  const [showReviewOverlay, setShowReviewOverlay] = useState(false);
   const searchParams = useSearchParams();
   const toast = useToast();
 
@@ -732,9 +733,10 @@ export function KonfiguratorPageClient() {
 
     if (step < 7) {
       setStep(step + 1);
-    } else {
-      void persistAndInsertLead();
+      return;
     }
+
+    setShowReviewOverlay(true);
   };
 
   const handlePrevStep = () => {
@@ -1909,6 +1911,221 @@ export function KonfiguratorPageClient() {
           </div>
         </div>
       </section>
+
+      {showReviewOverlay && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center px-4"
+          style={{
+            background: "rgba(0,0,0,0.80)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+          }}
+        >
+          <div
+            className="max-w-lg w-full rounded-2xl border border-zinc-800 bg-[#050505]"
+            style={{
+              boxShadow: "0 40px 120px rgba(0,0,0,0.9)",
+              padding: "22px 20px 18px",
+            }}
+          >
+            <div style={{ marginBottom: 14 }}>
+              <p
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: "0.35em",
+                  textTransform: "uppercase",
+                  color: "#52525b",
+                  marginBottom: 8,
+                }}
+              >
+                Ostatnie spojrzenie
+              </p>
+              <h3
+                className="font-display"
+                style={{
+                  fontSize: "clamp(1.4rem,2.4vw,1.8rem)",
+                  fontWeight: 400,
+                  fontStyle: "italic",
+                  color: "#fafafa",
+                }}
+              >
+                Sprawdź konfigurację przed wysłaniem
+              </h3>
+            </div>
+
+            <p
+              style={{
+                fontSize: 13,
+                color: "#a1a1aa",
+                lineHeight: 1.6,
+                marginBottom: 14,
+              }}
+            >
+              Zobacz jeszcze raz zdjęcia oraz kluczowe parametry. Jeśli coś chcesz
+              poprawić, wróć do edycji. Jeśli wszystko się zgadza, potwierdź wysłanie
+              zapytania.
+            </p>
+
+            <div
+              style={{
+                borderRadius: 16,
+                border: "1px solid rgba(63,63,70,0.8)",
+                padding: 12,
+                marginBottom: 14,
+                background:
+                  "radial-gradient(circle at 0 0, rgba(212,175,55,0.08) 0%, rgba(9,9,11,1) 50%)",
+              }}
+            >
+              <div className="kpreview">
+                <div className="kpreview-header">
+                  <span className="kpreview-label">Podgląd</span>
+                  <span className="kpreview-tag">
+                    {previewConfig.product === "furtka" ? "Furtka" : "Brama"}
+                    {previewConfig.type ? ` · ${previewConfig.type}` : ""}
+                  </span>
+                </div>
+                <div className="kpreview-grid">
+                  <div className="kpreview-main">
+                    {previewBaseImageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={previewBaseImageUrl}
+                        alt={previewConfig.type || "Model bramy"}
+                      />
+                    ) : (
+                      <div className="kpreview-placeholder">
+                        {previewConfig.type
+                          ? "Brak zdjęcia dla wybranego modelu."
+                          : "Wybierz model, aby zobaczyć podgląd."}
+                      </div>
+                    )}
+                  </div>
+                  <div className="kpreview-material">
+                    {previewMaterialImageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={previewMaterialImageUrl}
+                        alt={previewConfig.material || "Materiał wypełnienia"}
+                      />
+                    ) : (
+                      <div className="kpreview-placeholder">
+                        {previewConfig.material
+                          ? "Brak zdjęcia dla wybranego materiału."
+                          : "Wybierz materiał, aby zobaczyć jego strukturę."}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 10 }}>
+                <p
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 600,
+                    letterSpacing: "0.28em",
+                    textTransform: "uppercase",
+                    color: "#52525b",
+                    marginBottom: 6,
+                  }}
+                >
+                  Kluczowe parametry
+                </p>
+                <ul
+                  style={{
+                    listStyle: "none",
+                    padding: 0,
+                    margin: 0,
+                    fontSize: 12,
+                    color: "#e4e4e7",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 4,
+                  }}
+                >
+                  {previewConfig.type && (
+                    <li>
+                      <span style={{ color: "#71717a" }}>Model: </span>
+                      {previewConfig.type}
+                    </li>
+                  )}
+                  {previewConfig.material && (
+                    <li>
+                      <span style={{ color: "#71717a" }}>Wypełnienie: </span>
+                      {previewConfig.material}
+                    </li>
+                  )}
+                  {previewConfig.width > 0 && previewConfig.height > 0 && (
+                    <li>
+                      <span style={{ color: "#71717a" }}>Wymiary: </span>
+                      {previewConfig.width}×{previewConfig.height} cm
+                    </li>
+                  )}
+                  {previewConfig.ral && (
+                    <li>
+                      <span style={{ color: "#71717a" }}>Kolor: </span>
+                      {previewConfig.ral === "INNY" && previewConfig.ralCustomCode
+                        ? previewConfig.ralCustomCode
+                        : previewConfig.ral}
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 10,
+                marginTop: 6,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setShowReviewOverlay(false)}
+                style={{
+                  padding: "10px 18px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(63,63,70,0.9)",
+                  background: "transparent",
+                  color: "#e4e4e7",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                }}
+              >
+                Wróć do edycji
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowReviewOverlay(false);
+                  void persistAndInsertLead();
+                }}
+                style={{
+                  padding: "10px 22px",
+                  borderRadius: 999,
+                  border: "none",
+                  background: "#D4AF37",
+                  color: "#000",
+                  fontSize: 11,
+                  fontWeight: 800,
+                  letterSpacing: "0.16em",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  boxShadow: "0 0 26px rgba(212,175,55,0.5)",
+                }}
+              >
+                Potwierdź i wyślij
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <MainFooter />
 
