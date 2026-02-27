@@ -1043,6 +1043,40 @@ export function KonfiguratorPageClient() {
           object-fit:cover;
           display:block;
         }
+        /* ── Review overlay (summary modal) ── */
+        .konfig-review-overlay {
+          position:fixed;
+          inset:0;
+          z-index:10050;
+          display:flex;
+          align-items:flex-start;
+          justify-content:center;
+          padding:56px 16px 20px;
+          background:
+            radial-gradient(circle at 50% 0%, rgba(212,175,55,0.16) 0%, rgba(0,0,0,0.92) 55%, rgba(0,0,0,0.96) 100%);
+          backdrop-filter:blur(10px);
+          -webkit-backdrop-filter:blur(10px);
+          overflow-y:auto;
+          -webkit-overflow-scrolling:touch;
+        }
+        @media(min-width:1024px){
+          .konfig-review-overlay {
+            align-items:center;
+            padding-top:32px;
+            padding-bottom:32px;
+          }
+        }
+        .konfig-review-card {
+          width:100%;
+          max-width:640px;
+          border-radius:24px;
+          border:1px solid rgba(212,175,55,0.3);
+          background:rgba(9,9,11,0.95);
+          box-shadow:0 0 100px rgba(0,0,0,0.9), 0 0 60px rgba(212,175,55,0.15);
+          padding:22px 20px 20px;
+          max-height:calc(100vh - 140px);
+          overflow-y:auto;
+        }
         .kpreview-placeholder {
           position:absolute;
           inset:0;
@@ -2072,38 +2106,8 @@ export function KonfiguratorPageClient() {
       </section>
 
       {showReviewOverlay && (
-        <div
-          className="fixed inset-0 flex px-4"
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 10050,
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "center",
-            paddingLeft: 16,
-            paddingRight: 16,
-            paddingTop: 32,
-            paddingBottom: 20,
-            background:
-              "radial-gradient(circle at 50% 0%, rgba(212,175,55,0.16) 0%, rgba(0,0,0,0.92) 55%, rgba(0,0,0,0.96) 100%)",
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
-            overflowY: "auto",
-            WebkitOverflowScrolling: "touch",
-          }}
-        >
-          <div
-            className="w-full rounded-3xl border border-zinc-800/80 bg-[#050505]"
-            style={{
-              maxWidth: 640,
-              boxShadow:
-                "0 28px 80px rgba(0,0,0,0.9), 0 0 26px rgba(212,175,55,0.18)",
-              padding: "22px 22px 20px",
-              maxHeight: "calc(100vh - 130px)",
-              overflowY: "auto",
-            }}
-          >
+        <div className="konfig-review-overlay">
+          <div className="konfig-review-card">
             <div style={{ marginBottom: 14 }}>
               <p
                 style={{
