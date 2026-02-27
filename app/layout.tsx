@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
-import { CursorGlow } from "@/components/ui/CursorGlow";
-import { ToastProvider } from "@/context/ToastContext";
+import { CursorGlow } from "../components/ui/CursorGlow";
+import { ToastProvider } from "../context/ToastContext";
+import { ScrollToTop } from "../components/ScrollToTop";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -63,6 +64,7 @@ export default function RootLayout({
         <ToastProvider>
           <div className="grain-overlay" aria-hidden="true" />
           <CursorGlow />
+          <ScrollToTop />
           {children}
         </ToastProvider>
       </body>
