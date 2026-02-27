@@ -555,19 +555,19 @@ export default function AdminPanel() {
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "#000", color: "#e4e4e7", fontFamily: "var(--font-inter, system-ui, sans-serif)", paddingBottom: 100 }}>
+    <div className="admin-root" style={{ minHeight: "100vh", background: "#000", color: "#e4e4e7", fontFamily: "var(--font-inter, system-ui, sans-serif)", paddingBottom: 100, overflowX: "hidden" }}>
       <input type="file" ref={fileInputRef} className="hidden" onChange={handleConfigImageUpload} />
 
       <style>{`
-        .admin-btn { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border:1px solid rgba(63,63,70,0.6); border-radius:10px; background:linear-gradient(160deg,rgba(9,9,11,0.9) 0%,rgba(4,4,6,0.95) 100%); color:#a1a1aa; font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; }
+        .admin-btn { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; min-height:44px; border:1px solid rgba(63,63,70,0.6); border-radius:10px; background:linear-gradient(160deg,rgba(9,9,11,0.9) 0%,rgba(4,4,6,0.95) 100%); color:#a1a1aa; font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; }
         .admin-btn:hover { border-color:rgba(212,175,55,0.5); color:#D4AF37; background:rgba(212,175,55,0.08); }
-        .admin-tab { flex:1; padding:18px 16px; display:flex; align-items:center; justify-content:center; gap:10px; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; border:none; border-radius:12px; }
+        .admin-tab { flex:1; min-width:0; padding:18px 16px; display:flex; align-items:center; justify-content:center; gap:10px; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; border:none; border-radius:12px; }
         .admin-tab.active { background:#D4AF37; color:#000; box-shadow:0 0 24px rgba(212,175,55,0.35); }
         .admin-tab:not(.active) { background:transparent; color:#71717a; }
         .admin-tab:not(.active):hover { background:rgba(255,255,255,0.06); color:#a1a1aa; }
-        .admin-input { width:100%; background:rgba(0,0,0,0.6); border:1px solid rgba(63,63,70,0.5); border-radius:10px; padding:12px 16px; font-size:13px; color:#e4e4e7; outline:none; transition:border-color 0.2s, box-shadow 0.2s; }
+        .admin-input { width:100%; max-width:100%; background:rgba(0,0,0,0.6); border:1px solid rgba(63,63,70,0.5); border-radius:10px; padding:12px 16px; font-size:13px; color:#e4e4e7; outline:none; transition:border-color 0.2s, box-shadow 0.2s; }
         .admin-input:focus { border-color:rgba(212,175,55,0.5); box-shadow:0 0 0 2px rgba(212,175,55,0.1); }
-        .admin-card { border:1px solid rgba(63,63,70,0.5); border-radius:16px; background:linear-gradient(160deg,rgba(12,12,14,0.95) 0%,rgba(6,6,8,0.98) 100%); padding:28px; box-shadow:0 4px 24px rgba(0,0,0,0.25); transition:border-color 0.2s; }
+        .admin-card { border:1px solid rgba(63,63,70,0.5); max-width:100%;; border-radius:16px; background:linear-gradient(160deg,rgba(12,12,14,0.95) 0%,rgba(6,6,8,0.98) 100%); padding:28px; box-shadow:0 4px 24px rgba(0,0,0,0.25); transition:border-color 0.2s; }
         .admin-card:hover { border-color:rgba(212,175,55,0.2); }
         .admin-section-title { font-size:9px; font-weight:700; letter-spacing:0.45em; text-transform:uppercase; color:#D4AF37; margin-bottom:24px; display:flex; align-items:center; gap:10px; }
         .admin-lead-card { border:1px solid rgba(63,63,70,0.5); border-radius:14px; background:linear-gradient(160deg,rgba(12,12,14,0.9) 0%,rgba(6,6,8,0.95) 100%); padding:32px; transition:border-color 0.2s; }
@@ -581,7 +581,29 @@ export default function AdminPanel() {
         .admin-select { width:100%; background:rgba(0,0,0,0.6); border:1px solid rgba(63,63,70,0.5); border-radius:10px; padding:12px 16px; font-size:13px; color:#e4e4e7; outline:none; transition:border-color 0.2s, box-shadow 0.2s; appearance:none; cursor:pointer; }
         .admin-select:focus { border-color:rgba(212,175,55,0.5); box-shadow:0 0 0 2px rgba(212,175,55,0.1); }
         @media(max-width:768px){ .admin-main { padding:40px 20px 48px !important; } .admin-header-inner { padding:0 24px !important; } }
+        @media(max-width:480px){ .admin-main { padding:24px 12px 56px !important; } }
         .admin-compact { padding:6px 10px !important; font-size:11px !important; min-height:32px !important; }
+        .admin-root { overflow-x: hidden; max-width: 100vw; }
+        .admin-lead-actions-col { min-width: 200px; }
+        .admin-thumb { width:140px; height:140px; min-width:140px; min-height:140px; }
+        @media(max-width:640px){
+          .admin-price-row { grid-template-columns:1fr 70px 70px 36px; gap:8px; padding:10px 0; }
+          .admin-card { padding:16px; }
+          .admin-lead-card { padding:16px !important; gap:16px !important; }
+          .admin-lead-actions-col { min-width: 0; width: 100%; align-items: stretch !important; padding-top: 12px; }
+          .admin-lead-actions { gap: 10px; }
+          .admin-thumb { width:100px; height:100px; min-width:100px; min-height:100px; }
+          .admin-tabs-wrap { flex-wrap: wrap; gap: 6px; padding: 6px; margin-bottom: 32px; }
+          .admin-tab { flex: 1 1 calc(50% - 6px); min-width: 120px; padding: 12px 8px; font-size: 10px; }
+          .admin-header-inner { padding: 0 12px !important; height: auto !important; min-height: 56px; flex-wrap: wrap; gap: 12px; }
+          .admin-header-logo { height: 44px !important; width: 44px !important; }
+          .admin-header-title { font-size: 11px !important; }
+          .admin-header-sub { font-size: 8px !important; letter-spacing: 0.2em !important; }
+          .admin-header-btns { flex-wrap: wrap; gap: 6px; }
+          .admin-btn { padding: 8px 12px; font-size: 10px; min-height: 40px; }
+          .admin-save-float { flex-direction: column; left: 12px; right: 12px; transform: none; bottom: 12px; padding: 12px 16px; gap: 12px; }
+          .admin-lead-phone { font-size: 18px !important; word-break: break-all; }
+        }
       `}</style>
 
       {/* HEADER */}
@@ -589,18 +611,18 @@ export default function AdminPanel() {
         <div className="admin-header-inner" style={{ maxWidth: 1320, margin: "0 auto", padding: "0 40px", height: 80, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="Kozioł" style={{ height: 76, width: 76, borderRadius: 6 }} />
+            <img src="/logo.svg" alt="Kozioł" className="admin-header-logo" style={{ height: 76, width: 76, borderRadius: 6 }} />
             <div>
-              <h1 style={{ fontSize: 14, fontWeight: 800, letterSpacing: "0.04em", textTransform: "uppercase", color: "#fff", margin: 0 }}>
+              <h1 className="admin-header-title" style={{ fontSize: 14, fontWeight: 800, letterSpacing: "0.04em", textTransform: "uppercase", color: "#fff", margin: 0 }}>
                 System <span style={{ color: "#D4AF37" }}>Zarządzania</span>
               </h1>
-              <p style={{ fontSize: 9, letterSpacing: "0.4em", textTransform: "uppercase", color: "#52525b", margin: 0 }}>
+              <p className="admin-header-sub" style={{ fontSize: 9, letterSpacing: "0.4em", textTransform: "uppercase", color: "#52525b", margin: 0 }}>
                 Kozioł Luxury Gates — Internal Access
               </p>
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="admin-header-btns" style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <button onClick={() => router.push('/')} className="admin-btn">
               ← Strona główna
             </button>
@@ -622,7 +644,7 @@ export default function AdminPanel() {
 
       <main className="admin-main" style={{ maxWidth: 1320, margin: "0 auto", padding: "56px 40px 64px" }}>
         {/* TABS */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 56, background: "linear-gradient(160deg, rgba(12,12,14,0.95) 0%, rgba(6,6,8,0.98) 100%)", padding: 8, borderRadius: 16, border: "1px solid rgba(63,63,70,0.5)", boxShadow: "0 4px 24px rgba(0,0,0,0.3)" }}>
+        <div className="admin-tabs-wrap" style={{ display: "flex", gap: 8, marginBottom: 56, background: "linear-gradient(160deg, rgba(12,12,14,0.95) 0%, rgba(6,6,8,0.98) 100%)", padding: 8, borderRadius: 16, border: "1px solid rgba(63,63,70,0.5)", boxShadow: "0 4px 24px rgba(0,0,0,0.3)" }}>
           {[
             { id: 'leads', label: 'Zgłoszenia', icon: Users },
             { id: 'prices', label: 'Cennik', icon: Database },
@@ -835,7 +857,7 @@ export default function AdminPanel() {
                         <div style={{ display: "flex", flexDirection: "column", gap: 24, flex: 1, minWidth: 0 }}>
                           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: 16 }}>
-                              <h3 style={{ fontSize: 28, fontWeight: 300, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>
+                              <h3 className="admin-lead-phone" style={{ fontSize: 28, fontWeight: 300, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>
                                 {lead.customer_phone}
                               </h3>
                               <span style={{ background: "rgba(212,175,55,0.15)", color: "#D4AF37", fontSize: 8, fontWeight: 800, padding: "6px 12px", borderRadius: 999, border: "1px solid rgba(212,175,55,0.3)", textTransform: "uppercase" }}>
@@ -872,7 +894,7 @@ export default function AdminPanel() {
                             </div>
                           )}
                         </div>
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 24, paddingTop: 16, borderTop: "1px solid rgba(63,63,70,0.5)", minWidth: 200 }}>
+                        <div className="admin-lead-actions-col" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 24, paddingTop: 16, borderTop: "1px solid rgba(63,63,70,0.5)", minWidth: 200 }}>
                           <div style={{ textAlign: "right" }}>
                             <p style={{ fontSize: 9, fontWeight: 800, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.2em", margin: "0 0 8px 0" }}>
                               Cena konfiguracji (łącznie)
@@ -979,7 +1001,7 @@ export default function AdminPanel() {
                       >
                         <div style={{ display: "flex", flexDirection: "column", gap: 24, flex: 1, minWidth: 0 }}>
                           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                            <h3 style={{ fontSize: 20, fontWeight: 300, color: "#fff", margin: 0, letterSpacing: "-0.01em" }}>
+                            <h3 className="admin-lead-phone" style={{ fontSize: 20, fontWeight: 300, color: "#fff", margin: 0, letterSpacing: "-0.01em" }}>
                               {lead.customer_phone}
                             </h3>
                             <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px" }}>
@@ -1010,7 +1032,7 @@ export default function AdminPanel() {
                             </div>
                           )}
                         </div>
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 24, paddingTop: 16, borderTop: "1px solid rgba(63,63,70,0.5)", minWidth: 200 }}>
+                        <div className="admin-lead-actions-col" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 24, paddingTop: 16, borderTop: "1px solid rgba(63,63,70,0.5)", minWidth: 200 }}>
                           <div style={{ textAlign: "right" }}>
                             <p style={{ fontSize: 9, fontWeight: 800, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.2em", margin: "0 0 8px 0" }}>
                               Cena
@@ -1124,8 +1146,8 @@ export default function AdminPanel() {
                   <div key={item.id} className="admin-card flex flex-col md:flex-row md:items-start" style={{ padding: 28, gap: 28, maxWidth: "100%" }}>
                     <div 
                       onClick={() => { setSelectedItemId(item.id); fileInputRef.current?.click(); }}
-                      style={{ width: 140, height: 140, minWidth: 140, minHeight: 140, background: "rgba(0,0,0,0.8)", border: "1px solid rgba(63,63,70,0.5)", borderRadius: 14, cursor: "pointer", overflow: "hidden", flexShrink: 0 }}
-                      className="group"
+                      className="admin-thumb group"
+                      style={{ background: "rgba(0,0,0,0.8)", border: "1px solid rgba(63,63,70,0.5)", borderRadius: 14, cursor: "pointer", overflow: "hidden", flexShrink: 0 }}
                     >
                       {item.image_url ? (
                         <img src={item.image_url} className="w-full h-full object-cover opacity-50 group-hover:opacity-100 transition-all duration-700" />
@@ -1230,8 +1252,8 @@ export default function AdminPanel() {
                   <div key={item.id} className="admin-card flex flex-col md:flex-row md:items-start" style={{ padding: 28, gap: 28, maxWidth: "100%" }}>
                     <div 
                       onClick={() => { setSelectedItemId(item.id); fileInputRef.current?.click(); }}
-                      style={{ width: 140, height: 140, minWidth: 140, minHeight: 140, background: "rgba(0,0,0,0.8)", border: "1px solid rgba(63,63,70,0.5)", borderRadius: 14, cursor: "pointer", overflow: "hidden", flexShrink: 0 }}
-                      className="group"
+                      className="admin-thumb group"
+                      style={{ background: "rgba(0,0,0,0.8)", border: "1px solid rgba(63,63,70,0.5)", borderRadius: 14, cursor: "pointer", overflow: "hidden", flexShrink: 0 }}
                     >
                       {item.image_url ? (
                         <img src={item.image_url} className="w-full h-full object-cover opacity-50 group-hover:opacity-100 transition-all duration-700" />
@@ -1331,12 +1353,13 @@ export default function AdminPanel() {
                 </button>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 24 }}>
+              <div className="admin-materials-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 360px), 1fr))", gap: 24 }}>
                 {prices.filter(p => p.category === 'material').map((item) => (
-                  <div key={item.id} className="admin-card flex items-center" style={{ padding: 28, gap: 28 }}>
+                  <div key={item.id} className="admin-card flex flex-col sm:flex-row items-stretch sm:items-center" style={{ padding: 28, gap: 28 }}>
                     <div 
                       onClick={() => { setSelectedItemId(item.id); fileInputRef.current?.click(); }}
-                      style={{ width: 140, height: 140, minWidth: 140, minHeight: 140, background: "rgba(0,0,0,0.8)", border: "1px solid rgba(63,63,70,0.5)", borderRadius: 14, cursor: "pointer", overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
+                      className="admin-thumb"
+                      style={{ background: "rgba(0,0,0,0.8)", border: "1px solid rgba(63,63,70,0.5)", borderRadius: 14, cursor: "pointer", overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
                     >
                       {item.image_url ? (
                         <img src={item.image_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }} />
@@ -1394,7 +1417,7 @@ export default function AdminPanel() {
                 </h2>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6" style={{ gap: 8 }}>
+              <div className="admin-gallery-form grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6" style={{ gap: 8 }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   <label style={{ fontSize: 9, fontWeight: 800, color: "#71717a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Model bramy</label>
                   <select className="admin-select admin-compact" value={newItem.gate_model_id} onChange={e => { const v = e.target.value; setNewItem(prev => ({ ...prev, gate_model_id: v, model_id: v || prev.model_id })); updateNewItemProductFlags({ hasGate: !!v }); }}>
@@ -1441,7 +1464,7 @@ export default function AdminPanel() {
                     {paintTypes.map((p) => <option key={p.label} value={p.label}>{p.label}</option>)}
                   </select>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4, gridColumn: "span 2" }}>
+                <div className="sm:col-span-2" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   <label style={{ fontSize: 9, fontWeight: 800, color: "#71717a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Opis / miasto</label>
                   <input className="admin-input admin-compact" placeholder="Opis" value={newItem.description} onChange={e => setNewItem({...newItem, description: e.target.value})} />
                 </div>
@@ -1449,7 +1472,7 @@ export default function AdminPanel() {
                   <label style={{ fontSize: 9, fontWeight: 800, color: "#71717a", letterSpacing: "0.2em", textTransform: "uppercase" }}>Cena</label>
                   <input type="number" className="admin-input admin-compact" placeholder="0" value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} style={{ color: "#D4AF37" }} />
                 </div>
-                <div style={{ gridColumn: "span 2", display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end", justifyContent: "flex-end" }}>
+                <div className="sm:col-span-2" style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end", justifyContent: "flex-end" }}>
                   <label style={{ fontSize: 9, fontWeight: 800, color: "#71717a", letterSpacing: "0.2em", textTransform: "uppercase", visibility: "hidden" }}>Akcja</label>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                     <label
@@ -1473,7 +1496,7 @@ export default function AdminPanel() {
               </div>
             </section>
 
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6" style={{ gap: 12 }}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6" style={{ gap: 12 }}>
               {gallery.map((item) => (
                 <div key={item.id} className="admin-card flex flex-col group overflow-hidden" style={{ padding: 0 }}>
                   <div className="aspect-[4/5] overflow-hidden bg-black relative">
@@ -1760,6 +1783,7 @@ export default function AdminPanel() {
         {/* Pływający przycisk Zapisz (Cennik lub Opcje) */}
         {((activeTab === 'prices' && hasChanges) || (activeTab === 'options' && hasOptionsChanges)) && (
           <div
+            className="admin-save-float"
             style={{
               position: "fixed",
               bottom: 20,
