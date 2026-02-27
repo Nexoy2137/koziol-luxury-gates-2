@@ -2145,12 +2145,11 @@ export function KonfiguratorPageClient() {
 
             <div
               style={{
-                borderRadius: 16,
-                border: "1px solid rgba(63,63,70,0.8)",
-                padding: 12,
-                marginBottom: 14,
-                background:
-                  "radial-gradient(circle at 0 0, rgba(212,175,55,0.08) 0%, rgba(9,9,11,1) 50%)",
+                borderRadius: 20,
+                border: "1px solid rgba(39,39,42,0.9)",
+                padding: 14,
+                marginBottom: 16,
+                background: "rgba(9,9,11,0.9)",
               }}
             >
               {primaryConfig && secondaryConfig ? (
