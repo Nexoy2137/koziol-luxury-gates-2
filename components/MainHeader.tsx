@@ -135,18 +135,26 @@ export function MainHeader() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  className={`header-nav-link${active ? " header-nav-link-active" : ""}`}
+                  aria-current={active ? "page" : undefined}
                   style={{
-                    position: "relative", flexShrink: 0,
+                    position: "relative",
+                    flexShrink: 0,
                     padding: "12px 18px",
-                    fontSize: 13, fontWeight: active ? 600 : 400,
+                    fontSize: 13,
+                    fontWeight: active ? 600 : 400,
                     letterSpacing: "0.01em",
                     color: active ? "#D4AF37" : "#a1a1aa",
                     textDecoration: "none",
                     transition: "color 0.2s",
                     whiteSpace: "nowrap",
                   }}
-                  onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLAnchorElement).style.color = "#fff"; }}
-                  onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLAnchorElement).style.color = "#a1a1aa"; }}
+                  onMouseEnter={(e) => {
+                    if (!active) (e.currentTarget as HTMLAnchorElement).style.color = "#fff";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) (e.currentTarget as HTMLAnchorElement).style.color = "#a1a1aa";
+                  }}
                 >
                   {active && (
                     <motion.span
