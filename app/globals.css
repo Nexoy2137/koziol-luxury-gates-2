@@ -56,6 +56,10 @@ a {
     background: rgba(12,12,16,0.96);
     box-shadow: 0 3px 14px rgba(0,0,0,0.55);
   }
+  /* Na telefonie ukrywamy złote podkreślenie w nawigacji (zostaje sama ramka przycisku) */
+  .nav-indicator {
+    display: none !important;
+  }
   .header-nav a[aria-current="page"] {
     border-color: rgba(212,175,55,0.8);
     box-shadow:

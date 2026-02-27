@@ -159,6 +159,7 @@ export function MainHeader() {
                   {active && (
                     <motion.span
                       layoutId="nav-indicator"
+                      className="nav-indicator"
                       style={{
                         position: "absolute", bottom: 0, left: 12, right: 12,
                         height: 2, borderRadius: 2, background: "#D4AF37",
