@@ -1,18 +1,23 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
-/** Scroll na górę tylko przy pierwszym załadowaniu; przy nawigacji Next sam przewija. */
+/** Przy każdej zmianie trasy przewija okno na górę (m.in. galeria → szczegóły na mobile). */
 export function ScrollToTop(): ReactElement | null {
-  const scrolledRef = useRef(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (scrolledRef.current) return;
-    scrolledRef.current = true;
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  }, []);
+    const scroll = () => window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    scroll();
+    const raf = requestAnimationFrame(() => {
+      scroll();
+      requestAnimationFrame(scroll);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [pathname]);
 
   return null;
 }
