@@ -136,6 +136,12 @@ body {
   background: linear-gradient(to bottom, #D4AF37, #85662F);
   border-radius: 2px;
 }
+/* Na telefonie: ukryj scrollbar, żeby przy odświeżeniu nie migał złoty pasek po prawej */
+@media (max-width: 768px) {
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar { display: none; }
+  html, body { scrollbar-width: none; -ms-overflow-style: none; }
+}
 
 /* ─── BEAM BORDER ────────────────────────────────────────────────────────────── */
 /* Uses transform:rotate on a ::before pseudo-element — works in ALL browsers.  */
