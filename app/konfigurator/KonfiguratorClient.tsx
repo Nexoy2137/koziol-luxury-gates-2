@@ -887,16 +887,8 @@ export function KonfiguratorPageClient() {
   }
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white font-sans" style={{ animation: "fadeInUp 0.65s ease both" }}>
+    <main className="min-h-screen bg-[#050505] text-white font-sans">
       <style>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-8px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
         .konfig-step-enter { animation: slideDown 0.35s ease both; }
         .konfig-main-layout { display:grid; grid-template-columns:1fr; gap:40px; }
         @media(min-width:1024px){
