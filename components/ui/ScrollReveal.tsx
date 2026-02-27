@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 
 interface ScrollRevealProps {
   children: ReactNode;
@@ -25,17 +25,27 @@ export function ScrollReveal({
   style,
   viewportAmount,
 }: ScrollRevealProps) {
+  const [reduceMotion, setReduceMotion] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(
+      () => setReduceMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches),
+      0
+    );
+    return () => clearTimeout(id);
+  }, []);
+
+  const effectiveDuration = reduceMotion ? 0 : duration;
+  const effectiveDelay = reduceMotion ? 0 : delay;
+
   return (
     <motion.div
       initial={{ opacity: 0, y, scale: scale ? 0.97 : 1 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       transition={{
-        duration,
-        delay,
+        duration: effectiveDuration,
+        delay: effectiveDelay,
         ease: [0.25, 0.46, 0.45, 0.94],
       }}
-      // Domyślnie startujemy animację bardzo wcześnie (ok. 10% wysokości elementu),
-      // dzięki czemu na telefonie elementy pojawiają się wyżej przy scrollowaniu.
       viewport={{ once: true, amount: viewportAmount ?? 0.1 }}
       className={className}
       style={style}

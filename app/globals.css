@@ -2,15 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Global link reset — prevents browser default blue on <a> tags ─────────── */
 a {
   color: inherit;
   text-decoration: none;
 }
 
-/* ─── CRITICAL: Do NOT define --font-playfair / --font-inter here.          ── */
-/* Next.js font module sets these variables. Redefining them in :root would   */
-/* break font loading. Use them directly via var(--font-playfair) in classes. */
+/* Nie definiować --font-playfair/--font-inter tutaj – ustawia je next/font. */
 
 :root {
   --gold: #D4AF37;
@@ -18,12 +15,11 @@ a {
   --gold-rgb: 212, 175, 55;
 }
 
-/* ─── iOS: font 16px w inputach na mobile zapobiega automatycznemu zoom przy focus ─ */
+/* iOS: 16px w inputach zapobiega auto-zoom przy focus. */
 @media (max-width: 767px) {
   input, textarea, select { font-size: 16px !important; }
 }
 
-/* ─── Header responsive: mobile — więcej miejsca na logo, krótsze przyciski ─ */
 @media (max-width: 480px) {
   .header-row { padding: 10px 12px !important; gap: 8px !important; }
   .header-brand-sub { display: none !important; }
@@ -36,7 +32,6 @@ a {
   .header-konfig-text-short { display: none !important; }
 }
 
-/* Nav strip: na mobile zawijanie w 2 wiersze zamiast przewijania w lewo */
 .header-nav-container { overflow-x: auto; scrollbar-width: none; }
 .header-nav { flex-wrap: nowrap; }
 @media (max-width: 768px) {
@@ -56,7 +51,6 @@ a {
     background: rgba(12,12,16,0.96);
     box-shadow: 0 3px 14px rgba(0,0,0,0.55);
   }
-  /* Na telefonie ukrywamy złote podkreślenie w nawigacji (zostaje sama ramka przycisku) */
   .nav-indicator {
     display: none !important;
   }
@@ -72,14 +66,12 @@ a {
 @media (min-width: 769px) {
   .header-nav a { padding: 12px 18px; }
 }
-/* Hero paragraph: większa czcionka na mobile dla czytelności */
 @media (max-width: 640px) {
   .hero-paragraph { font-size: 17px !important; line-height: 1.65 !important; }
 }
 @media (min-width: 481px) and (max-width: 767px) {
   .header-brand-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
-/* ─── Header responsive: większy logo i padding na desktop ─ */
 @media (min-width: 768px) {
   .header-row { padding: 10px 28px !important; gap: 16px !important; }
   .header-logo { gap: 12px !important; overflow: hidden !important; }
@@ -90,7 +82,6 @@ a {
   .header-cta-konfig { padding: 8px 18px !important; font-size: 11px !important; }
 }
 
-/* ─── Page containers: mniejszy padding na mobile ─ */
 .page-container {
   max-width: 1280px;
   margin-left: auto;
@@ -106,7 +97,6 @@ a {
   .page-container { padding-left: 32px; padding-right: 32px; }
 }
 
-/* ─── Base ───────────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -128,29 +118,41 @@ body {
   min-width: 0;
 }
 
-/* ─── Display / Serif font ───────────────────────────────────────────────────── */
+/* Focus widoczny przy nawigacji klawiaturą, bez outline przy myszy. */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+button:focus-visible,
+a:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
 .font-display {
   font-family: var(--font-playfair, "Playfair Display", Georgia, serif);
 }
 
-/* ─── Custom Scrollbar ───────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: #000; }
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(to bottom, #D4AF37, #85662F);
   border-radius: 2px;
 }
-/* Na telefonie: ukryj scrollbar, żeby przy odświeżeniu nie migał złoty pasek po prawej */
 @media (max-width: 768px) {
   html::-webkit-scrollbar,
   body::-webkit-scrollbar { display: none; }
   html, body { scrollbar-width: none; -ms-overflow-style: none; }
 }
 
-/* ─── BEAM BORDER ────────────────────────────────────────────────────────────── */
-/* Uses transform:rotate on a ::before pseudo-element — works in ALL browsers.  */
-/* No @property needed.                                                          */
-
+/* Beam border: obracany gradient na ::before. */
 @keyframes beam-rotate {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
@@ -164,7 +166,6 @@ body {
   overflow: hidden;
 }
 
-/* The rotating conic gradient behind the card */
 .beam-wrapper::before {
   content: '';
   position: absolute;
@@ -185,7 +186,6 @@ body {
   pointer-events: none;
 }
 
-/* Inner card surface — sits on top of the rotating gradient */
 .beam-inner {
   position: relative;
   z-index: 1;
@@ -194,12 +194,10 @@ body {
   height: 100%;
 }
 
-/* Faster variant */
 .beam-wrapper-fast::before {
   animation-duration: 3s;
 }
 
-/* Stronger gold beam (gallery detail) */
 .beam-wrapper-strong {
   background: rgba(212, 175, 55, 0.35);
   padding: 2px;
@@ -219,7 +217,6 @@ body {
   );
 }
 
-/* Na telefonie: wolniejsza animacja beam (mniej obciążenia) */
 @media (max-width: 768px) {
   .beam-wrapper::before,
   .beam-wrapper-fast::before,
@@ -228,7 +225,6 @@ body {
   }
 }
 
-/* Szanuj preferencję: mniej animacji */
 @media (prefers-reduced-motion: reduce) {
   .beam-wrapper::before,
   .beam-wrapper-fast::before,
@@ -239,7 +235,6 @@ body {
   .marquee-track { animation: none; }
 }
 
-/* ─── Grain overlay ──────────────────────────────────────────────────────────── */
 .grain-overlay {
   position: fixed;
   inset: 0;
@@ -251,7 +246,6 @@ body {
   background-size: 200px;
 }
 
-/* ─── Gold ambient glow helpers ──────────────────────────────────────────────── */
 .gold-glow-center {
   background: radial-gradient(ellipse 85% 65% at 50% 0%, rgba(133,102,47,0.18) 0%, transparent 65%);
 }
@@ -262,16 +256,14 @@ body {
   background: radial-gradient(ellipse 60% 60% at 0% 50%, rgba(133,102,47,0.13) 0%, transparent 70%);
 }
 
-/* ─── Gold text gradient ─────────────────────────────────────────────────────── */
 .text-gold-gradient {
   background: linear-gradient(135deg, #C9A227 0%, #E8C97A 40%, #D4AF37 70%, #B8961F 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: transparent; /* Firefox fallback */
+  color: transparent;
 }
 
-/* ─── Page content cards (unified luxury style) ───────────────────────────────── */
 .page-card {
   background: linear-gradient(160deg, rgba(12,12,14,0.95) 0%, rgba(6,6,8,0.98) 100%);
   border: 1px solid rgba(63,63,70,0.5);
@@ -297,7 +289,6 @@ body {
   box-shadow: 0 4px 20px rgba(212,175,55,0.06);
 }
 
-/* ─── Gold Shadows ───────────────────────────────────────────────────────────── */
 .shadow-gold {
   box-shadow: 0 8px 40px -10px rgba(212,175,55,0.40);
 }
@@ -308,13 +299,11 @@ body {
   box-shadow: 0 0 28px rgba(212,175,55,0.32), 0 0 56px rgba(212,175,55,0.12);
 }
 
-/* ─── Dividers / lines ───────────────────────────────────────────────────────── */
 .gold-line {
   height: 1px;
   background: linear-gradient(to right, transparent, rgba(212,175,55,0.45), transparent);
 }
 
-/* ─── Animated underline ─────────────────────────────────────────────────────── */
 .gold-underline { position: relative; display: inline-block; }
 .gold-underline::after {
   content: '';
@@ -326,7 +315,6 @@ body {
 }
 .gold-underline:hover::after { width: 100%; }
 
-/* ─── Gallery filter select (luxury style) ─────────────────────────────────────── */
 .gallery-filter-select {
   width: 100%;
   padding: 8px 32px 8px 14px;
@@ -357,13 +345,11 @@ body {
   color: #e4e4e7;
 }
 
-/* ─── Masonry CSS columns ─────────────────────────────────────────────────────── */
 .masonry-grid { columns: 1; column-gap: 1.75rem; }
 @media (min-width: 640px)  { .masonry-grid { columns: 2; column-gap: 2rem; } }
 @media (min-width: 1024px) { .masonry-grid { columns: 3; column-gap: 2rem; } }
 .masonry-item { break-inside: avoid; margin-bottom: 2rem; }
 
-/* ─── Gallery card (luxury frame + hover) ──────────────────────────────────────── */
 .gallery-card {
   position: relative;
   padding: 12px;
@@ -397,7 +383,6 @@ body {
 }
 .gallery-card:hover .gallery-overlay { opacity: 1; }
 
-/* ─── Gallery detail spec row ─────────────────────────────────────────────────── */
 .gallery-spec-row {
   display: flex; align-items: flex-start; gap: 20px;
   padding: 20px 24px; border-radius: 14px;
@@ -409,7 +394,6 @@ body {
 .gallery-spec-row .gallery-spec-label { font-size: 9px; font-weight: 600; letter-spacing: 0.4em; text-transform: uppercase; color: #71717a; margin-bottom: 6px; }
 .gallery-spec-row .gallery-spec-value { font-size: 16px; font-weight: 400; color: #e4e4e7; line-height: 1.4; }
 
-/* ─── Gallery detail spec tile (compact, for grid) ─────────────────────────────── */
 .gallery-spec-tile {
   padding: 16px 18px; border-radius: 12px;
   background: rgba(9,9,11,0.6); border: 1px solid rgba(63,63,70,0.4);
@@ -420,11 +404,9 @@ body {
 .gallery-spec-tile .gallery-spec-tile-label { font-size: 8px; font-weight: 600; letter-spacing: 0.35em; text-transform: uppercase; color: #71717a; margin-bottom: 4px; }
 .gallery-spec-tile .gallery-spec-tile-value { font-size: 14px; font-weight: 400; color: #e4e4e7; line-height: 1.35; }
 
-/* ─── Magnetic button ────────────────────────────────────────────────────────── */
 .magnetic           { transition: transform 0.1s ease; will-change: transform; }
 .magnetic-releasing { transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important; }
 
-/* ─── Marquee / ticker ───────────────────────────────────────────────────────── */
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
@@ -436,7 +418,6 @@ body {
 .marquee-track:hover {
   animation-play-state: paused;
 }
-/* Ticker: na mobile pokazuj siatkę zamiast marquee (czytelność) */
 @media (max-width: 768px) {
   .ticker-section .ticker-desktop { display: none !important; }
   .ticker-section .ticker-mobile { display: flex !important; }
@@ -446,7 +427,6 @@ body {
   .ticker-section .ticker-mobile { display: none !important; }
 }
 
-/* ─── Metallic grid overlay on sections ──────────────────────────────────────── */
 .grid-overlay {
   background-image:
     linear-gradient(rgba(212,175,55,0.04) 1px, transparent 1px),
@@ -454,7 +434,6 @@ body {
   background-size: 72px 72px;
 }
 
-/* ─── Lokalizacja map (dark default, bright on hover) ─────────────────────────── */
 .map-wrapper {
   transition: filter 0.8s ease;
 }
@@ -464,7 +443,6 @@ body {
   border: 0;
   display: block;
 }
-/* Desktop: szara mapa, po najechaniu kolor */
 @media (min-width: 769px) and (hover: hover) {
   .map-wrapper {
     filter: grayscale(1) invert(1) brightness(0.28) contrast(1.1);
@@ -473,7 +451,6 @@ body {
     filter: grayscale(0) invert(0) brightness(1) contrast(1);
   }
 }
-/* Na telefonie i przy (hover: none) — od razu normalny kolor */
 @media (max-width: 768px),
        (hover: none) {
   .map-wrapper {
@@ -481,7 +458,6 @@ body {
   }
 }
 
-/* ─── Gate reveal animation ──────────────────────────────────────────────────── */
 @keyframes gate-glow-pulse {
   0%, 100% { opacity: 0.5; }
   50%       { opacity: 1; }
@@ -490,15 +466,12 @@ body {
   animation: gate-glow-pulse 1.5s ease-in-out infinite;
 }
 
-/* ─── Telefon / touch: lepsze wrażenia ───────────────────────────────────────── */
 @media (hover: none) {
-  /* Delikatna poświata przy tap (zamiast domyślnego szarego) */
   a, button {
     -webkit-tap-highlight-color: rgba(212, 175, 55, 0.18);
     tap-highlight-color: rgba(212, 175, 55, 0.18);
   }
 }
-/* Opcjonalnie: wyłącz will-change na urządzeniach bez hover (mniej obciążenia GPU) */
 @media (hover: none) {
   .magnetic { will-change: auto; }
 }

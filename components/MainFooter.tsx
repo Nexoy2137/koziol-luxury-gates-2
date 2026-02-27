@@ -16,10 +16,8 @@ const contacts = [
 export function MainFooter() {
   return (
     <footer style={{ position: "relative", background: "#09090b", borderTop: "1px solid rgba(39,39,42,0.8)", overflow: "hidden", maxWidth: "100vw" }}>
-      {/* Top gold shimmer */}
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(to right, transparent, rgba(212,175,55,0.5), transparent)" }} />
 
-      {/* CSS hover helpers + responsive */}
       <style>{`
         .footer-link { color: #a1a1aa; text-decoration: none; transition: color 0.2s; font-size: 13px; }
         .footer-link:hover { color: #D4AF37; }
@@ -33,7 +31,6 @@ export function MainFooter() {
           .footer-grid { grid-template-columns: 2fr 1fr 1fr !important; gap: 48px !important; }
           .footer-inner { padding: 52px 32px !important; }
         }
-        /* Panel admina w nawigacji – tylko na telefonie, wygląda jak reszta linków */
         @media (min-width: 640px) {
           .footer-admin-link { display: none !important; }
         }
@@ -42,7 +39,6 @@ export function MainFooter() {
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 20px 56px", paddingBottom: "calc(56px + env(safe-area-inset-bottom, 0px))", width: "100%", boxSizing: "border-box" }} className="footer-inner">
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 40 }} className="footer-grid">
 
-          {/* Brand */}
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 12, textDecoration: "none" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -67,12 +63,11 @@ export function MainFooter() {
             </div>
           </div>
 
-          {/* Navigation */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.4em", textTransform: "uppercase", color: "#52525b" }}>
               Nawigacja
             </p>
-            <nav style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <nav style={{ display: "flex", flexDirection: "column", gap: 12 }} aria-label="Linki w stopce">
               {footerLinks.map((link) => (
                 <Link key={link.href} href={link.href} className="footer-link">
                   {link.label}
@@ -84,7 +79,6 @@ export function MainFooter() {
             </nav>
           </div>
 
-          {/* Contact */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.4em", textTransform: "uppercase", color: "#52525b" }}>
               Kontakt
@@ -104,7 +98,6 @@ export function MainFooter() {
           </div>
         </div>
 
-        {/* Bottom */}
         <div style={{ marginTop: 48, height: 1, background: "linear-gradient(to right, transparent, rgba(63,63,70,0.7), transparent)" }} />
         <div style={{ marginTop: 24, paddingBottom: 8, display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 8, fontSize: 11, color: "#3f3f46", wordBreak: "break-word" }}>
           <span>© 2026 Kozioł Luxury Gates. Wszelkie prawa zastrzeżone.</span>

@@ -1,0 +1,18 @@
+{
+  "name": "Kozioł Luxury Gates",
+  "short_name": "Kozioł Gates",
+  "description": "Producent ekskluzywnych bram i ogrodzeń. Konfigurator online, galeria realizacji.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "lang": "pl",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

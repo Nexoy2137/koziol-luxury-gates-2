@@ -68,7 +68,6 @@ export function LuxButton({
         }}
         {...pointerProps}
       >
-        {/* Shimmer */}
         <span style={{
           position: "absolute", inset: 0,
           background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.28) 50%, transparent 60%)",
@@ -82,7 +81,6 @@ export function LuxButton({
     );
   }
 
-  // Outline variant
   return (
     <Link
       href={href}

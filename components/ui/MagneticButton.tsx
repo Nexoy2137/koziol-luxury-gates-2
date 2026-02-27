@@ -1,7 +1,17 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+
+function subscribeMatchMedia(cb: () => void) {
+  const mq = window.matchMedia("(hover: none)");
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
+
+function getHasHover() {
+  return typeof window === "undefined" ? true : !window.matchMedia("(hover: none)").matches;
+}
 
 interface MagneticButtonProps {
   href: string;
@@ -21,15 +31,7 @@ export function MagneticButton({
   const ref = useRef<HTMLAnchorElement>(null);
   const [releasing, setReleasing] = useState(false);
   const [transform, setTransform] = useState("translate(0px, 0px)");
-  const [hasHover, setHasHover] = useState(true);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(hover: none)");
-    setHasHover(!mq.matches);
-    const listener = () => setHasHover(!mq.matches);
-    mq.addEventListener("change", listener);
-    return () => mq.removeEventListener("change", listener);
-  }, []);
+  const hasHover = useSyncExternalStore(subscribeMatchMedia, getHasHover, () => true);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!hasHover) return;

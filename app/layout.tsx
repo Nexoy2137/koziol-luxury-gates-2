@@ -21,8 +21,10 @@ const inter = Inter({
   display: "swap",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://koziol-gates.pl";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://koziol-gates.pl"),
+  metadataBase: new URL(siteUrl),
   title: "Kozioł Luxury Gates | Producent Ekskluzywnych Bram i Ogrodzeń",
   description:
     "Projektujemy i montujemy luksusowe bramy oraz systemy ogrodzeniowe. Skorzystaj z naszego konfiguratora online i otrzymaj wstępną wycenę w 2 minuty. Realizacje w całej Polsce.",
@@ -38,12 +40,20 @@ export const metadata: Metadata = {
     title: "Kozioł Luxury Gates | Twoja Brama do Świata Luksusu",
     description:
       "Indywidualne projekty, najwyższa jakość materiałów i nowoczesny design. Sprawdź nasz konfigurator.",
-    images: ["/og-image.jpg"],
+    type: "website",
+    locale: "pl_PL",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kozioł Luxury Gates | Producent Ekskluzywnych Bram",
+    description: "Luksusowe bramy i ogrodzenia. Konfigurator online, wycena w 2 minuty.",
   },
   robots: "index, follow",
   icons: {
     icon: "/logo.svg",
+    apple: "/logo.svg",
   },
+  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
@@ -52,6 +62,46 @@ export const viewport: Viewport = {
   minimumScale: 0.5,
   maximumScale: 5,
   viewportFit: "cover",
+  themeColor: "#000000",
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${siteUrl}/#organization`,
+      name: "Kozioł Luxury Gates",
+      url: siteUrl,
+      logo: { "@type": "ImageObject", url: `${siteUrl}/logo.svg` },
+      description: "Producent ekskluzywnych bram, furt i ogrodzeń. Ozorków, realizacje w całej Polsce.",
+      foundingDate: "2009",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "ul. Adamówek 41",
+        addressLocality: "Ozorków",
+        postalCode: "95-035",
+        addressCountry: "PL",
+      },
+      contactPoint: {
+        "@type": "ContactPoint",
+        telephone: "+48-602-384-821",
+        email: "biuro@koziol-gates.pl",
+        contactType: "customer service",
+        areaServed: "PL",
+        availableLanguage: "Polish",
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      url: siteUrl,
+      name: "Kozioł Luxury Gates",
+      description: "Konfigurator bram online, galeria realizacji, wycena w 2 minuty.",
+      publisher: { "@id": `${siteUrl}/#organization` },
+      inLanguage: "pl-PL",
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -62,11 +112,24 @@ export default function RootLayout({
   return (
     <html lang="pl">
       <body className={`${playfair.variable} ${inter.variable} antialiased`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <ToastProvider>
+          <a
+            href="#main-content"
+            className="fixed left-4 top-4 z-[100] -translate-y-[200%] rounded-md bg-[#D4AF37] px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-black shadow-lg focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2 focus:ring-offset-black"
+            aria-label="Przejdź do głównej treści strony"
+          >
+            Przejdź do treści
+          </a>
           <div className="grain-overlay" aria-hidden="true" />
           <CursorGlow />
           <ScrollToTop />
-          {children}
+          <div id="main-content" tabIndex={-1} className="outline-none">
+            {children}
+          </div>
           <SpeedInsights />
         </ToastProvider>
       </body>

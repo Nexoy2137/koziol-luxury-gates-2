@@ -3,10 +3,7 @@
 import type { ReactElement } from "react";
 import { useEffect, useRef } from "react";
 
-/**
- * Ustawia scroll na górę tylko przy pierwszym załadowaniu aplikacji (odświeżenie / wejście z paska adresu).
- * Przy nawigacji między podstronami Next sam przewija na górę, więc nie robimy dodatkowego „podskoku”.
- */
+/** Scroll na górę tylko przy pierwszym załadowaniu; przy nawigacji Next sam przewija. */
 export function ScrollToTop(): ReactElement | null {
   const scrolledRef = useRef(false);
 

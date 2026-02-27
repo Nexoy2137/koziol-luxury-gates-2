@@ -74,7 +74,6 @@ export default function KontaktPage() {
       `}</style>
       <MainHeader />
 
-      {/* ── HERO ────────────────────────────────────────────────────────────── */}
       <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)", position: "relative" }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(133,102,47,0.16) 0%, transparent 65%)", pointerEvents: "none" }} />
 
@@ -100,7 +99,6 @@ export default function KontaktPage() {
         </div>
       </section>
 
-      {/* ── 3 CONTACT CARDS ─────────────────────────────────────────────────── */}
       <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)", background: "#030303" }}>
         <div className="page-container" style={{ paddingTop: 40, paddingBottom: 40 }}>
           <ScrollReveal>
@@ -135,12 +133,10 @@ export default function KontaktPage() {
         </div>
       </section>
 
-      {/* ── ADDRESS + FORM ──────────────────────────────────────────────────── */}
       <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)" }}>
         <div className="page-container" style={{ paddingTop: 48, paddingBottom: 48 }}>
           <div className="contact-layout">
 
-            {/* Address */}
             <ScrollReveal>
               <p style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.45em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 16 }}>
                 Siedziba
@@ -213,28 +209,32 @@ export default function KontaktPage() {
                     Szybka wiadomość
                   </p>
 
-                  <form style={{ display: "flex", flexDirection: "column", gap: 16 }}
+                  <form
+                    style={{ display: "flex", flexDirection: "column", gap: 16 }}
                     onSubmit={(e) => { e.preventDefault(); setSent(true); }}
+                    aria-label="Formularz kontaktowy: imię, telefon, e-mail, opis inwestycji"
                   >
                     <div className="form-row">
                       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <label style={{ fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: "#71717a" }}>Imię i nazwisko</label>
-                        <input type="text" placeholder="Jan Kowalski" required style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+                        <label htmlFor="contact-name" style={{ fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: "#71717a" }}>Imię i nazwisko</label>
+                        <input id="contact-name" name="name" type="text" placeholder="Jan Kowalski" required autoComplete="name" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <label style={{ fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: "#71717a" }}>Telefon</label>
-                        <input type="tel" placeholder="+48 000 000 000" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+                        <label htmlFor="contact-phone" style={{ fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: "#71717a" }}>Telefon</label>
+                        <input id="contact-phone" name="phone" type="tel" placeholder="+48 000 000 000" autoComplete="tel" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
                       </div>
                     </div>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      <label style={{ fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: "#71717a" }}>Adres e-mail</label>
-                      <input type="email" placeholder="jan@kowalski.pl" required style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+                      <label htmlFor="contact-email" style={{ fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: "#71717a" }}>Adres e-mail</label>
+                      <input id="contact-email" name="email" type="email" placeholder="jan@kowalski.pl" required autoComplete="email" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
                     </div>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      <label style={{ fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: "#71717a" }}>Opis inwestycji</label>
+                      <label htmlFor="contact-message" style={{ fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: "#71717a" }}>Opis inwestycji</label>
                       <textarea
+                        id="contact-message"
+                        name="message"
                         placeholder="Typ bramy, szerokość wjazdu, lokalizacja, budżet orientacyjny..."
                         rows={4}
                         style={{ ...inputStyle, resize: "none" }}
@@ -243,14 +243,17 @@ export default function KontaktPage() {
                       />
                     </div>
 
-                    <button type="submit" style={{
-                      marginTop: 8, padding: "14px 24px", borderRadius: 999,
-                      background: "#D4AF37", color: "#000",
-                      fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase",
-                      border: "none", cursor: "pointer",
-                      boxShadow: "0 0 28px rgba(212,175,55,0.35)",
-                      transition: "all 0.2s",
-                    }}
+                    <button
+                      type="submit"
+                      style={{
+                        marginTop: 8, padding: "14px 24px", borderRadius: 999,
+                        background: "#D4AF37", color: "#000",
+                        fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase",
+                        border: "none", cursor: "pointer",
+                        boxShadow: "0 0 28px rgba(212,175,55,0.35)",
+                        transition: "all 0.2s",
+                      }}
+                      className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#D4AF37] focus-visible:outline-offset-2"
                       onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#C9A227"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#D4AF37"; }}
                     >
@@ -274,7 +277,6 @@ export default function KontaktPage() {
         </div>
       </section>
 
-      {/* ── CTA ─────────────────────────────────────────────────────────────── */}
       <section style={{ position: "relative", background: "#000" }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(133,102,47,0.14) 0%, transparent 65%)", pointerEvents: "none" }} />
         <div className="page-container" style={{ position: "relative", maxWidth: 900, paddingTop: 56, paddingBottom: 56, textAlign: "center" }}>

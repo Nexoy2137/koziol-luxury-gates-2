@@ -1,6 +1,16 @@
 "use client";
 
-import { useRef, useState, useEffect, type ReactNode } from "react";
+import { useRef, useSyncExternalStore, type ReactNode } from "react";
+
+function subscribeMatchMedia(cb: () => void) {
+  const mq = window.matchMedia("(hover: none)");
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
+
+function getHasHover() {
+  return typeof window === "undefined" ? true : !window.matchMedia("(hover: none)").matches;
+}
 
 interface TiltCardProps {
   children: ReactNode;
@@ -10,15 +20,7 @@ interface TiltCardProps {
 
 export function TiltCard({ children, className = "", intensity = 10 }: TiltCardProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [hasHover, setHasHover] = useState(true);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(hover: none)");
-    setHasHover(!mq.matches);
-    const listener = () => setHasHover(!mq.matches);
-    mq.addEventListener("change", listener);
-    return () => mq.removeEventListener("change", listener);
-  }, []);
+  const hasHover = useSyncExternalStore(subscribeMatchMedia, getHasHover, () => true);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!hasHover) return;

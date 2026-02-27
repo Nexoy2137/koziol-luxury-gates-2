@@ -27,7 +27,6 @@ export function ConfigSuccessOverlay({ onClose }: Props) {
         WebkitBackdropFilter: "blur(12px)",
       }}
     >
-      {/* Ambient gold glow */}
       <div
         style={{
           position: "absolute",
@@ -37,7 +36,6 @@ export function ConfigSuccessOverlay({ onClose }: Props) {
         }}
       />
 
-      {/* Rotating ring */}
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 12, repeat: Infinity, ease: "linear" }}

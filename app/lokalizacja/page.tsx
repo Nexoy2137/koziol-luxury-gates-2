@@ -11,7 +11,6 @@ export default function LokalizacjaPage() {
     <main style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
       <MainHeader />
 
-      {/* Hero */}
       <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)", position: "relative" }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(133,102,47,0.16) 0%, transparent 65%)", pointerEvents: "none" }} />
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "80px 32px 64px" }}>
@@ -36,7 +35,6 @@ export default function LokalizacjaPage() {
         </div>
       </section>
 
-      {/* Map */}
       <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)", background: "#030303" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "48px 32px" }}>
           <ScrollReveal>
@@ -67,7 +65,6 @@ export default function LokalizacjaPage() {
         </div>
       </section>
 
-      {/* Address + directions */}
       <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "56px 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
 

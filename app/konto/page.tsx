@@ -43,7 +43,6 @@ export default function AccountPage() {
     }
     try {
       setSavingEmail(true);
-      // potwierdzamy tożsamość poprzez ponowne logowanie
       const { error: reauthError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -83,7 +82,6 @@ export default function AccountPage() {
     }
     try {
       setSavingPassword(true);
-      // reautoryzacja hasłem przed zmianą
       const { error: reauthError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -167,8 +165,6 @@ export default function AccountPage() {
       </section>
 
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "40px 32px", display: "flex", flexDirection: "column", gap: 24 }}>
-
-        {/* Email section */}
         <div style={{ border: "1px solid rgba(39,39,42,0.8)", borderRadius: 16, background: "rgba(9,9,11,0.6)", padding: 32 }}>
           <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.38em", textTransform: "uppercase", color: "#71717a", marginBottom: 20 }}>
             Adres e-mail
@@ -187,7 +183,6 @@ export default function AccountPage() {
           </form>
         </div>
 
-        {/* Password section */}
         <div style={{ border: "1px solid rgba(39,39,42,0.8)", borderRadius: 16, background: "rgba(9,9,11,0.6)", padding: 32 }}>
           <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.38em", textTransform: "uppercase", color: "#71717a", marginBottom: 20 }}>
             Zmiana hasła

@@ -1,7 +1,4 @@
-/**
- * Oficjalne kolory RAL (code -> hex).
- * Źródło: RAL Color Standard, m.in. gist.github.com/edwinwebb/4af6edeb743156e1c89fcfb25366f9d9
- */
+/** Kolory RAL (code -> hex). */
 export const RAL_HEX: Record<string, string> = {
   "1000": "#CDBA88", "1001": "#D0B084", "1002": "#D2AA6D", "1003": "#F9A800", "1004": "#E49E00",
   "1005": "#CB8E00", "1006": "#E29000", "1007": "#E88C00", "1011": "#AF804F", "1012": "#DDAF27",
@@ -48,7 +45,6 @@ export const RAL_HEX: Record<string, string> = {
   "9018": "#C8CBC4", "9022": "#858583", "9023": "#797B7A",
 };
 
-/** Polskie nazwy kolorów RAL */
 export const RAL_NAMES_PL: Record<string, string> = {
   "1000": "Zielony beż", "1001": "Beż", "1002": "Piaskowy żółty", "1003": "Żółty sygnałowy", "1004": "Złoty żółty",
   "1005": "Miodowy żółty", "1006": "Żółty kukurydziany", "1007": "Żółty narcyzowy", "1011": "Brązowy beż", "1012": "Cytrynowy żółty",
@@ -99,14 +95,12 @@ export const RAL_NAMES_PL: Record<string, string> = {
   "9017": "Czarny ruchu", "9018": "Biały papirusowy", "9022": "Perłowy jasny szary", "9023": "Perłowy ciemny szary",
 };
 
-/** Zwraca polską nazwę koloru RAL lub null jeśli nie znaleziono */
 export function ralCodeToNamePl(code: string | undefined): string | null {
   const num = extractRalCode(code);
   if (!num) return null;
   return RAL_NAMES_PL[num] ?? null;
 }
 
-/** Wyciąga numer RAL z kodu (np. "RAL 7016" -> "7016", "7016" -> "7016") */
 export function extractRalCode(code: string | undefined): string | null {
   if (!code || typeof code !== "string") return null;
   const s = code.trim();
@@ -114,14 +108,12 @@ export function extractRalCode(code: string | undefined): string | null {
   return match ? match[1] : null;
 }
 
-/** Zwraca hex dla kodu RAL (z bazy RAL) lub null jeśli nie znaleziono */
 export function ralCodeToHex(code: string | undefined): string | null {
   const num = extractRalCode(code);
   if (!num) return null;
   return RAL_HEX[num] ?? null;
 }
 
-/** Kolor do wyświetlenia – tylko z bazy RAL (bez ręcznego hex) */
 export function getRalDisplayColor(code: string | undefined): string | null {
   return ralCodeToHex(code);
 }

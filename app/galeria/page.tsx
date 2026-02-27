@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { ArrowRight, Filter, X, SlidersHorizontal } from "lucide-react";
@@ -152,7 +153,6 @@ export default function PublicGallery() {
     <main className="min-h-screen bg-black text-white">
       <MainHeader />
 
-      {/* ── HERO ──────────────────────────────────────────────────────────────── */}
       <section className="relative border-b border-zinc-800 bg-[#030303] grid-overlay overflow-hidden">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(133,102,47,0.16) 0%, transparent 65%)" }} />
 
@@ -179,7 +179,6 @@ export default function PublicGallery() {
         </div>
       </section>
 
-      {/* ── FILTER BAR ────────────────────────────────────────────────────────── */}
       <div className="sticky top-0 z-40 border-b border-zinc-800 bg-black/90 backdrop-blur-xl" style={{ paddingTop: 20, paddingBottom: 20 }}>
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <div className="flex items-center justify-between gap-4">
@@ -290,7 +289,6 @@ export default function PublicGallery() {
         </div>
       </div>
 
-      {/* ── MASONRY GALLERY ───────────────────────────────────────────────────── */}
       <section className="relative bg-black">
         <div className="pointer-events-none absolute inset-0 grid-overlay opacity-50" />
         <div className="relative mx-auto max-w-7xl px-5 md:px-8" style={{ paddingTop: 64, paddingBottom: 28 }}>
@@ -321,17 +319,16 @@ export default function PublicGallery() {
                   <StaggerItem key={item.id} className="masonry-item">
                     <Link href={`/galeria/${item.id}`} className="group block">
                       <div className="gallery-card">
-                        {/* Image w ramce */}
-                        <div className="gallery-img-wrap">
-                          <img
+                        <div className="gallery-img-wrap relative overflow-hidden" style={{ aspectRatio: item.id % 3 === 1 ? "4/5" : "16/10" }}>
+                          <Image
                             src={item.image_url}
                             alt={item.description || "Realizacja bramy"}
-                            className="w-full object-cover"
-                            style={{ aspectRatio: item.id % 3 === 1 ? "4/5" : "16/10" }}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           />
                         </div>
 
-                        {/* Hover overlay - tylko przycisk */}
                         <div className="gallery-overlay absolute inset-0 flex items-center justify-center bg-black/50">
                           <span className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37] bg-[#D4AF37]/20 px-5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]">
                             Zobacz szczegóły
@@ -348,7 +345,6 @@ export default function PublicGallery() {
         </div>
       </section>
 
-      {/* ── CTA ───────────────────────────────────────────────────────────────── */}
       <section className="relative border-t border-zinc-800 bg-[#030303] grid-overlay" style={{ paddingTop: 24, paddingBottom: 28 }}>
         <div className="relative mx-auto max-w-7xl px-5 text-center">
           <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(133,102,47,0.12) 0%, transparent 70%)" }} />

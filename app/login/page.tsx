@@ -39,7 +39,6 @@ export default function LoginPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#000", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
 
-      {/* Background glow */}
       <div style={{ position: "fixed", inset: 0, background: "radial-gradient(ellipse 60% 50% at 50% 40%, rgba(133,102,47,0.14) 0%, transparent 65%)", pointerEvents: "none" }} />
 
       <motion.div
@@ -51,7 +50,6 @@ export default function LoginPage() {
         <div className="beam-wrapper">
           <div className="beam-inner rounded-2xl" style={{ padding: 40 }}>
 
-            {/* Header */}
             <div style={{ textAlign: "center", marginBottom: 32 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.svg" alt="Kozioł" style={{ height: 102, width: 102, margin: "0 auto 16px", display: "block" }} />
@@ -63,15 +61,20 @@ export default function LoginPage() {
               </h1>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 16 }} aria-label="Logowanie do panelu">
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <label style={{ fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase", color: "#71717a" }}>
+                <label htmlFor="login-email" style={{ fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase", color: "#71717a" }}>
                   E-mail
                 </label>
                 <input
-                  type="email" required placeholder="admin@koziol-gates.pl"
-                  value={email} onChange={(e) => setEmail(e.target.value)}
+                  id="login-email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="admin@koziol-gates.pl"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   style={inputStyle}
                   onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(212,175,55,0.7)"; }}
                   onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(63,63,70,0.8)"; }}
@@ -79,12 +82,18 @@ export default function LoginPage() {
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <label style={{ fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase", color: "#71717a" }}>
+                <label htmlFor="login-password" style={{ fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase", color: "#71717a" }}>
                   Hasło
                 </label>
                 <input
-                  type="password" required placeholder="••••••••"
-                  value={password} onChange={(e) => setPassword(e.target.value)}
+                  id="login-password"
+                  name="password"
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   style={inputStyle}
                   onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(212,175,55,0.7)"; }}
                   onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(63,63,70,0.8)"; }}
@@ -109,7 +118,6 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Footer links */}
             <div style={{ marginTop: 28, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
               <Link href="/reset-hasla" style={{ fontSize: 11, color: "#71717a", textDecoration: "none", transition: "color 0.2s" }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#D4AF37"; }}

@@ -1,5 +1,9 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Środowisko
+
+Skopiuj `.env.example` do `.env.local` i uzupełnij zmienne (Supabase URL i anon key). Bez nich galeria, konfigurator i panel admin nie będą działać.
+
 ## Getting Started
 
 First, run the development server:

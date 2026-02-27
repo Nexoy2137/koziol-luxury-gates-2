@@ -40,7 +40,6 @@ export function MainHeader() {
           : "none",
       }}
     >
-      {/* ── ROW 1: Logo + Brand text + CTAs ──────────────────────────────────── */}
       <div style={{ borderBottom: "1px solid rgba(39,39,42,0.65)" }}>
         <div style={{
           maxWidth: 1280, margin: "0 auto",
@@ -51,7 +50,6 @@ export function MainHeader() {
         }}
         className="header-row"
         >
-          {/* Logo */}
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", minWidth: 0, flexShrink: 1, overflow: "hidden" }} className="header-logo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -80,7 +78,6 @@ export function MainHeader() {
             </div>
           </Link>
 
-          {/* Right CTAs */}
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }} className="header-cta-panel-wrap">
             <Link href="/login" style={{
               display: "flex", alignItems: "center", gap: 5,
@@ -119,7 +116,6 @@ export function MainHeader() {
         </div>
       </div>
 
-      {/* ── ROW 2: Nav strip — na desktop w jednej linii, na mobile zawijanie w 2 wiersze ─ */}
       <div style={{
         background: "rgba(9,9,11,0.55)",
         borderBottom: "1px solid rgba(39,39,42,0.5)",
@@ -128,7 +124,7 @@ export function MainHeader() {
           maxWidth: 1280, margin: "0 auto",
           padding: "0 16px",
         }}>
-          <nav className="header-nav" style={{ display: "flex", alignItems: "center" }}>
+          <nav className="header-nav" style={{ display: "flex", alignItems: "center" }} aria-label="Główna nawigacja">
             {navItems.map((item) => {
               const active = isActive(item.href);
               return (

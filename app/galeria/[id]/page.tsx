@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import {
   ArrowLeft,
@@ -16,6 +18,8 @@ import { MainHeader } from "@/components/MainHeader";
 import { MainFooter } from "@/components/MainFooter";
 import { LuxButton } from "@/components/ui/LuxButton";
 import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/ui/ScrollReveal";
+
+export const revalidate = 60; /* ISR: odświeżanie co 60 s */
 
 type GalleryItem = {
   id: number;
@@ -104,6 +108,47 @@ function formatPln(value: number) {
   return `${new Intl.NumberFormat("pl-PL").format(value)} PLN`;
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id: idParam } = await params;
+  const idNum = Number(idParam);
+  if (!Number.isFinite(idNum)) {
+    return { title: "Nie znaleziono | Galeria | Kozioł Luxury Gates" };
+  }
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return { title: "Galeria | Kozioł Luxury Gates" };
+  }
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  const { data } = await supabase
+    .from("gallery")
+    .select("description, image_url")
+    .eq("id", idNum)
+    .maybeSingle();
+  const item = data as { description?: string | null; image_url?: string } | null;
+  const title = item?.description
+    ? `${String(item.description).slice(0, 60)}${String(item.description).length > 60 ? "…" : ""} | Galeria`
+    : "Realizacja | Galeria";
+  const description = item?.description
+    ? String(item.description).slice(0, 160)
+    : "Luksusowa brama lub furtka – realizacja Kozioł Luxury Gates. Zobacz szczegóły i wycenę.";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://koziol-gates.pl";
+  return {
+    title: `${title} | Kozioł Luxury Gates`,
+    description,
+    alternates: { canonical: `${baseUrl}/galeria/${idParam}` },
+    openGraph: {
+      title: `${title} | Kozioł Luxury Gates`,
+      description,
+      ...(item?.image_url && { images: [{ url: item.image_url }] }),
+    },
+  };
+}
+
 export default async function GalleryDetailsPage({
   params,
 }: {
@@ -187,7 +232,6 @@ export default async function GalleryDetailsPage({
     <main className="min-h-screen bg-black text-white">
       <MainHeader />
 
-      {/* ── Header ───────────────────────────────────────────────────────────── */}
       <section className="relative border-b border-zinc-800 bg-[#030303] grid-overlay overflow-hidden">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(133,102,47,0.12) 0%, transparent 65%)" }} />
         <div className="relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-12 md:px-8 md:py-16">
@@ -208,23 +252,26 @@ export default async function GalleryDetailsPage({
         </div>
       </section>
 
-      {/* ── Content ──────────────────────────────────────────────────────────── */}
       <section className="relative bg-black">
         <div className="pointer-events-none absolute inset-0 grid-overlay opacity-40" />
         <div className="relative mx-auto max-w-7xl px-5 pb-12 md:px-8 md:pb-16" style={{ paddingTop: 80 }}>
-          {/* Image - smaller, centered */}
           <ScrollReveal delay={1.0} scale>
             <div className="mx-auto mb-12 w-full max-w-[1000px]">
               <div className="beam-wrapper beam-wrapper-fast beam-wrapper-strong">
                 <div className="beam-inner relative aspect-[16/10] overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.image_url} alt={item.description || "Realizacja"} className="h-full w-full object-cover" />
+                  <Image
+                    src={item.image_url}
+                    alt={item.description || "Realizacja"}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 1000px"
+                    priority
+                  />
                 </div>
               </div>
             </div>
           </ScrollReveal>
 
-          {/* Opis - full width if present */}
           {item.description != null && String(item.description).trim() !== "" && (
             <ScrollReveal delay={1.4}>
               <div className="mb-10 max-w-2xl">
@@ -234,7 +281,6 @@ export default async function GalleryDetailsPage({
             </ScrollReveal>
           )}
 
-          {/* Specs grid - tiles side by side, animowane od lewej do prawej */}
           <ScrollReveal>
             <StaggerContainer className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               <StaggerItem>
@@ -329,7 +375,6 @@ export default async function GalleryDetailsPage({
             </StaggerContainer>
           </ScrollReveal>
 
-          {/* CTAs */}
           <ScrollReveal>
             <div className="flex flex-wrap" style={{ marginTop: 48, marginBottom: 32, gap: 20 }}>
               {hasGate && (

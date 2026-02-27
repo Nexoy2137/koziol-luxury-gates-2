@@ -9,7 +9,6 @@ import { GateReveal } from "@/components/ui/GateReveal";
 import { TiltCard } from "@/components/ui/TiltCard";
 import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/ui/ScrollReveal";
 
-/* ── Deterministic particles (no SSR mismatch) ───────────────────────────────── */
 const PARTICLES = Array.from({ length: 30 }, (_, i) => ({
   id: i,
   left: ((i * 13.7 + 5) % 92).toFixed(1),
@@ -20,7 +19,6 @@ const PARTICLES = Array.from({ length: 30 }, (_, i) => ({
   y: -(90 + (i % 6) * 35),
 }));
 
-/* ── Ticker content ──────────────────────────────────────────────────────────── */
 const TICKER = [
   "Cynkowanie ogniowe", "Malowanie proszkowe RAL", "Automatyka FAAC & BFT",
   "Stal S355 JR", "15 lat doświadczenia", "Realizacje w całej Polsce",
@@ -47,14 +45,12 @@ const STATS = [
   { value: 100, suffix: "%", label: "Pod klucz" },
 ];
 
-/* ════════════════════════════════════════════════════════════════════════════════ */
 export default function Home() {
   return (
     <>
       <GateReveal />
 
       <main className="min-h-screen bg-black text-white overflow-x-hidden" style={{ maxWidth: "100vw" }}>
-        {/* ─ Real CSS responsive rules (Tailwind responsive broken in this project) ─ */}
         <style>{`
           .hero-cols { display:flex; flex-direction:column; gap:48px; min-width:0; }
           .hero-brand { width:100%; max-width:460px; margin:0 auto; min-width:0; }
@@ -132,13 +128,7 @@ export default function Home() {
         `}</style>
         <MainHeader />
 
-        {/* ══════════════════════════════════════════════════════════════════════ */}
-        {/* HERO                                                                  */}
-        {/* ══════════════════════════════════════════════════════════════════════ */}
         <section className="relative overflow-hidden border-b border-zinc-800">
-
-          {/* Floating gold particles ─ USE absolute with explicit left/top so framer
-              motion only controls Y and opacity (no transform conflict) */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
             {PARTICLES.map((p) => (
               <motion.div
@@ -151,10 +141,7 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Rotating golden rings — CRITICAL: use separate wrapper for centering
-              so framer-motion rotate doesn't conflict with translate classes */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden" aria-hidden="true">
-            {/* Outer ring */}
             <motion.div
               style={{ width: "min(130vw, 130vh)", height: "min(130vw, 130vh)", flexShrink: 0 }}
               animate={{ rotate: 360 }}
@@ -178,7 +165,6 @@ export default function Home() {
           </div>
 
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden" aria-hidden="true">
-            {/* Inner ring — counter-rotate */}
             <motion.div
               style={{ width: "min(70vw, 70vh)", height: "min(70vw, 70vh)", flexShrink: 0 }}
               animate={{ rotate: -360 }}
@@ -202,8 +188,6 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* Breathing orb — FIX: outer div positions it, inner motion.div animates
-              scale only, so the positioning transform is never overwritten */}
           <div className="pointer-events-none absolute inset-x-0 top-[-10%] flex justify-center" aria-hidden="true">
             <motion.div
               style={{
@@ -216,11 +200,8 @@ export default function Home() {
             />
           </div>
 
-          {/* Content */}
           <div className="hero-padding" style={{ position: "relative", maxWidth: 1280, margin: "0 auto" }}>
             <div className="hero-cols">
-
-              {/* Text column */}
               <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 28 }}>
                 <motion.p
                   initial={{ opacity: 0, y: 12 }}
@@ -285,7 +266,6 @@ export default function Home() {
                   </LuxButton>
                 </motion.div>
 
-                {/* Stats — direct values (no CountUp flash bug) */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -317,7 +297,6 @@ export default function Home() {
                 </motion.div>
               </div>
 
-              {/* Brand card — right column */}
               <motion.div
                 initial={{ opacity: 0, y: 32 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -325,17 +304,13 @@ export default function Home() {
                 className="hero-brand" style={{ flexShrink: 0 }}
               >
                 <TiltCard intensity={7} className="h-full">
-                  {/* Beam wrapper via inline padding trick */}
                   <div className="beam-wrapper">
                     <div className="beam-inner rounded-2xl" style={{ padding: "36px 32px", display: "flex", flexDirection: "column", gap: 22 }}>
-
-                      {/* Inner glow */}
                       <div style={{
                         position: "absolute", inset: 0, borderRadius: 16, pointerEvents: "none",
                         background: "radial-gradient(ellipse 75% 55% at 50% 20%, rgba(133,102,47,0.20) 0%, transparent 65%)",
                       }} />
 
-                      {/* Logo */}
                       <div style={{
                         position: "relative", width: "100%",
                         padding: "24px 22px",
@@ -349,10 +324,8 @@ export default function Home() {
                         <img src="/logo.svg" alt="Kozioł Luxury Gates" style={{ height: 210, width: 210, display: "block", objectFit: "contain" }} />
                       </div>
 
-                      {/* Gold divider */}
                       <div style={{ height: 1, background: "linear-gradient(to right, transparent, rgba(212,175,55,0.5), transparent)" }} />
 
-                      {/* Info grid */}
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                         {[
                           { label: "Siedziba",      value: "Ozorków" },
@@ -377,7 +350,6 @@ export default function Home() {
                         ))}
                       </div>
 
-                      {/* CTA link */}
                       <LuxButton href="/kontakt" variant="outline" size="lg">
                         Umów spotkanie w showroomie
                         <ArrowRight size={14} />
@@ -390,9 +362,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ══ TICKER ═════════════════════════════════════════════════════════════ */}
         <div className="ticker-section" style={{ overflow: "hidden", borderBottom: "1px solid #27272a", background: "rgba(9,9,11,0.8)", padding: "14px 0" }}>
-          {/* Desktop: marquee | Mobile: flex-wrap grid */}
           <div className="ticker-desktop marquee-track" style={{ display: "flex", gap: 48, whiteSpace: "nowrap" }}>
             {[...TICKER, ...TICKER].map((item, i) => (
               <span key={`d-${i}`} style={{ display: "inline-flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
@@ -415,14 +385,11 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ══ O NAS ══════════════════════════════════════════════════════════════ */}
         <section className="relative border-b border-zinc-800 bg-[#030303] grid-overlay">
           <div className="pointer-events-none absolute inset-0 gold-glow-left" />
 
           <div className="about-section-inner">
             <div className="about-cols">
-
-              {/* Sticky label */}
               <ScrollReveal className="about-side">
                 <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.5em] text-[#D4AF37]">O nas</p>
                 <h2 className="font-display text-[clamp(2.2rem,4.5vw,3.2rem)] font-normal italic leading-tight tracking-tight">
@@ -440,7 +407,6 @@ export default function Home() {
                 </div>
               </ScrollReveal>
 
-              {/* Cards */}
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
                 <ScrollReveal>
                   <div className="page-card page-card-accent" style={{ padding: "36px 32px" }}>
@@ -495,9 +461,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ══ CECHY TECHNICZNE ═══════════════════════════════════════════════════ */}
         <section className="relative border-b border-zinc-800">
-          {/* Central strong glow */}
           <div className="pointer-events-none absolute inset-0"
             style={{ background: "radial-gradient(ellipse 90% 70% at 50% 0%, rgba(133,102,47,0.16) 0%, transparent 60%)" }}
           />
@@ -538,7 +502,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ══ PROCES ═════════════════════════════════════════════════════════════ */}
         <section className="relative border-b border-zinc-800 bg-[#030303] grid-overlay">
           <div className="process-section-inner" style={{ maxWidth: 1280, margin: "0 auto" }}>
             <ScrollReveal>
@@ -574,7 +537,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ══ PORTFOLIO ══════════════════════════════════════════════════════════ */}
         <section className="relative border-b border-zinc-800 overflow-x-hidden">
           <div className="pointer-events-none absolute inset-0"
             style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(133,102,47,0.12) 0%, transparent 65%)" }}
@@ -582,7 +544,6 @@ export default function Home() {
 
           <div className="portfolio-section-inner">
             <div className="portfolio-cols">
-              {/* Left: heading + text + buttons */}
               <ScrollReveal style={{ maxWidth: 560 }}>
                 <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.5em", textTransform: "uppercase", color: "#D4AF37", marginBottom: 16 }}>Portfolio</p>
                 <h2 className="font-display" style={{ fontSize: "clamp(2.2rem,4.5vw,3.2rem)", fontWeight: 400, fontStyle: "italic", lineHeight: 1.15, marginBottom: 20 }}>
@@ -603,8 +564,6 @@ export default function Home() {
                 </div>
               </ScrollReveal>
 
-              {/* Right: 3 stat tiles — sekwencyjnie od lewej do prawej */}
-              {/* Jeszcze krótszy delay, żeby kafelki startowały szybko po tekście */}
               <ScrollReveal delay={0.4} style={{ width: "100%", maxWidth: 480 }}>
                 <StaggerContainer className="portfolio-tiles">
                   {[
@@ -640,9 +599,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ══ CTA FINALE ═════════════════════════════════════════════════════════ */}
         <section className="relative overflow-x-hidden border-b border-zinc-800 bg-[#030303] grid-overlay">
-          {/* Big central burst */}
           <div className="pointer-events-none absolute inset-0"
             style={{ background: "radial-gradient(ellipse 100% 90% at 50% 50%, rgba(133,102,47,0.22) 0%, transparent 60%)" }}
           />

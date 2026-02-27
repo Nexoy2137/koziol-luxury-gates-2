@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getRalDisplayColor, ralCodeToNamePl } from "@/lib/ralColors";
 import { AnimatePresence } from "framer-motion";
 import { useSearchParams } from "next/navigation";
@@ -17,6 +17,7 @@ type Price = {
   name: string;
   category: string;
   value: number;
+  image_url?: string | null;
   max_width?: number | null;
   max_height?: number | null;
   min_width?: number | null;
@@ -68,6 +69,13 @@ const calculateConfigPrice = (c: Config): number => {
   return Math.round(total > 0 ? total : 0);
 };
 
+function normalizePolishPhone(input: string): string {
+  let digits = input.replace(/\D/g, "");
+  if (digits.startsWith("0048") && digits.length === 13) digits = digits.slice(4);
+  if (digits.startsWith("48") && digits.length === 11) digits = digits.slice(2);
+  return digits;
+}
+
 export function KonfiguratorPageClient() {
   const [loading, setLoading] = useState<boolean>(true);
   const [step, setStep] = useState<number>(1);
@@ -117,7 +125,6 @@ export function KonfiguratorPageClient() {
   const [forcePairFromUrl, setForcePairFromUrl] = useState<boolean>(false);
   const [secondaryModelIdFromUrl, setSecondaryModelIdFromUrl] = useState<number | null>(null);
 
-  // Price flash animation — refs + effect declared here, before all other effects
   const priceRef = useRef<HTMLDivElement>(null);
   const prevPrice = useRef(0);
   useEffect(() => {
@@ -138,8 +145,11 @@ export function KonfiguratorPageClient() {
 
   useEffect(() => {
     if (!isPairMode) return;
-    if (activePairPart === "primary") setPrimaryConfig(config);
-    else setSecondaryConfig(config);
+    const id = setTimeout(() => {
+      if (activePairPart === "primary") setPrimaryConfig(config);
+      else setSecondaryConfig(config);
+    }, 0);
+    return () => clearTimeout(id);
   }, [config, isPairMode, activePairPart]);
 
   const persistActivePairConfig = (next: Config) => {
@@ -159,25 +169,25 @@ export function KonfiguratorPageClient() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const tsRaw = window.localStorage.getItem("konfigurator-last-lead-ts");
-    if (tsRaw) {
-      const ts = Number(tsRaw);
-      if (Number.isFinite(ts) && ts > 0) {
-        setLastSentAt(ts);
-      }
-    }
-
     const dailyRaw = window.localStorage.getItem("konfigurator-leads-daily");
-    if (dailyRaw) {
-      try {
-        const parsed = JSON.parse(dailyRaw) as { date: string; count: number };
-        const today = new Date().toISOString().slice(0, 10);
-        if (parsed.date === today && Number.isFinite(parsed.count)) {
-          setDailyCount(parsed.count);
-        }
-      } catch {
-        // ignore invalid value
+    const id = setTimeout(() => {
+      if (tsRaw) {
+        const ts = Number(tsRaw);
+        if (Number.isFinite(ts) && ts > 0) setLastSentAt(ts);
       }
-    }
+      if (dailyRaw) {
+        try {
+          const parsed = JSON.parse(dailyRaw) as { date: string; count: number };
+          const today = new Date().toISOString().slice(0, 10);
+          if (parsed.date === today && Number.isFinite(parsed.count)) {
+            setDailyCount(parsed.count);
+          }
+        } catch {
+          /* invalid localStorage */
+        }
+      }
+    }, 0);
+    return () => clearTimeout(id);
   }, []);
 
   useEffect(() => {
@@ -319,7 +329,8 @@ export function KonfiguratorPageClient() {
 
   useEffect(() => {
     const pair = searchParams.get("pair");
-    setForcePairFromUrl(pair === "brama+furtka");
+    const id = setTimeout(() => setForcePairFromUrl(pair === "brama+furtka"), 0);
+    return () => clearTimeout(id);
   }, [searchParams]);
 
   useEffect(() => {
@@ -337,156 +348,158 @@ export function KonfiguratorPageClient() {
 
     if (!modelId && !materialId && !product && !steel && !ral && !paint && !modelIdSecondary) return;
 
-    let computed: Config | null = null;
-    setConfig((prev) => {
-      const updated = { ...prev };
+    let secondaryIdToSet: number | null = null;
+    const id = setTimeout(() => {
+      setConfig((prev) => {
+        const updated = { ...prev };
 
-      if (product === "furtka" || product === "brama") {
-        updated.product = product;
-      }
-
-      if (modelId) {
-        const modelIdNum = Number(modelId);
-        const model =
-          dbPrices.find((p) => p.category === "base" && p.id === modelIdNum) ??
-          dbPrices.find((p) => p.category === "wicket_base" && p.id === modelIdNum);
-        if (model) {
-          if (model.category === "wicket_base") updated.product = "furtka";
-          updated.type = model.name;
-          updated.basePrice = model.value;
-          const minW = model.min_width ?? 200;
-          const minH = model.min_height ?? 100;
-          updated.width = minW;
-          updated.height = minH;
+        if (product === "furtka" || product === "brama") {
+          updated.product = product;
         }
-      }
 
-      if (modelIdSecondary) {
-        const secondaryIdNum = Number(modelIdSecondary);
-        if (Number.isFinite(secondaryIdNum)) {
-          setSecondaryModelIdFromUrl(secondaryIdNum);
+        if (modelId) {
+          const modelIdNum = Number(modelId);
+          const model =
+            dbPrices.find((p) => p.category === "base" && p.id === modelIdNum) ??
+            dbPrices.find((p) => p.category === "wicket_base" && p.id === modelIdNum);
+          if (model) {
+            if (model.category === "wicket_base") updated.product = "furtka";
+            updated.type = model.name;
+            updated.basePrice = model.value;
+            const minW = model.min_width ?? 200;
+            const minH = model.min_height ?? 100;
+            updated.width = minW;
+            updated.height = minH;
+          }
         }
-      }
 
-      if (materialId) {
-        const materialIdNum = Number(materialId);
-        const mat = dbPrices.find(
-          (p) => p.category === "material" && p.id === materialIdNum
-        );
-        if (mat) {
-          updated.material = mat.name;
-          updated.materialPrice = mat.value;
+        if (modelIdSecondary) {
+          const secondaryIdNum = Number(modelIdSecondary);
+          if (Number.isFinite(secondaryIdNum)) {
+            secondaryIdToSet = secondaryIdNum;
+          }
         }
-      }
 
-      if (steel) {
-        const label = String(steel);
-        const option = steelTypes.find((s) => s.label === label);
-        updated.steelType = label;
-        updated.steelPrice = option ? option.price : 0;
-      }
-      if (ral) {
-        const code = String(ral);
-        const option = ralColors.find((c) => c.code === code);
-        updated.ral = code;
-        updated.ralPrice = option ? option.price : 0;
-        updated.ralCustomCode = "";
-      }
-      if (paint) {
-        const label = String(paint);
-        const option = paintTypes.find((p) => p.label === label);
-        updated.paintType = label;
-        updated.paintPrice = option ? option.price : 0;
-      }
-
-      return updated;
-    });
-
-    const buildComputed = () => {
-      const updated = { ...config };
-      if (product === "furtka" || product === "brama") {
-        updated.product = product;
-      }
-      if (modelId) {
-        const modelIdNum = Number(modelId);
-        const model =
-          dbPrices.find((p) => p.category === "base" && p.id === modelIdNum) ??
-          dbPrices.find((p) => p.category === "wicket_base" && p.id === modelIdNum);
-        if (model) {
-          if (model.category === "wicket_base") updated.product = "furtka";
-          updated.type = model.name;
-          updated.basePrice = model.value;
-          updated.width = model.min_width ?? 200;
-          updated.height = model.min_height ?? 100;
+        if (materialId) {
+          const materialIdNum = Number(materialId);
+          const mat = dbPrices.find(
+            (p) => p.category === "material" && p.id === materialIdNum
+          );
+          if (mat) {
+            updated.material = mat.name;
+            updated.materialPrice = mat.value;
+          }
         }
-      }
-      if (materialId) {
-        const materialIdNum = Number(materialId);
-        const mat = dbPrices.find(
-          (p) => p.category === "material" && p.id === materialIdNum
-        );
-        if (mat) {
-          updated.material = mat.name;
-          updated.materialPrice = mat.value;
+
+        if (steel) {
+          const label = String(steel);
+          const option = steelTypes.find((s) => s.label === label);
+          updated.steelType = label;
+          updated.steelPrice = option ? option.price : 0;
         }
-      }
-      if (steel) {
-        const label = String(steel);
-        const option = steelTypes.find((s) => s.label === label);
-        updated.steelType = label;
-        updated.steelPrice = option ? option.price : 0;
-      }
-      if (ral) {
-        const code = String(ral);
-        const option = ralColors.find((c) => c.code === code);
-        updated.ral = code;
-        updated.ralPrice = option ? option.price : 0;
-        updated.ralCustomCode = "";
-      }
-      if (paint) {
-        const label = String(paint);
-        const option = paintTypes.find((p) => p.label === label);
-        updated.paintType = label;
-        updated.paintPrice = option ? option.price : 0;
-      }
-      return updated;
-    };
-    computed = buildComputed();
+        if (ral) {
+          const code = String(ral);
+          const option = ralColors.find((c) => c.code === code);
+          updated.ral = code;
+          updated.ralPrice = option ? option.price : 0;
+          updated.ralCustomCode = "";
+        }
+        if (paint) {
+          const label = String(paint);
+          const option = paintTypes.find((p) => p.label === label);
+          updated.paintType = label;
+          updated.paintPrice = option ? option.price : 0;
+        }
 
-    if (prefill === "1") {
-      const c = computed ?? config;
-      const hasType = !!c?.type;
-      const hasMaterial = !!c?.material;
-      const hasSteel = !!c?.steelType;
-      const hasRal =
-        !!c?.ral && !(c?.ral === "INNY" && !String(c?.ralCustomCode || "").trim());
-      const hasPaint = !!c?.paintType;
+        return updated;
+      });
+      if (secondaryIdToSet != null) setSecondaryModelIdFromUrl(secondaryIdToSet);
 
-      if (!hasType) setStep(1);
-      else if (!hasMaterial) setStep(2);
-      else if (!hasSteel) setStep(3);
-      else if (!hasRal) setStep(4);
-      else if (!hasPaint) setStep(5);
-      else setStep(6);
-    } else if (pair === "brama+furtka" && modelId) {
-      setStep(6);
-    } else if (modelId && materialId) {
-      setStep(3);
-    } else if (modelId || materialId) {
-      setStep(2);
-    }
-  }, [dbPrices, steelTypes, ralColors, paintTypes, searchParams]);
+      const buildComputed = () => {
+        const updated = { ...config };
+        if (product === "furtka" || product === "brama") {
+          updated.product = product;
+        }
+        if (modelId) {
+          const modelIdNum = Number(modelId);
+          const model =
+            dbPrices.find((p) => p.category === "base" && p.id === modelIdNum) ??
+            dbPrices.find((p) => p.category === "wicket_base" && p.id === modelIdNum);
+          if (model) {
+            if (model.category === "wicket_base") updated.product = "furtka";
+            updated.type = model.name;
+            updated.basePrice = model.value;
+            updated.width = model.min_width ?? 200;
+            updated.height = model.min_height ?? 100;
+          }
+        }
+        if (materialId) {
+          const materialIdNum = Number(materialId);
+          const mat = dbPrices.find(
+            (p) => p.category === "material" && p.id === materialIdNum
+          );
+          if (mat) {
+            updated.material = mat.name;
+            updated.materialPrice = mat.value;
+          }
+        }
+        if (steel) {
+          const label = String(steel);
+          const option = steelTypes.find((s) => s.label === label);
+          updated.steelType = label;
+          updated.steelPrice = option ? option.price : 0;
+        }
+        if (ral) {
+          const code = String(ral);
+          const option = ralColors.find((c) => c.code === code);
+          updated.ral = code;
+          updated.ralPrice = option ? option.price : 0;
+          updated.ralCustomCode = "";
+        }
+        if (paint) {
+          const label = String(paint);
+          const option = paintTypes.find((p) => p.label === label);
+          updated.paintType = label;
+          updated.paintPrice = option ? option.price : 0;
+        }
+        return updated;
+      };
+      const computedLocal = buildComputed();
 
+      if (prefill === "1") {
+        const c = computedLocal ?? config;
+        const hasType = !!c?.type;
+        const hasMaterial = !!c?.material;
+        const hasSteel = !!c?.steelType;
+        const hasRal =
+          !!c?.ral && !(c?.ral === "INNY" && !String(c?.ralCustomCode || "").trim());
+        const hasPaint = !!c?.paintType;
+
+        if (!hasType) setStep(1);
+        else if (!hasMaterial) setStep(2);
+        else if (!hasSteel) setStep(3);
+        else if (!hasRal) setStep(4);
+        else if (!hasPaint) setStep(5);
+        else setStep(6);
+      } else if (pair === "brama+furtka" && modelId) {
+        setStep(6);
+      } else if (modelId && materialId) {
+        setStep(3);
+      } else if (modelId || materialId) {
+        setStep(2);
+      }
+    }, 0);
+    return () => clearTimeout(id);
+  }, [dbPrices, steelTypes, ralColors, paintTypes, searchParams, config]);
+
+  const totalPriceFromConfig = useMemo(
+    () => calculateConfigPrice(config),
+    [config]
+  );
   useEffect(() => {
-    setTotalPrice(calculateConfigPrice(config));
-  }, [config]);
-
-  const normalizePolishPhone = (input: string) => {
-    let digits = input.replace(/\D/g, "");
-    if (digits.startsWith("0048") && digits.length === 13) digits = digits.slice(4);
-    if (digits.startsWith("48") && digits.length === 11) digits = digits.slice(2);
-    return digits;
-  };
+    const id = setTimeout(() => setTotalPrice(totalPriceFromConfig), 0);
+    return () => clearTimeout(id);
+  }, [totalPriceFromConfig]);
 
   const persistAndInsertLead = async () => {
     const cityTrimmed = city.trim();
@@ -510,7 +523,6 @@ export function KonfiguratorPageClient() {
     const now = Date.now();
     const today = new Date().toISOString().slice(0, 10);
 
-    // ── Opcjonalne IP urządzenia (do backendowego limitu per IP) ──────────
     let clientIp: string | null = null;
     try {
       if (typeof window !== "undefined" && "fetch" in window) {
@@ -526,7 +538,6 @@ export function KonfiguratorPageClient() {
       console.warn("Nie udało się pobrać adresu IP użytkownika:", e);
     }
 
-    // ── Limit per urządzenie / przeglądarka (localStorage) ────────────────
     if (dailyCount >= maxLeadsPerDay) {
       await toast.showAlert("Przekroczono maksymalną liczbę zapytań z tego urządzenia na dziś.");
       return;
@@ -537,7 +548,6 @@ export function KonfiguratorPageClient() {
       return;
     }
 
-    // ── Limit per numer telefonu + (jeśli dostępne) per IP (backend) ─────
     try {
       const { data: phoneLeads, error: phoneErr } = await supabase
         .from("leads")
@@ -590,7 +600,6 @@ export function KonfiguratorPageClient() {
       }
     } catch (e) {
       console.warn("Błąd sprawdzania limitów anty-spam (telefon/IP):", e);
-      // W razie błędu nie blokujemy wysyłki, żeby nie psuć UX
     }
 
     if (primaryConfig && secondaryConfig) {
@@ -665,68 +674,96 @@ export function KonfiguratorPageClient() {
   };
 
   const baseCategory = config.product === "furtka" ? "wicket_base" : "base";
-  const activeModel = dbPrices.find(
-    (p) => p.category === baseCategory && p.name === config.type
+  const activeModel = useMemo(
+    () =>
+      dbPrices.find(
+        (p) => p.category === baseCategory && p.name === config.type
+      ),
+    [dbPrices, baseCategory, config.type]
   );
-  const maxWidth = activeModel?.max_width ?? 900;
-  const minWidth = activeModel?.min_width ?? 200;
-  const maxHeight = activeModel?.max_height ?? 250;
-  const minHeight = activeModel?.min_height ?? 100;
+  const { maxWidth, minWidth, maxHeight, minHeight } = useMemo(
+    () => ({
+      maxWidth: activeModel?.max_width ?? 900,
+      minWidth: activeModel?.min_width ?? 200,
+      maxHeight: activeModel?.max_height ?? 250,
+      minHeight: activeModel?.min_height ?? 100,
+    }),
+    [activeModel]
+  );
 
-  const previewConfig =
-    primaryConfig && secondaryConfig
-      ? activePairPart === "primary"
-        ? primaryConfig
-        : secondaryConfig
-      : config;
+  const previewConfig = useMemo(
+    () =>
+      primaryConfig && secondaryConfig
+        ? activePairPart === "primary"
+          ? primaryConfig
+          : secondaryConfig
+        : config,
+    [primaryConfig, secondaryConfig, activePairPart, config]
+  );
 
   const previewBaseCategory =
     previewConfig.product === "furtka" ? "wicket_base" : "base";
 
-  const previewBase = dbPrices.find(
-    (p) => p.category === previewBaseCategory && p.name === previewConfig.type
+  const previewBase = useMemo(
+    () =>
+      dbPrices.find(
+        (p) =>
+          p.category === previewBaseCategory && p.name === previewConfig.type
+      ),
+    [dbPrices, previewBaseCategory, previewConfig.type]
   );
 
-  const previewMaterial = dbPrices.find(
-    (p) => p.category === "material" && p.name === previewConfig.material
+  const previewMaterial = useMemo(
+    () =>
+      dbPrices.find(
+        (p) =>
+          p.category === "material" && p.name === previewConfig.material
+      ),
+    [dbPrices, previewConfig.material]
   );
 
-  const previewBaseImageUrl =
-    (previewBase as any)?.image_url &&
-    typeof (previewBase as any).image_url === "string"
-      ? (previewBase as any).image_url
-      : null;
+  const previewBaseImageUrl = useMemo(
+    () =>
+      previewBase?.image_url && typeof previewBase.image_url === "string"
+        ? previewBase.image_url
+        : null,
+    [previewBase]
+  );
 
-  const previewMaterialImageUrl =
-    (previewMaterial as any)?.image_url &&
-    typeof (previewMaterial as any).image_url === "string"
-      ? (previewMaterial as any).image_url
-      : null;
+  const previewMaterialImageUrl = useMemo(
+    () =>
+      previewMaterial?.image_url &&
+      typeof previewMaterial.image_url === "string"
+        ? previewMaterial.image_url
+        : null,
+    [previewMaterial]
+  );
 
-  const getPreviewForConfig = (c: Config | null) => {
-    if (!c) return null;
-    const cat = c.product === "furtka" ? "wicket_base" : "base";
-    const base = dbPrices.find(
-      (p) => p.category === cat && p.name === c.type
-    ) as any | undefined;
-    const material = dbPrices.find(
-      (p) => p.category === "material" && p.name === c.material
-    ) as any | undefined;
-    const baseUrl =
-      base && typeof base.image_url === "string" ? base.image_url : null;
-    const materialUrl =
-      material && typeof material.image_url === "string"
-        ? material.image_url
-        : null;
-    return { config: c, baseUrl, materialUrl };
-  };
+  const getPreviewForConfig = useCallback(
+    (c: Config | null) => {
+      if (!c) return null;
+      const cat = c.product === "furtka" ? "wicket_base" : "base";
+      const base = dbPrices.find(
+        (p) => p.category === cat && p.name === c.type
+      );
+      const material = dbPrices.find(
+        (p) => p.category === "material" && p.name === c.material
+      );
+      const baseUrl =
+        base && typeof base.image_url === "string" ? base.image_url : null;
+      const materialUrl =
+        material && typeof material.image_url === "string"
+          ? material.image_url
+          : null;
+      return { config: c, baseUrl, materialUrl };
+    },
+    [dbPrices]
+  );
 
   useEffect(() => {
     if (!showReviewOverlay) return;
     if (typeof window === "undefined") return;
 
-    // Mobile/iOS: bez animacji, żeby na pewno wskoczyć na górę,
-    // plus blokada scrolla na <body> i <html>
     window.scrollTo(0, 0);
     const previousBodyOverflow = document.body.style.overflow;
     const previousHtmlOverflow = document.documentElement.style.overflow;
@@ -906,7 +943,6 @@ export function KonfiguratorPageClient() {
         }
         .konfig-option-btn:hover { border-color: rgba(212,175,55,0.4); color:#fff; }
         .konfig-option-btn.selected { border-color:#D4AF37; background:rgba(212,175,55,0.08); color:#fff; }
-        /* ── Option cards (model, material, steel, paint) ── */
         .kopt {
           display:block; width:100%; padding:20px 22px; border-radius:14px;
           border:1px solid rgba(63,63,70,0.8); background:rgba(9,9,11,0.7);
@@ -918,7 +954,6 @@ export function KonfiguratorPageClient() {
         .kopt .klabel { font-size:9px; letter-spacing:0.4em; text-transform:uppercase; color:#52525b; margin-bottom:10px; }
         .kopt .kprice { font-size:11px; color:#D4AF37; font-weight:600; }
 
-        /* ── RAL color swatches ── */
         .kral {
           padding:14px; border-radius:14px; border:1px solid rgba(63,63,70,0.8);
           background:rgba(9,9,11,0.7); cursor:pointer; transition:all 0.18s;
@@ -933,7 +968,6 @@ export function KonfiguratorPageClient() {
         .kral .kpick { font-size:9px; letter-spacing:0.35em; text-transform:uppercase; color:#52525b; margin-top:auto; }
         .kral.sel .kpick { color:#D4AF37; }
 
-        /* ── Preview card (model + materiał) ── */
         .kpreview {
           border-radius:16px;
           border:1px solid rgba(63,63,70,0.85);
@@ -992,8 +1026,6 @@ export function KonfiguratorPageClient() {
           }
         }
 
-        /* Podsumowanie końcowe: dwa kwadratowe podglądy tej samej wielkości,
-           idealnie wyśrodkowane w kartach */
         .kpreview-review .kpreview-main,
         .kpreview-review .kpreview-material {
           height:auto;
@@ -1020,8 +1052,6 @@ export function KonfiguratorPageClient() {
             grid-template-columns:1fr 1fr;
           }
         }
-        /* W podsumowaniu końcowym w jednej karcie model i materiał mają takie same kolumny
-           i są wyśrodkowane względem siebie i krawędzi karty */
         @media(min-width:640px){
           .kpreview-review .kpreview-grid {
             grid-template-columns:auto auto;
@@ -1036,7 +1066,6 @@ export function KonfiguratorPageClient() {
           object-fit:cover;
           display:block;
         }
-        /* ── Review overlay (summary modal) ── */
         .konfig-review-overlay {
           position:fixed;
           inset:0;
@@ -1087,7 +1116,6 @@ export function KonfiguratorPageClient() {
           text-align:center;
         }
 
-        /* ── Navigation buttons ── */
         .knav-prev {
           display:inline-flex; align-items:center; gap:8px;
           padding:14px 26px; border-radius:999px;
@@ -1105,7 +1133,6 @@ export function KonfiguratorPageClient() {
         }
         .knav-next:hover { background:#C9A227; box-shadow:0 0 52px rgba(212,175,55,0.6); }
 
-        /* ── Summary sidebar rows ── */
         .ksum-row {
           display:flex; justify-content:space-between; align-items:center;
           gap:12px; padding:11px 14px; border-radius:10px;
@@ -1115,13 +1142,10 @@ export function KonfiguratorPageClient() {
         .ksum-key { font-size:9px; letter-spacing:0.4em; text-transform:uppercase; color:#52525b; flex-shrink:0; }
         .ksum-val { font-size:13px; font-weight:500; color:#e4e4e7; text-align:right; }
 
-        /* ── Step heading ── */
         .kstep-h { font-family:var(--font-playfair,Georgia,serif); font-size:clamp(1.6rem,3.5vw,2.2rem); font-weight:400; font-style:italic; display:flex; align-items:center; gap:14px; margin-bottom:28px; color:#fff; }
 
-        /* ── Dims slider ── */
         .kdims { border:1px solid rgba(39,39,42,0.8); border-radius:18px; background:rgba(9,9,11,0.6); padding:32px; }
 
-        /* ── Product toggle (BRAMA / FURTKA) ── */
         .kproduct-toggle {
           display:inline-flex; gap:0; padding:6px; border-radius:999px;
           border:1.5px solid rgba(63,63,70,0.9); background:rgba(0,0,0,0.5);
@@ -1142,7 +1166,6 @@ export function KonfiguratorPageClient() {
           box-shadow:0 2px 16px rgba(212,175,55,0.5), 0 0 32px rgba(212,175,55,0.2);
         }
 
-        /* ── Custom range sliders (satisfying feel) ── */
         .kslider {
           -webkit-appearance:none; appearance:none; width:100%; height:10px;
           background:linear-gradient(to right, rgba(212,175,55,0.5) 0%, rgba(212,175,55,0.5) var(--fill, 0%), rgba(39,39,42,0.9) var(--fill, 0%) 100%);
@@ -1174,7 +1197,6 @@ export function KonfiguratorPageClient() {
         }
         .kslider::-moz-range-track { background:rgba(39,39,42,0.9); border-radius:999px; height:10px; }
 
-        /* ── Contact form inputs (soft, non-jarring) ── */
         .kcontact-input {
           width:100%; padding:14px 18px; border-radius:12px;
           border:1px solid rgba(63,63,70,0.7); background:rgba(18,18,20,0.9);
@@ -1189,12 +1211,10 @@ export function KonfiguratorPageClient() {
         .kcontact-grid { display:grid; grid-template-columns:1fr; gap:20px; }
         @media(min-width:640px){ .kcontact-grid { grid-template-columns:1fr 1fr; } }
 
-        /* ── Step number badge in progress bar ── */
         .kstep-num { font-size:9px; font-weight:700; color:#52525b; letter-spacing:0.1em; margin-top:6px; text-align:center; }
       `}</style>
       <MainHeader />
 
-      {/* Hero */}
       <section style={{ borderBottom: "1px solid rgba(39,39,42,0.8)", position: "relative" }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(133,102,47,0.14) 0%, transparent 65%)", pointerEvents: "none" }} />
         <ScrollReveal>
@@ -1217,7 +1237,6 @@ export function KonfiguratorPageClient() {
         <div className="konfig-main-layout">
           <ScrollReveal>
           <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-            {/* ── Progress bar with step numbers ── */}
             <div style={{ marginBottom: 36 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {[1, 2, 3, 4, 5, 6, 7].map((s) => (
