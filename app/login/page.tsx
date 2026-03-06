@@ -71,7 +71,7 @@ export default function LoginPage() {
                   name="email"
                   type="email"
                   required
-                  placeholder="admin@koziol-gates.pl"
+                  placeholder="admin@example.com"
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

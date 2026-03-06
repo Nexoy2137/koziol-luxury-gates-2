@@ -59,7 +59,7 @@ export default async function Image() {
             color: "#71717a",
           }}
         >
-          Producent ekskluzywnych bram · Ozorków · Est. 2009
+          Producent ekskluzywnych bram · Polska · Est. 2009
         </div>
       </div>
     ),

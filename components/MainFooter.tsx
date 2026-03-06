@@ -9,8 +9,8 @@ const footerLinks = [
 ];
 
 const contacts = [
-  { Icon: Phone, text: "+48 602 384 821",    href: "tel:+48602384821" },
-  { Icon: Mail,  text: "biuro@koziol-gates.pl", href: "mailto:biuro@koziol-gates.pl" },
+  { Icon: Phone, text: "+48 500 000 000",    href: "tel:+48500000000" },
+  { Icon: Mail,  text: "kontakt@example.com", href: "mailto:kontakt@example.com" },
 ];
 
 export function MainFooter() {
@@ -52,7 +52,7 @@ export function MainFooter() {
               dla wymagających inwestorów. Od projektu do montażu pod klucz.
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {["Ozorków, Polska", "Realizacje w całej Polsce", "Gwarancja 20 lat"].map((tag) => (
+              {["Showroom w Polsce", "Realizacje w całej Polsce", "Gwarancja 20 lat"].map((tag) => (
                 <span key={tag} style={{
                   padding: "6px 14px", border: "1px solid rgba(39,39,42,0.9)",
                   borderRadius: 999, fontSize: 10, color: "#71717a", display: "inline-block",
@@ -92,7 +92,7 @@ export function MainFooter() {
               ))}
               <div style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13, color: "#71717a" }}>
                 <MapPin size={14} style={{ color: "#D4AF37", flexShrink: 0, marginTop: 2 }} />
-                <span>ul. Adamówek 41<br />95-035 Ozorków</span>
+                <span>ul. Przykładowa 1<br />00-000 Przykładowe Miasto</span>
               </div>
             </div>
           </div>
@@ -101,7 +101,7 @@ export function MainFooter() {
         <div style={{ marginTop: 48, height: 1, background: "linear-gradient(to right, transparent, rgba(63,63,70,0.7), transparent)" }} />
         <div style={{ marginTop: 24, paddingBottom: 8, display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 8, fontSize: 11, color: "#3f3f46", wordBreak: "break-word" }}>
           <span>© 2026 Kozioł Luxury Gates. Wszelkie prawa zastrzeżone.</span>
-          <span>ul. Adamówek 41, 95-035 Ozorków</span>
+          <span>ul. Przykładowa 1, 00-000 Przykładowe Miasto</span>
         </div>
       </div>
     </footer>

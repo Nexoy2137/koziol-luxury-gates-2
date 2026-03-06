@@ -23,7 +23,7 @@ const TICKER = [
   "Cynkowanie ogniowe", "Malowanie proszkowe RAL", "Automatyka FAAC & BFT",
   "Stal S355 JR", "15 lat doświadczenia", "Realizacje w całej Polsce",
   "Od projektu do montażu", "Indywidualny projekt", "Smart Gate",
-  "Profile zamknięte", "Gwarancja 20 lat", "Showroom Ozorków",
+  "Profile zamknięte", "Gwarancja 20 lat", "Showroom w Polsce",
 ];
 
 const FEATURES = [
@@ -36,7 +36,7 @@ const FEATURES = [
 const PROCESS = [
   { num: "01", title: "Konfiguracja online",  desc: "Wybierz typ, materiał i wymiary. Wstępna wycena w 2 minuty.",            href: "/konfigurator", cta: "Otwórz konfigurator" },
   { num: "02", title: "Projekt i detale",     desc: "Dopracowujemy podział przęseł, wypełnienie i kolorystykę do architektury.", href: "/galeria",     cta: "Zobacz realizacje" },
-  { num: "03", title: "Produkcja i montaż",   desc: "Produkcja w Ozorkowie, montaż pod klucz — z automatyką i furtką.",        href: "/kontakt",     cta: "Skontaktuj się" },
+  { num: "03", title: "Produkcja i montaż",   desc: "Produkcja w Polsce, montaż pod klucz — z automatyką i furtką.",        href: "/kontakt",     cta: "Skontaktuj się" },
 ];
 
 const STATS = [
@@ -209,7 +209,7 @@ export default function Home() {
                   transition={{ duration: 0.6 }}
                   className="text-[10px] font-semibold uppercase tracking-[0.6em] text-[#D4AF37]"
                 >
-                  Producent ekskluzywnych bram · Ozorków · Est. 2009
+                  Producent ekskluzywnych bram · Polska · Est. 2009
                 </motion.p>
 
                 <h1 className="font-display text-[clamp(3rem,7vw,6rem)] font-normal italic leading-[1.04] tracking-tight">
@@ -328,7 +328,7 @@ export default function Home() {
 
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                         {[
-                          { label: "Siedziba",      value: "Ozorków" },
+                          { label: "Siedziba",      value: "Przykładowe Miasto" },
                           { label: "Rok założenia", value: "2009" },
                           { label: "Zasięg",        value: "Cała Polska" },
                           { label: "Gwarancja",     value: "20 lat" },
@@ -397,7 +397,7 @@ export default function Home() {
                 </h2>
                 <div className="mt-6 gold-line w-24" />
                 <p className="mt-6 text-[15px] leading-relaxed text-zinc-400">
-                  Realizujemy bramy od pomysłu do montażu. Wszystko we własnym zakładzie w Ozorkowie.
+                  Realizujemy bramy od pomysłu do montażu. Wszystko we własnym zakładzie w Polsce.
                 </p>
                 <div style={{ marginTop: 28 }}>
                   <LuxButton href="/galeria" variant="outline">

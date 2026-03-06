@@ -22,8 +22,8 @@ export default function LokalizacjaPage() {
               Jak do nas dojechać
             </h1>
             <p style={{ fontSize: 15, color: "#a1a1aa", lineHeight: 1.7, maxWidth: 520, marginBottom: 32 }}>
-              Nasz showroom i siedziba mieszczą się w Ozorkowie. Dogodny dojazd
-              z Łodzi, Poznania i Warszawy. Zapraszamy po wcześniejszym umówieniu.
+              Nasz showroom i siedziba mieszczą się w centralnej Polsce. Dogodny dojazd
+              z większych miast w kraju. Zapraszamy po wcześniejszym umówieniu.
             </p>
           </ScrollReveal>
           <ScrollReveal>
@@ -54,8 +54,9 @@ export default function LokalizacjaPage() {
             >
               <iframe
                 className="map-iframe"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3045.2311407336433!2d19.274154776998984!3d51.94780947843452!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x471bb03dc2947b47%3A0x697cd38344b01a89!2sAdam%C3%B3wek%2041%2C%2095-035%20Ozork%C3%B3w!5e1!3m2!1spl!2spl!4v1772035763217!5m2!1spl!2spl"
-                width="100%" height="100%"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d156400.2074432467!2d20.956818039481448!3d52.22970079988876!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x471ecc669a869f01%3A0x72f0be2a88ead3fc!2sWarszawa!5e0!3m2!1spl!2spl!4v1467043161269!5m2!1spl!2spl"
+                width="100%"
+                height="100%"
                 style={{ border: 0, display: "block" }}
                 loading="lazy"
                 allowFullScreen
@@ -76,8 +77,8 @@ export default function LokalizacjaPage() {
               <MapPin size={16} style={{ color: "#D4AF37", flexShrink: 0, marginTop: 2 }} />
               <div style={{ fontSize: 15, color: "#a1a1aa", lineHeight: 1.8 }}>
                 Kozioł Luxury Gates<br />
-                ul. Adamówek 41<br />
-                95-035 Ozorków, Polska
+                ul. Przykładowa 1<br />
+                00-000 Przykładowe Miasto, Polska
               </div>
             </div>
             <p style={{ fontSize: 13, color: "#71717a", lineHeight: 1.7 }}>
@@ -96,7 +97,7 @@ export default function LokalizacjaPage() {
               },
               {
                 Icon: Train, label: "Komunikacją",
-                desc: "Najbliższa stacja kolejowa w Ozorkowie. Możliwy odbiór po wcześniejszym umówieniu spotkania.",
+                desc: "Najbliższa stacja kolejowa w okolicy showroomu. Możliwy odbiór po wcześniejszym umówieniu spotkania.",
                 bullets: [],
               },
             ].map(({ Icon, label, desc, bullets }) => (

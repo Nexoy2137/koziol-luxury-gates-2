@@ -12,16 +12,16 @@ const contactCards = [
   {
     Icon: Phone,
     label: "Telefon",
-    value: "+48 602 384 821",
+    value: "+48 500 000 000",
     sub: "Poniedziałek – Piątek, 9:00 – 18:00",
-    href: "tel:+48602384821",
+    href: "tel:+48500000000",
   },
   {
     Icon: Mail,
     label: "E-mail",
-    value: "biuro@koziol-gates.pl",
+    value: "kontakt@example.com",
     sub: "Odpowiadamy w ciągu 24 godzin roboczych",
-    href: "mailto:biuro@koziol-gates.pl",
+    href: "mailto:kontakt@example.com",
   },
   {
     Icon: Clock,
@@ -147,7 +147,7 @@ export default function KontaktPage() {
 
               <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
                 {[
-                  { Icon: MapPin, label: "Adres", content: "ul. Adamówek 41\n95-035 Ozorków\nPolska" },
+                  { Icon: MapPin, label: "Adres", content: "ul. Przykładowa 1\n00-000 Przykładowe Miasto\nPolska" },
                   { Icon: Clock, label: "Godziny", content: "Poniedziałek – Piątek\n9:00 – 18:00" },
                 ].map(({ Icon, label, content }) => (
                   <div key={label} style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
@@ -262,11 +262,11 @@ export default function KontaktPage() {
 
                     <p style={{ textAlign: "center", fontSize: 11, color: "#52525b" }}>
                       Lub zadzwoń:{" "}
-                      <a href="tel:+48602384821" style={{ color: "#71717a", textDecoration: "none", transition: "color 0.2s" }}
+                      <a href="tel:+48500000000" style={{ color: "#71717a", textDecoration: "none", transition: "color 0.2s" }}
                         onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#D4AF37"; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#71717a"; }}
                       >
-                        +48 602 384 821
+                        +48 500 000 000
                       </a>
                     </p>
                   </form>
