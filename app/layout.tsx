@@ -42,11 +42,20 @@ export const metadata: Metadata = {
       "Indywidualne projekty, najwyższa jakość materiałów i nowoczesny design. Sprawdź nasz konfigurator.",
     type: "website",
     locale: "pl_PL",
+    images: [
+      {
+        url: "/logo.svg",
+        width: 1200,
+        height: 630,
+        alt: "Kozioł Luxury Gates – logo",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Kozioł Luxury Gates | Producent Ekskluzywnych Bram",
     description: "Luksusowe bramy i ogrodzenia. Konfigurator online, wycena w 2 minuty.",
+    images: ["/logo.svg"],
   },
   robots: "index, follow",
   icons: {
