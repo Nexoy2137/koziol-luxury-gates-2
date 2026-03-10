@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     locale: "pl_PL",
     images: [
       {
-        url: "/logo.svg",
+        url: "https://koziol-luxury-gates-2.vercel.app/logo.svg",
         width: 1200,
         height: 630,
         alt: "Kozioł Luxury Gates – logo",
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Kozioł Luxury Gates | Producent Ekskluzywnych Bram",
     description: "Luksusowe bramy i ogrodzenia. Konfigurator online, wycena w 2 minuty.",
-    images: ["/logo.svg"],
+    images: ["https://koziol-luxury-gates-2.vercel.app/logo.svg"],
   },
   robots: "index, follow",
   icons: {
