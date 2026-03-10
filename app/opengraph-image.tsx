@@ -4,6 +4,9 @@ export const alt = "Kozioł Luxury Gates | Logo";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://koziol-gates.pl";
+const logoUrl = new URL("/logo.svg", siteUrl).toString();
+
 export default async function Image() {
   return new ImageResponse(
     (
@@ -17,10 +20,9 @@ export default async function Image() {
           background: "#000000",
         }}
       >
-        {/* Używamy tego samego logo co na stronie głównej */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/logo.svg"
+          src={logoUrl}
           alt="Kozioł Luxury Gates logo"
           width={600}
           height={600}
